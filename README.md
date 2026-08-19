@@ -8,6 +8,7 @@
 [![Платформа](https://img.shields.io/badge/платформа-Windows-orange)]()
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-24.10%2B-green)]()
 [![Лицензия](https://img.shields.io/badge/лицензия-MIT-lightgrey)]()
+[![GitHub stars](https://img.shields.io/github/stars/R3G1ST/RouterMaster)](https://github.com/R3G1ST/RouterMaster/stargazers)
 
 **Одна кнопка — полностью настроенный роутер: обход блокировок, темы LuCI, Wi-Fi, прокси и русский язык.**
 <p align="center">
