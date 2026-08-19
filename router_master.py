@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.2.1"
+APP_VERSION = "1.2.2"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -581,6 +581,12 @@ class RouterToolApp:
                 return
         self.show_message("Обновление", "Установщик не найден в релизе.")
 
+    def _unblock_file(self, path):
+        try:
+            return bool(ctypes.windll.kernel32.DeleteFileW(path + ":Zone.Identifier"))
+        except Exception:
+            return False
+
     def _download_and_install(self, url, name):
         def work():
             try:
@@ -589,6 +595,8 @@ class RouterToolApp:
                 with urllib.request.urlopen(req, timeout=180) as r, open(tmp, "wb") as f:
                     shutil.copyfileobj(r, f)
                 self.log("Обновление скачано: %s" % tmp)
+                self.log("Снимаю блокировку SmartScreen (Mark of the Web)...")
+                self._unblock_file(tmp)
                 self.log("Запускаю установщик...")
                 os.startfile(tmp)
 
