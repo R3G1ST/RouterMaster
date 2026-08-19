@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.2.9"
+APP_VERSION = "1.3.0"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -612,21 +612,15 @@ class RouterToolApp:
                 self.log("Снимаю блокировку SmartScreen (Mark of the Web)...")
                 self._unblock_file(tmp)
                 self.log("Запускаю тихую установку (без окон)...")
-                bat = os.path.join(tempfile.gettempdir(), "rm_update.bat")
-                with open(bat, "w", encoding="cp866") as f:
-                    f.write(
-                        "@echo off\r\n"
-                        "ping -n 2 127.0.0.1 >nul\r\n"
-                        "taskkill /F /IM RouterMaster.exe /T 2>nul\r\n"
-                        "taskkill /F /IM RouterMasterAdmin.exe /T 2>nul\r\n"
-                        "ping -n 1 127.0.0.1 >nul\r\n"
-                        'start "" /wait "%s" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-\r\n'
-                        'start "" explorer.exe "%s"\r\n'
-                        % (tmp, self._installed_exe()))
-                subprocess.Popen(["cmd", "/c", bat],
+                upd_src = os.path.join(
+                    getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))),
+                    "assets", "rm_updater.exe")
+                upd_tmp = os.path.join(tempfile.gettempdir(), "rm_updater.exe")
+                shutil.copyfile(upd_src, upd_tmp)
+                subprocess.Popen([upd_tmp, tmp, self._installed_exe()],
                                  creationflags=subprocess.CREATE_NO_WINDOW)
                 self.log("Программа закроется и перезапустится автоматически.")
-                self.root.after(2000, self._close_for_update)
+                self.root.after(1000, self._close_for_update)
             except Exception as e:
                 self.root.after(0, lambda: self.show_message(
                     "Ошибка", "Не удалось скачать обновление:\n%s" % e))
@@ -634,11 +628,6 @@ class RouterToolApp:
         threading.Thread(target=work, daemon=True).start()
 
     def _close_for_update(self):
-        try:
-            subprocess.run("taskkill /F /IM %s /T" % os.path.basename(sys.executable),
-                           shell=True, capture_output=True)
-        except Exception:
-            pass
         try:
             self.root.destroy()
         except Exception:
