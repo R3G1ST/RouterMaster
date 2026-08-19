@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.2.7"
+APP_VERSION = "1.2.8"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -290,13 +290,14 @@ class RouterToolApp:
         style.configure("TFrame", background=bg)
         style.configure("TLabelframe", background=bg, foreground=fg, bordercolor=panel, borderwidth=1)
         style.configure("TLabelframe.Label", background=bg, foreground=fg)
-        style.configure("TButton", background=panel, foreground=fg, bordercolor=panel,
-                        borderwidth=1, padding=(14, 7), focuscolor=panel)
-        style.map("TButton", background=[("active", field), ("pressed", field)],
+        style.configure("TButton", background=field, foreground=fg, bordercolor=panel,
+                        borderwidth=1, padding=(8, 4), focuscolor=panel)
+        style.map("TButton", background=[("active", accent if dark else "#d8e0f0"),
+                                         ("pressed", accent)],
                   bordercolor=[("active", accent)],
                   foreground=[("disabled", "#9aa0a6" if dark else "#a0a4b0")])
         style.configure("Accent.TButton", background=accent, foreground=bg,
-                        font=("Segoe UI", 9, "bold"), padding=(20, 8), borderwidth=0)
+                        font=("Segoe UI", 9, "bold"), padding=(10, 5), borderwidth=0)
         style.map("Accent.TButton", background=[("active", accent_active)])
         style.configure("TEntry", fieldbackground=field, foreground=fg,
                         bordercolor=panel, borderwidth=1, insertcolor=fg, padding=(6, 4))
@@ -611,32 +612,48 @@ class RouterToolApp:
                 self.log("Снимаю блокировку SmartScreen (Mark of the Web)...")
                 self._unblock_file(tmp)
                 self.log("Запускаю тихую установку (без окон)...")
-                try:
-                    ctypes.windll.shell32.ShellExecuteW(
-                        None, "open", tmp,
-                        "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-",
-                        None, 1)
-                except Exception:
-                    os.startfile(tmp)
-
-                def kill_old():
-                    try:
-                        for exe in ("RouterMaster.exe", "RouterMasterAdmin.exe"):
-                            subprocess.run("taskkill /F /IM %s /T" % exe,
-                                           shell=True, capture_output=True)
-                    except Exception:
-                        pass
-                    try:
-                        self.root.destroy()
-                    except Exception:
-                        pass
-
-                self.root.after(4000, kill_old)
+                bat = os.path.join(tempfile.gettempdir(), "rm_update.bat")
+                with open(bat, "w", encoding="cp866") as f:
+                    f.write(
+                        "@echo off\r\n"
+                        "ping -n 2 127.0.0.1 >nul\r\n"
+                        "taskkill /F /IM RouterMaster.exe /T 2>nul\r\n"
+                        "taskkill /F /IM RouterMasterAdmin.exe /T 2>nul\r\n"
+                        "ping -n 1 127.0.0.1 >nul\r\n"
+                        'start "" /wait "%s" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-\r\n'
+                        'start "" explorer.exe "%s"\r\n'
+                        % (tmp, self._installed_exe()))
+                subprocess.Popen(["cmd", "/c", bat],
+                                 creationflags=subprocess.CREATE_NO_WINDOW)
+                self.log("Программа закроется и перезапустится автоматически.")
+                self.root.after(2000, self._close_for_update)
             except Exception as e:
                 self.root.after(0, lambda: self.show_message(
                     "Ошибка", "Не удалось скачать обновление:\n%s" % e))
         self.log("Скачивание обновления...")
         threading.Thread(target=work, daemon=True).start()
+
+    def _close_for_update(self):
+        try:
+            subprocess.run("taskkill /F /IM %s /T" % os.path.basename(sys.executable),
+                           shell=True, capture_output=True)
+        except Exception:
+            pass
+        try:
+            self.root.destroy()
+        except Exception:
+            pass
+
+    def _installed_exe(self):
+        try:
+            import winreg
+            k = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                               "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"
+                               "{8E7F2B1C-9A3D-4F5E-8B2A-0C1D2E3F4A5B}_is1")
+            loc = winreg.QueryValueEx(k, "InstallLocation")[0]
+            return os.path.join(loc, "RouterMaster.exe")
+        except Exception:
+            return os.path.join(APP_DIR, "RouterMaster.exe")
 
     # ---------- Конфиг ----------
     def load_config(self):

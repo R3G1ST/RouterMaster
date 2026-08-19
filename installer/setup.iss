@@ -1,7 +1,7 @@
 [Setup]
 AppId={{8E7F2B1C-9A3D-4F5E-8B2A-0C1D2E3F4A5B}
 AppName=RouterMaster
-AppVersion=1.0.0
+AppVersion=1.2.8
 AppPublisher=RouterMaster
 DefaultDirName={autopf}\RouterMaster
 DefaultGroupName=RouterMaster
@@ -30,9 +30,6 @@ Source: "C:\Users\R3G1S\OneDrive\Документы\Default Project\dist\RouterM
 [Icons]
 Name: "{autoprograms}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFilename: "{app}\RouterMaster.exe"
 Name: "{autodesktop}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFilename: "{app}\RouterMaster.exe"; Tasks: desktopicon
-
-[Run]
-Filename: "{app}\RouterMaster.exe"; Description: "Запустить RouterMaster"; Flags: nowait postinstall
 
 [UninstallDelete]
 Type: files; Name: "{app}\router_tool_config.json"
