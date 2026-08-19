@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.2.6"
+APP_VERSION = "1.2.7"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -288,23 +288,25 @@ class RouterToolApp:
                         font=("Segoe UI", 9))
         style.configure("TLabel", background=bg, foreground=fg)
         style.configure("TFrame", background=bg)
-        style.configure("TLabelframe", background=bg, foreground=fg, bordercolor=panel)
+        style.configure("TLabelframe", background=bg, foreground=fg, bordercolor=panel, borderwidth=1)
         style.configure("TLabelframe.Label", background=bg, foreground=fg)
         style.configure("TButton", background=panel, foreground=fg, bordercolor=panel,
-                        padding=(8, 4), focuscolor=panel)
+                        borderwidth=1, padding=(14, 7), focuscolor=panel)
         style.map("TButton", background=[("active", field), ("pressed", field)],
+                  bordercolor=[("active", accent)],
                   foreground=[("disabled", "#9aa0a6" if dark else "#a0a4b0")])
         style.configure("Accent.TButton", background=accent, foreground=bg,
-                        font=("Segoe UI", 9, "bold"), padding=(10, 5))
+                        font=("Segoe UI", 9, "bold"), padding=(20, 8), borderwidth=0)
         style.map("Accent.TButton", background=[("active", accent_active)])
         style.configure("TEntry", fieldbackground=field, foreground=fg,
-                        bordercolor=panel, insertcolor=fg, padding=3)
+                        bordercolor=panel, borderwidth=1, insertcolor=fg, padding=(6, 4))
         style.map("TEntry", bordercolor=[("focus", accent)])
         style.configure("TCombobox", fieldbackground=field, background=panel,
-                        foreground=fg, bordercolor=panel, arrowcolor=fg, padding=3)
+                        foreground=fg, bordercolor=panel, borderwidth=1,
+                        arrowcolor=fg, padding=(6, 4))
         style.map("TCombobox", fieldbackground=[("readonly", field)],
                   foreground=[("readonly", fg)], bordercolor=[("focus", accent)])
-        style.configure("TCheckbutton", background=bg, foreground=fg)
+        style.configure("TCheckbutton", background=bg, foreground=fg, padding=(4, 3))
         style.map("TCheckbutton", background=[("active", bg)], foreground=[("active", fg)])
         style.configure("Vertical.TScrollbar", background=panel, troughcolor=bg,
                         bordercolor=bg, arrowcolor=fg)
