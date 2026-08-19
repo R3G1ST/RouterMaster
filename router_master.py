@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.2.0"
+APP_VERSION = "1.2.1"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -90,8 +90,8 @@ class RouterToolApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Роутер Мастер — OpenWrt")
-        self.root.geometry("760x640")
-        self.root.minsize(680, 560)
+        self.root.geometry("900x660")
+        self.root.resizable(False, False)
         self.config = self.load_config()
 
         self.is_dark = self.config.get("gui_theme", DEFAULTS["gui_theme"]) == "dark"
