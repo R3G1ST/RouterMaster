@@ -19,8 +19,12 @@ APP_VERSION = "1.0.0"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, "frozen", False):
+    APP_DIR = os.path.dirname(sys.executable)
+else:
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(APP_DIR, "router_tool_config.json")
+DOWNLOAD_DIR = os.path.join(APP_DIR, "downloads")
 
 THEMES = {
     "Argon": {
@@ -66,6 +70,7 @@ DEFAULTS = {
     "wifi_enc_5g": "WPA3 (SAE)",
     "wifi_enc_2g": "WPA2 (PSK)",
     "proxy_string": "",
+    "gui_theme": "light",
     "steps": {
         "update_packages": True,
         "install_podkop": True,
@@ -88,7 +93,9 @@ class RouterToolApp:
         self.root.minsize(680, 560)
         self.config = self.load_config()
 
-        self.apply_dark_theme(root)
+        self.is_dark = self.config.get("gui_theme", DEFAULTS["gui_theme"]) == "dark"
+        self.var_gui_dark = tk.BooleanVar(value=self.is_dark)
+        self.apply_theme(root, self.is_dark)
         self.set_app_icon(root)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -123,6 +130,9 @@ class RouterToolApp:
         conn.columnconfigure(4, weight=1)
         ttk.Button(conn, text="Проверить обновление", command=self.check_update).grid(
             row=0, column=5, rowspan=2, sticky="e", padx=6, pady=3)
+        ttk.Checkbutton(conn, text="Тёмная тема", variable=self.var_gui_dark,
+                        command=self.toggle_gui_theme).grid(
+            row=0, column=6, rowspan=2, sticky="e", padx=(0, 6))
 
         # ============ Что делать ============
         steps = ttk.LabelFrame(main, text="Что выполнить (можно выбрать несколько)", padding=8)
@@ -205,8 +215,6 @@ class RouterToolApp:
         self.add_context_menu(e_chan2)
         ttk.Label(params, text="Прокси (vless:// или подписка):").grid(row=2, column=0, sticky="e", padx=6, pady=3)
         self.proxy_text = tk.Text(params, width=38, height=2, wrap="word",
-                                  bg="#45475a", fg="#cdd6f4", insertbackground="#cdd6f4",
-                                  selectbackground="#89b4fa", selectforeground="#1e1e2e",
                                   relief="flat", borderwidth=2)
         self.proxy_text.grid(row=2, column=1, columnspan=5, sticky="we", padx=6, pady=3)
         self.proxy_text.insert("1.0", self.config.get("proxy_string", DEFAULTS["proxy_string"]))
@@ -229,28 +237,29 @@ class RouterToolApp:
         log_frame.pack(fill="both", expand=True)
 
         self.log_text = tk.Text(log_frame, height=12, wrap="word", state="disabled",
-                                bg="#181825", fg="#a6adc8", insertbackground="#a6adc8",
-                                selectbackground="#89b4fa", selectforeground="#1e1e2e",
                                 relief="flat", borderwidth=2, font=("Consolas", 9))
         self.log_text.pack(side="left", fill="both", expand=True)
         scroll = ttk.Scrollbar(log_frame, command=self.log_text.yview)
         scroll.pack(side="right", fill="y")
         self.log_text.config(yscrollcommand=scroll.set)
+        self._apply_text_colors()
 
         self.add_context_menu(self.log_text)
 
         self.log("Готово. Заполните настройки и нажмите «Выполнить всё».")
 
-    def apply_dark_theme(self, root):
-        bg = "#1e1e2e"
-        panel = "#313244"
-        field = "#45475a"
-        fg = "#cdd6f4"
-        accent = "#89b4fa"
-        accent_active = "#a6c8ff"
+    def apply_theme(self, root, dark):
+        if dark:
+            bg, panel, field = "#1e1e2e", "#313244", "#45475a"
+            fg, accent, accent_active = "#cdd6f4", "#89b4fa", "#a6c8ff"
+            titlebar_dark = True
+        else:
+            bg, panel, field = "#f2f3f5", "#e4e5ea", "#ffffff"
+            fg, accent, accent_active = "#1e1e2e", "#2f6fdf", "#4a84e8"
+            titlebar_dark = False
 
         root.configure(bg=bg)
-        root.after(100, self.set_dark_titlebar)
+        root.after(100, lambda: self.set_dark_titlebar(titlebar_dark))
 
         style = ttk.Style(root)
         try:
@@ -269,7 +278,7 @@ class RouterToolApp:
         style.configure("TButton", background=panel, foreground=fg, bordercolor=panel,
                         padding=(8, 4), focuscolor=panel)
         style.map("TButton", background=[("active", field), ("pressed", field)],
-                  foreground=[("disabled", "#6c7086")])
+                  foreground=[("disabled", "#9aa0a6" if dark else "#a0a4b0")])
         style.configure("Accent.TButton", background=accent, foreground=bg,
                         font=("Segoe UI", 9, "bold"), padding=(10, 5))
         style.map("Accent.TButton", background=[("active", accent_active)])
@@ -295,14 +304,31 @@ class RouterToolApp:
         root.option_add("*Menu.foreground", fg)
         root.option_add("*Menu.activeBackground", accent)
         root.option_add("*Menu.activeForeground", bg)
+        if hasattr(self, "log_text") and hasattr(self, "proxy_text"):
+            self._apply_text_colors()
 
-    def set_dark_titlebar(self):
+    def _apply_text_colors(self):
+        if self.is_dark:
+            log_bg, log_fg = "#181825", "#a6adc8"
+            field_bg, field_fg = "#45475a", "#cdd6f4"
+        else:
+            log_bg, log_fg = "#f6f8fa", "#24292f"
+            field_bg, field_fg = "#ffffff", "#1e1e2e"
+        self.log_text.configure(bg=log_bg, fg=log_fg, insertbackground=log_fg)
+        self.proxy_text.configure(bg=field_bg, fg=field_fg, insertbackground=field_fg)
+
+    def toggle_gui_theme(self):
+        self.is_dark = bool(self.var_gui_dark.get())
+        self.config["gui_theme"] = "dark" if self.is_dark else "light"
+        self.apply_theme(self.root, self.is_dark)
+
+    def set_dark_titlebar(self, dark):
         try:
             hwnd = self.root.winfo_id()
             parent = ctypes.windll.user32.GetParent(hwnd)
             if parent:
                 hwnd = parent
-            value = ctypes.c_int(1)
+            value = ctypes.c_int(1 if dark else 0)
             for attr in (20, 19):
                 try:
                     ctypes.windll.dwmapi.DwmSetWindowAttribute(
@@ -436,6 +462,7 @@ class RouterToolApp:
             "wifi_enc_2g": self.var_enc_2g.get(),
             "proxy_string": self.proxy_text.get("1.0", "end-1c").strip(),
             "theme": self.var_theme.get(),
+            "gui_theme": "dark" if self.var_gui_dark.get() else "light",
             "steps": {
                 "update_packages": self.var_update.get(),
                 "install_podkop": self.var_podkop.get(),
@@ -665,9 +692,13 @@ class RouterToolApp:
 
     def install_theme_file(self, client, theme):
         self.log("%s: скачивание apk на ПК..." % theme["pkg"])
-        local = os.path.join(tempfile.gettempdir(), theme["pkg"] + ".apk")
+        try:
+            os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+        except Exception:
+            pass
+        local = os.path.join(DOWNLOAD_DIR, theme["pkg"] + ".apk")
         urllib.request.urlretrieve(theme["url"], local)
-        self.log("  скачано: %s байт" % os.path.getsize(local))
+        self.log("  скачано: %s байт (папка программы: %s)" % (os.path.getsize(local), DOWNLOAD_DIR))
         self.ssh_exec(client, "apk add openssh-sftp-server", timeout=300)
         self.ssh_upload(client, local, "/tmp/theme.apk")
         self.ssh_exec(client, "apk add --allow-untrusted /tmp/theme.apk", timeout=300)
