@@ -131,8 +131,6 @@ Podkop и Zapret можно полностью удалить с роутера 
 pip install -r requirements.txt pyinstaller
 pyinstaller --onefile --windowed --icon assets/icon.ico ^
             --add-data "assets;assets" router_master.py
-pyinstaller --onefile --windowed --icon assets/icon.ico ^
-            --add-data "assets;assets" router_master_admin.py
 ```
 
 ### Updater (C# .NET Framework)
@@ -155,7 +153,6 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /optimize
 ```
 RouterMaster/
 ├── router_master.py          # Основная программа
-├── router_master_admin.py    # Версия для администратора
 ├── assets/
 │   ├── icon.ico              # Иконка программы
 │   └── rm_updater.exe        # Updater для тихой установки обновлений
