@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.3.3"
+APP_VERSION = "1.3.4"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -360,6 +360,7 @@ class RouterToolApp:
         x = self.root.winfo_rootx() + (self.root.winfo_width() - win.winfo_reqwidth()) // 2
         y = self.root.winfo_rooty() + (self.root.winfo_height() - win.winfo_reqheight()) // 3
         win.geometry("+%d+%d" % (max(x, 0), max(y, 0)))
+        win.after(100, lambda: self.set_dark_titlebar(self.is_dark, win))
         return win
 
     def show_message(self, title, message):
@@ -499,9 +500,11 @@ class RouterToolApp:
             self.stop_progress()
             self.log("Удаление завершено.")
 
-    def set_dark_titlebar(self, dark):
+    def set_dark_titlebar(self, dark, win=None):
         try:
-            hwnd = self.root.winfo_id()
+            if win is None:
+                win = self.root
+            hwnd = win.winfo_id()
             parent = ctypes.windll.user32.GetParent(hwnd)
             if parent:
                 hwnd = parent
