@@ -4,7 +4,7 @@
 
 **Умный помощник по настройке роутеров на OpenWrt**
 
-[![Версия](https://img.shields.io/badge/версия-1.3.7-blue)]()
+[![Версия](https://img.shields.io/badge/версия-1.3.8-blue)]()
 [![Платформа](https://img.shields.io/badge/платформа-Windows-orange)]()
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-24.10%2B-green)]()
 [![Лицензия](https://img.shields.io/badge/лицензия-MIT-lightgrey)]()
