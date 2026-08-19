@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.3.6"
+APP_VERSION = "1.3.7"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -384,6 +384,8 @@ class RouterToolApp:
         win.update_idletasks()
         x = self.root.winfo_rootx() + (self.root.winfo_width() - win.winfo_reqwidth()) // 2
         y = self.root.winfo_rooty() + (self.root.winfo_height() - win.winfo_reqheight()) // 3
+        win.geometry("+%d+%d" % (max(x, 0), max(y, 0)))
+        win.update()
         win.geometry("+%d+%d" % (max(x, 0), max(y, 0)))
         win.lift()
         win.focus_force()
