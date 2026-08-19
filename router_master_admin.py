@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.1"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -278,9 +278,12 @@ class RouterToolApp:
 
         style = ttk.Style(root)
         try:
-            style.theme_use("clam")
+            style.theme_use("equilux" if dark else "arc")
         except tk.TclError:
-            pass
+            try:
+                style.theme_use("clam")
+            except tk.TclError:
+                pass
 
         style.configure(".", background=bg, foreground=fg, fieldbackground=field,
                         bordercolor=panel, lightcolor=panel, darkcolor=panel,
@@ -290,14 +293,13 @@ class RouterToolApp:
         style.configure("TFrame", background=bg)
         style.configure("TLabelframe", background=bg, foreground=fg, bordercolor=panel, borderwidth=1)
         style.configure("TLabelframe.Label", background=bg, foreground=fg)
-        style.configure("TButton", background=field, foreground=fg, bordercolor=panel,
-                        borderwidth=1, padding=(4, 2), focuscolor=panel)
+        style.configure("TButton", background=field, foreground=fg, bordercolor=panel)
         style.map("TButton", background=[("active", accent if dark else "#d8e0f0"),
                                          ("pressed", accent)],
                   bordercolor=[("active", accent)],
                   foreground=[("disabled", "#9aa0a6" if dark else "#a0a4b0")])
         style.configure("Accent.TButton", background=accent, foreground=bg,
-                        font=("Segoe UI", 9, "bold"), padding=(6, 3), borderwidth=0)
+                        font=("Segoe UI", 9, "bold"))
         style.map("Accent.TButton", background=[("active", accent_active)])
         style.configure("TEntry", fieldbackground=field, foreground=fg,
                         bordercolor=panel, borderwidth=1, insertcolor=fg, padding=(6, 4))
