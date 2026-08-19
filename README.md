@@ -1,7 +1,7 @@
 <div align="center">
 
 # 📡 RouterMaster
-  https://routermaster.ru
+
 **Умный помощник по настройке роутеров на OpenWrt**
 
 [![Версия](https://img.shields.io/badge/версия-1.4.0-blue)]()
