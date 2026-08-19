@@ -11,7 +11,12 @@
 [![Сайт](https://img.shields.io/badge/🌐_Сайт-routermaster.ru-blue?style=flat-square&logo=githubpages)](https://routermaster.ru)
 
 **Одна кнопка — полностью настроенный роутер: обход блокировок, темы LuCI, Wi-Fi, прокси и русский язык.**
-                             
+<p align="center">
+  <a href="https://routermaster.ru">
+    <img src="https://img.shields.io/badge/🌐_Перейти_на_сайт-routermaster.ru-2ea44f?style=for-the-badge&logo=githubpages" alt="Сайт">
+  </a>
+</p>
+
 </div>
 
 ---
