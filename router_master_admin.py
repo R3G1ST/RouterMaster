@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.2.3"
+APP_VERSION = "1.2.4"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -597,22 +597,26 @@ class RouterToolApp:
                 self.log("Обновление скачано: %s" % tmp)
                 self.log("Снимаю блокировку SmartScreen (Mark of the Web)...")
                 self._unblock_file(tmp)
-                self.log("Запускаю установщик...")
-                os.startfile(tmp)
-
-                def kill_old():
-                    try:
-                        for exe in ("RouterMaster.exe", "RouterMasterAdmin.exe"):
-                            subprocess.run("taskkill /F /IM %s /T" % exe,
-                                           shell=True, capture_output=True)
-                    except Exception:
-                        pass
-                    try:
-                        self.root.destroy()
-                    except Exception:
-                        pass
-
-                self.root.after(2000, kill_old)
+                self.log("Запускаю тихую установку (без окон)...")
+                bat = os.path.join(tempfile.gettempdir(), "rm_update.bat")
+                with open(bat, "w", encoding="utf-8") as f:
+                    f.write(
+                        '@echo off\r\n'
+                        'timeout /t 2 /nobreak >nul\r\n'
+                        'taskkill /F /IM RouterMaster.exe /T >nul 2>&1\r\n'
+                        'taskkill /F /IM RouterMasterAdmin.exe /T >nul 2>&1\r\n'
+                        'start "" "%s" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-\r\n'
+                        'timeout /t 30 /nobreak >nul\r\n'
+                        'if exist "%%LOCALAPPDATA%%\\Programs\\RouterMaster\\RouterMaster.exe" (\r\n'
+                        '  start "" "%%LOCALAPPDATA%%\\Programs\\RouterMaster\\RouterMaster.exe"\r\n'
+                        ') else (\r\n'
+                        '  if exist "%%ProgramFiles%%\\RouterMaster\\RouterMaster.exe" (\r\n'
+                        '    start "" "%%ProgramFiles%%\\RouterMaster\\RouterMaster.exe"\r\n'
+                        '  )\r\n'
+                        ')\r\n' % tmp)
+                subprocess.Popen(["cmd", "/c", bat],
+                                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                self.root.after(1000, self.root.destroy)
             except Exception as e:
                 self.root.after(0, lambda: self.show_message(
                     "Ошибка", "Не удалось скачать обновление:\n%s" % e))
