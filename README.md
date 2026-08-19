@@ -10,7 +10,7 @@
 [![Лицензия](https://img.shields.io/badge/лицензия-MIT-lightgrey)]()
 
 **Одна кнопка — полностью настроенный роутер: обход блокировок, темы LuCI, Wi-Fi, прокси и русский язык.**
-
+                            https://r3g1st.github.io/RouterMaster/
 </div>
 
 ---
