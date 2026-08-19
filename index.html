@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RouterMaster — настройка роутера одной кнопкой</title>
+<meta name="description" content="RouterMaster — бесплатная программа для Windows: сбросит роутер на OpenWrt, установит обход блокировок (Podkop, Zapret), настроит Wi-Fi, тему и русский язык. Всё за 3–4 минуты.">
+<meta property="og:title" content="RouterMaster — настройка роутера одной кнопкой">
+<meta property="og:description" content="Сброс, обход блокировок, Wi-Fi, тема и русский язык — всё за одну кнопку. Бесплатно для Windows.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://r3g1st.github.io/RouterMaster/">
+<meta property="og:image" content="https://r3g1st.github.io/RouterMaster/screenshots/light.png">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<style>
+  :root {
+    --bg: #05070d;
+    --bg2: #0a0f1c;
+    --card: rgba(255,255,255,.045);
+    --card-border: rgba(255,255,255,.09);
+    --text: #e8ecf4;
+    --muted: #97a3b8;
+    --accent1: #6366f1;
+    --accent2: #22d3ee;
+    --glow: rgba(99,102,241,.45);
+    --radius: 18px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Segoe UI", "Inter", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  ::selection { background: rgba(99,102,241,.4); }
+
+  /* ── фон ── */
+  .bg-fx {
+    position: fixed; inset: 0; z-index: -2;
+    background:
+      radial-gradient(900px 500px at 15% -10%, rgba(99,102,241,.22), transparent 60%),
+      radial-gradient(800px 500px at 85% 0%, rgba(34,211,238,.14), transparent 55%),
+      radial-gradient(1000px 700px at 50% 110%, rgba(99,102,241,.12), transparent 60%),
+      var(--bg);
+  }
+  .bg-grid {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
+  }
+  .blob {
+    position: fixed; z-index: -1; border-radius: 50%; filter: blur(90px); opacity: .5;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .blob-1 { width: 420px; height: 420px; background: var(--accent1); top: -120px; left: -120px; }
+  .blob-2 { width: 380px; height: 380px; background: var(--accent2); top: 30%; right: -160px; animation-delay: -6s; opacity: .32; }
+  @keyframes drift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(40px, 50px) scale(1.12); }
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── шапка ── */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    background: rgba(5,7,13,.72);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s;
+  }
+  header.scrolled { border-color: var(--card-border); }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  .brand span { background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .nav-links { display: flex; gap: 26px; align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 14.5px; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    padding: 12px 26px; border-radius: 12px; font-size: 15.5px; font-weight: 600;
+    text-decoration: none; cursor: pointer; border: none; transition: transform .15s, box-shadow .2s, background .2s;
+  }
+  .btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent1), #8b5cf6 55%, var(--accent2));
+    background-size: 160% 160%;
+    animation: grad 6s ease infinite;
+    box-shadow: 0 8px 30px var(--glow), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  @keyframes grad { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px var(--glow); }
+  .btn-ghost {
+    color: var(--text); background: rgba(255,255,255,.06);
+    border: 1px solid var(--card-border);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
+  .btn-sm { padding: 9px 18px; font-size: 14px; }
+
+  /* ── hero ── */
+  .hero { text-align: center; padding: 96px 0 60px; position: relative; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 600;
+    color: #c7d2fe; background: rgba(99,102,241,.14);
+    border: 1px solid rgba(99,102,241,.35); margin-bottom: 26px;
+  }
+  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #34d399;
+    box-shadow: 0 0 8px #34d399; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+  .hero h1 {
+    font-size: clamp(38px, 6.4vw, 66px); line-height: 1.12; font-weight: 800;
+    letter-spacing: -.02em; max-width: 900px; margin: 0 auto 22px;
+  }
+  .grad-text {
+    background: linear-gradient(100deg, #a5b4fc, var(--accent2) 60%, #67e8f9);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p.sub { font-size: clamp(16px, 2.2vw, 19.5px); color: var(--muted); max-width: 720px; margin: 0 auto 38px; }
+  .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .hero-note { margin-top: 20px; font-size: 13.5px; color: var(--muted); }
+  .hero-note b { color: #c9d4e8; font-weight: 600; }
+  .hero-mock {
+    margin: 70px auto 0; max-width: 920px; position: relative;
+  }
+  .window {
+    border: 1px solid var(--card-border); border-radius: var(--radius);
+    background: rgba(13,18,32,.85); backdrop-filter: blur(8px);
+    box-shadow: 0 30px 80px rgba(0,0,0,.5);
+    overflow: hidden; text-align: left;
+  }
+  .win-bar { display: flex; align-items: center; gap: 8px; padding: 13px 18px;
+    border-bottom: 1px solid var(--card-border); background: rgba(255,255,255,.03); }
+  .win-bar .dots { display: flex; gap: 7px; }
+  .win-bar .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .win-bar .dots i:nth-child(1) { background: #f87171; }
+  .win-bar .dots i:nth-child(2) { background: #fbbf24; }
+  .win-bar .dots i:nth-child(3) { background: #34d399; }
+  .win-bar .title { margin-left: 12px; font-size: 13px; color: var(--muted); }
+  .win-body { display: grid; grid-template-columns: 260px 1fr; min-height: 330px; }
+  .win-side { padding: 20px 16px; border-right: 1px solid var(--card-border); font-size: 13px; }
+  .win-side .s-title { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 12px; }
+  .win-side .row { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px;
+    border-radius: 9px; background: rgba(255,255,255,.04); margin-bottom: 8px; }
+  .win-side .row b { font-weight: 600; font-size: 12.5px; }
+  .win-side .row span { color: var(--muted); font-size: 12px; }
+  .win-main { padding: 22px; }
+  .w-check { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--card-border); margin-bottom: 9px; font-size: 13.5px; }
+  .w-check i { width: 16px; height: 16px; border-radius: 5px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-style: normal; }
+  .w-check.off i { background: rgba(255,255,255,.1); }
+  .w-check.off { opacity: .55; }
+  .w-btn { margin-top: 16px; display: inline-flex; padding: 11px 26px; border-radius: 10px; font-weight: 700; font-size: 14px;
+    color: #fff; background: linear-gradient(135deg, var(--accent1), #8b5cf6); box-shadow: 0 8px 26px var(--glow); }
+  .w-log { margin-top: 18px; background: rgba(0,0,0,.35); border: 1px solid var(--card-border);
+    border-radius: 10px; padding: 12px 14px; font-family: Consolas, monospace; font-size: 12px; color: #7dd3fc; line-height: 1.9; }
+  .w-log .ok { color: #6ee7b7; }
+  .w-log .dim { color: var(--muted); }
+
+  /* ── секции ── */
+  section { padding: 88px 0; }
+  .sec-head { text-align: center; max-width: 700px; margin: 0 auto 54px; }
+  .sec-tag { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 12px; }
+  .sec-head h2 { font-size: clamp(27px, 4vw, 40px); font-weight: 800; letter-spacing: -.01em; margin-bottom: 14px; }
+  .sec-head p { color: var(--muted); font-size: 16.5px; }
+
+  /* фичи */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: 26px 24px; transition: transform .2s, border-color .2s, background .2s;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px; opacity: 0; transition: opacity .25s;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  }
+  .card:hover { transform: translateY(-4px); border-color: rgba(99,102,241,.4); background: rgba(255,255,255,.06); }
+  .card:hover::before { opacity: 1; }
+  .card .ico {
+    width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(99,102,241,.22), rgba(34,211,238,.16));
+    border: 1px solid rgba(99,102,241,.35); margin-bottom: 16px; color: #a5b4fc;
+  }
+  .card .ico svg { width: 24px; height: 24px; }
+  .card h3 { font-size: 17.5px; margin-bottom: 8px; }
+  .card p { color: var(--muted); font-size: 14.5px; }
+
+  /* шаги */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; counter-reset: step; }
+  .step { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: 30px 26px; position: relative; transition: transform .2s, border-color .2s; }
+  .step:hover { transform: translateY(-4px); border-color: rgba(34,211,238,.35); }
+  .step .num {
+    width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; color: #fff; margin-bottom: 18px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2)); box-shadow: 0 8px 24px var(--glow);
+  }
+  .step h3 { font-size: 17.5px; margin-bottom: 8px; }
+  .step p { color: var(--muted); font-size: 14.5px; }
+
+  /* скриншоты */
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .shot { border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden;
+    background: var(--card); transition: transform .25s, border-color .25s; }
+  .shot:hover { transform: translateY(-4px); border-color: rgba(99,102,241,.4); }
+  .shot img { width: 100%; display: block; }
+  .shot .cap { padding: 14px 18px; font-size: 13.5px; color: var(--muted); display: flex; align-items: center; gap: 9px; }
+  .shot .cap b { color: var(--text); font-weight: 600; }
+
+  /* установка */
+  .install { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .inst-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 28px 24px; text-align: center; }
+  .inst-card .n { font-size: 34px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; }
+  .inst-card h3 { font-size: 16px; margin: 12px 0 8px; }
+  .inst-card p { color: var(--muted); font-size: 14px; }
+
+  .req { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 34px; }
+  .req .pill { padding: 10px 20px; border-radius: 999px; background: rgba(255,255,255,.05);
+    border: 1px solid var(--card-border); font-size: 14px; color: #c9d4e8; }
+  .req .pill b { color: #fff; }
+
+  /* FAQ */
+  .faq { max-width: 780px; margin: 0 auto; }
+  details { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px;
+    margin-bottom: 12px; overflow: hidden; transition: border-color .2s; }
+  details[open] { border-color: rgba(99,102,241,.4); }
+  summary { padding: 18px 22px; font-size: 15.5px; font-weight: 600; cursor: pointer; list-style: none;
+    display: flex; justify-content: space-between; align-items: center; gap: 14px; user-select: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-size: 22px; font-weight: 400; color: var(--accent2); transition: transform .2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details .a { padding: 0 22px 20px; color: var(--muted); font-size: 14.5px; }
+
+  /* финальный CTA */
+  .cta { text-align: center; border: 1px solid rgba(99,102,241,.35); border-radius: 24px;
+    background: linear-gradient(160deg, rgba(99,102,241,.16), rgba(34,211,238,.08) 60%, transparent);
+    padding: 64px 28px; }
+  .cta h2 { font-size: clamp(26px, 4vw, 38px); font-weight: 800; margin-bottom: 14px; }
+  .cta p { color: var(--muted); max-width: 560px; margin: 0 auto 30px; }
+
+  footer { border-top: 1px solid var(--card-border); padding: 36px 0 44px; margin-top: 40px; }
+  .foot { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .foot .links a { color: var(--muted); text-decoration: none; font-size: 14px; margin-left: 22px; }
+  .foot .links a:hover { color: var(--text); }
+  .foot .copy { color: var(--muted); font-size: 13.5px; }
+
+  /* анимация появления */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 860px) {
+    .nav-links { display: none; }
+    .win-body { grid-template-columns: 1fr; }
+    .win-side { display: none; }
+    .shots { grid-template-columns: 1fr; }
+    .hero { padding: 64px 0 40px; }
+    section { padding: 64px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+<div class="bg-grid"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<header id="header">
+  <div class="wrap nav">
+    <div class="brand"><img src="assets/icon.png" alt="RouterMaster"><span>RouterMaster</span></div>
+    <nav class="nav-links">
+      <a href="#features">Возможности</a>
+      <a href="#how">Как это работает</a>
+      <a href="#install">Установка</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">Скачать</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="badge"><span class="dot"></span> Версия 1.4.0 · бесплатно · для Windows</div>
+    <h1>Настройка роутера — <span class="grad-text">одной кнопкой</span></h1>
+    <p class="sub">RouterMaster сам сбросит роутер, установит обход блокировок, настроит Wi-Fi, тему интерфейса и русский язык. Никаких команд и инструкций на 50 страниц — просто нажмите «Выполнить».</p>
+    <div class="hero-btns">
+      <a class="btn btn-primary" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        Скачать для Windows
+      </a>
+      <a class="btn btn-ghost" href="#how">Как это работает</a>
+    </div>
+    <div class="hero-note"><b>18 МБ</b> · без регистрации · без рекламы · открытый код (MIT)</div>
+
+    <div class="hero-mock reveal">
+      <div class="window">
+        <div class="win-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <span class="title">Роутер Мастер — OpenWrt</span>
+        </div>
+        <div class="win-body">
+          <div class="win-side">
+            <div class="s-title">Подключение</div>
+            <div class="row"><b>IP роутера</b><span>192.168.1.1</span></div>
+            <div class="row"><b>Пароль SSH</b><span>••••••••</span></div>
+            <div class="s-title" style="margin-top:18px">Wi-Fi</div>
+            <div class="row"><b>SSID 5G</b><span>Home 5G</span></div>
+            <div class="row"><b>SSID 2G</b><span>Home 2G</span></div>
+          </div>
+          <div class="win-main">
+            <div class="w-check"><i>✓</i> Обновить все пакеты</div>
+            <div class="w-check"><i>✓</i> Установить Podkop (обход блокировок)</div>
+            <div class="w-check off"><i>✓</i> Установить Zapret</div>
+            <div class="w-check"><i>✓</i> Установить тему интерфейса</div>
+            <div class="w-check"><i>✓</i> Русский язык интерфейса</div>
+            <div class="w-check"><i>✓</i> Создать Wi-Fi 5G и 2G</div>
+            <div class="w-btn">ВЫПОЛНИТЬ</div>
+            <div class="w-log">
+              <span class="dim">$</span> Подключение к 192.168.1.1... <span class="ok">✓</span><br>
+              <span class="dim">$</span> Установка Podkop... <span class="ok">✓</span><br>
+              <span class="dim">$</span> Настройка Wi-Fi... <span class="ok">✓</span><br>
+              <span class="dim">$</span> Тема и русский язык... <span class="ok">✓</span><br>
+              <span class="ok">Готово! Роутер перезагружается…</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Возможности</div>
+      <h2>Программа сделает всё сама</h2>
+      <p>Вы выбираете галочки, RouterMaster выполняет работу по SSH — так же, как это сделал бы опытный специалист.</p>
+    </div>
+    <div class="grid">
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-2.64-6.36"/><path d="M21 3v6h-6"/></svg></div>
+        <h3>Сброс + настройка с нуля</h3>
+        <p>Полный сброс роутера до заводских настроек, установка пароля и полная настройка — одной кнопкой. Обычно 3–4 минуты.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+        <h3>Podkop — обход блокировок</h3>
+        <p>Установка и обновление Podkop со всеми списками: YouTube, TikTok, Discord, Telegram, Google и ещё 16 списков — всё под ключ.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Zapret — готовый к работе</h3>
+        <p>Zapret-Manager + стратегия для обхода блокировок. Устанавливается, включается и удаляется автоматически.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0110 10c0 3-2 5-4 5h-2.5a2.5 2.5 0 00-2 4 2.5 2.5 0 01-2 4c-3.5 0-5.5-3-5.5-6 0-2 1-3 1-5"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10" cy="6.5" r="1"/><circle cx="15" cy="7" r="1"/><circle cx="18" cy="11" r="1"/></svg></div>
+        <h3>Красивые темы LuCI</h3>
+        <p>Argon, Proton2025 или Bootstrap — установка из интернета автоматически, тёмная и светлая версии.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a10 10 0 0114 0"/><path d="M8.5 16.5a5 5 0 017 0"/><path d="M2 8.82a15 15 0 0120 0"/><circle cx="12" cy="20" r="1"/></svg></div>
+        <h3>Wi-Fi 5G и 2.4G</h3>
+        <p>Отдельные SSID, каналы и тип шифрования для каждой сети: WPA3, WPA2, переходный режим или открытая сеть.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div>
+        <h3>Прокси одной вставкой</h3>
+        <p>Вставьте ссылку <code>vless://</code> или подписку — Podkop сам настроится и перезапустится.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+        <h3>Русский язык</h3>
+        <p>Интерфейс роутера станет на русском — локализация LuCI устанавливается автоматически.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 01-9 9c-2.6 0-5-1.1-6.7-2.9L3 16l2.5.5A9 9 0 1012 3a9 9 0 00-6.7 2.9"/><path d="M3 3v4h4"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>Обновление прошивки</h3>
+        <p>Проверка новых версий OpenWrt и обновление системы роутера — с предупреждением перед перезагрузкой.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 01-4 4H3"/></svg></div>
+        <h3>Автообновление программы</h3>
+        <p>Программа сама проверяет новые версии на GitHub и тихо обновляется — вы даже не заметите.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Как это работает</div>
+      <h2>Три шага — и роутер готов</h2>
+      <p>Никакой командной строки и специальных знаний. Достаточно знать пароль от роутера.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="num">1</div>
+        <h3>Подключите роутер</h3>
+        <p>Соедините роутер с компьютером кабелем в LAN-порт. Программа найдет его автоматически — по умолчанию 192.168.1.1.</p>
+      </div>
+      <div class="step reveal">
+        <div class="num">2</div>
+        <h3>Выберите настройки</h3>
+        <p>Введите пароль SSH, отметьте галочками нужные действия: Wi-Fi, обход блокировок, тема, русский язык, прокси.</p>
+      </div>
+      <div class="step reveal">
+        <div class="num">3</div>
+        <h3>Нажмите «Выполнить»</h3>
+        <p>Программа подключится, сделает всю работу, перезагрузит роутер и сообщит, когда всё готово. Обычно 3–4 минуты.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="screens">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Программа</div>
+      <h2>Просто и понятно</h2>
+      <p>Всё на одном экране: подключение, шаги и журнал работы. Светлая и тёмная тема переключаются галочкой.</p>
+    </div>
+    <div class="shots">
+      <div class="shot reveal">
+        <img src="screenshots/light.png" alt="RouterMaster — светлая тема">
+        <div class="cap"><b>Светлая тема</b> — по умолчанию</div>
+      </div>
+      <div class="shot reveal">
+        <img src="screenshots/dark.png" alt="RouterMaster — тёмная тема">
+        <div class="cap"><b>Тёмная тема</b> — в один клик</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="install" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Установка</div>
+      <h2>Готово за минуту</h2>
+      <p>Установщик сам создаст ярлыки на рабочем столе и в меню «Пуск».</p>
+    </div>
+    <div class="install">
+      <div class="inst-card reveal">
+        <div class="n">01</div>
+        <h3>Скачайте установщик</h3>
+        <p>Нажмите «Скачать для Windows» — файл всего 18 МБ, без регистрации и смс.</p>
+      </div>
+      <div class="inst-card reveal">
+        <div class="n">02</div>
+        <h3>Запустите и установите</h3>
+        <p>Два клика по установщику — «Далее» → «Установить». Всё.</p>
+      </div>
+      <div class="inst-card reveal">
+        <div class="n">03</div>
+        <h3>Откройте RouterMaster</h3>
+        <p>Ярлык на рабочем столе. Дальше — просто следуйте трём шагам выше.</p>
+      </div>
+    </div>
+    <div class="req reveal">
+      <span class="pill">💻 <b>Windows 10 / 11</b></span>
+      <span class="pill">📶 <b>OpenWrt 24.10+</b> на роутере</span>
+      <span class="pill">🔌 Роутер подключён к ПК по кабелю</span>
+      <span class="pill">🔑 Пароль root от роутера</span>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Вопросы и ответы</div>
+      <h2>Частые вопросы</h2>
+    </div>
+    <div class="faq">
+      <details class="reveal" open>
+        <summary>Это безопасно для моего роутера?</summary>
+        <div class="a">Да. Программа делает ровно то же, что вы делали бы сами по инструкции: подключается по SSH и выполняет команды. Никаких «магических» действий. Podkop и Zapret можно полностью удалить одной кнопкой, а роутер можно сбросить к заводским настройкам в любой момент.</div>
+      </details>
+      <details class="reveal">
+        <summary>Подойдёт ли мой роутер?</summary>
+        <div class="a">Подойдёт любой роутер с прошивкой OpenWrt версии 24.10 или новее, где есть SSH-доступ под пользователем root. Обычно это бюджетные и китайские модели (MediaTek и аналоги). Если на роутере стоит заводская прошивка производителя (например, Keenetic, TP-Link, ASUS) — она не подойдёт, но часто на такие роутеры можно установить OpenWrt.</div>
+      </details>
+      <details class="reveal">
+        <summary>Что такое Podkop и Zapret?</summary>
+        <div class="a">Это инструменты для обхода блокировок сайтов и сервисов (YouTube, Discord, TikTok и других). Podkop работает на уровне маршрутизатора — весь домашний интернет (телефоны, ТВ, приставки) получает доступ автоматически, без настройки каждого устройства. Zapret — дополнительный инструмент, который решает более сложные случаи.</div>
+      </details>
+      <details class="reveal">
+        <summary>Я потеряю свои настройки при сбросе?</summary>
+        <div class="a">Кнопка «Сброс + настройка» действительно возвращает роутер к заводским настройкам — старые пароли, Wi-Fi и пакеты удалятся. Но это безопасно: после сброса программа автоматически установит новый пароль (тот, что вы ввели) и заново настроит всё, что вы отметили: Wi-Fi, Podkop, тему, язык. Это самый надёжный способ получить «чистый и правильно настроенный» роутер.</div>
+      </details>
+      <details class="reveal">
+        <summary>Сколько времени занимает настройка?</summary>
+        <div class="a">Обычный запуск — 2–5 минут. Полный «Сброс + настройка» — 3–4 минуты, редко дольше. Программа показывает живой журнал работы и таймер, а в конце сообщит, что всё готово.</div>
+      </details>
+      <details class="reveal">
+        <summary>Программа бесплатная? Там нет скрытых сборов?</summary>
+        <div class="a">Полностью бесплатная, без рекламы, без регистрации и без «донат-окон». Исходный код открыт (лицензия MIT) — любой может проверить, что внутри.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="cta reveal">
+      <h2>Роутер, который работает сам —<br><span class="grad-text">без вашего участия</span></h2>
+      <p>Скачайте, подключите роутер, нажмите одну кнопку — и интернет заработает так, как надо. YouTube, игры, мессенджеры — всё открывается на всех устройствах дома.</p>
+      <a class="btn btn-primary" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        Скачать для Windows · бесплатно
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="copy">© 2026 RouterMaster · лицензия MIT · сделано с ♥ для тех, кто не хочет разбираться</div>
+    <div class="links">
+      <a href="https://github.com/R3G1ST/RouterMaster">Исходный код на GitHub</a>
+      <a href="https://github.com/R3G1ST/RouterMaster/releases">Все версии</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const header = document.getElementById('header');
+  addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 10), { passive: true });
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>
