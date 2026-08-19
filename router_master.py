@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.3.8"
+APP_VERSION = "1.3.9"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -186,6 +186,8 @@ class RouterToolApp:
         ttk.Checkbutton(steps, text="Задать прокси для Podkop", variable=self.var_proxy).grid(row=4, column=0, sticky="w", padx=8, pady=4)
 
         ttk.Checkbutton(steps, text="Проверить и обновить ОС (прошивку)", variable=self.var_os).grid(row=3, column=1, sticky="w", padx=8, pady=4)
+        ttk.Button(steps, text="Дополнительный Софт", width=17, command=self.open_extra_soft).grid(
+            row=4, column=1, sticky="w", padx=8, pady=(0, 4))
 
         steps.columnconfigure(0, weight=1, uniform="steps")
         steps.columnconfigure(1, weight=1, uniform="steps")
@@ -395,6 +397,17 @@ class RouterToolApp:
         win = self._dialog_window(title)
         ttk.Label(win._body, text=message, wraplength=400, justify="left").pack(padx=18, pady=(16, 12))
         ttk.Button(win._body, text="OK", style="Accent.TButton", width=10,
+                   command=win.destroy).pack(pady=(0, 14))
+        win.lift()
+        win.focus_force()
+        self.root.wait_window(win)
+
+    def open_extra_soft(self):
+        win = self._dialog_window("Дополнительный Софт")
+        ttk.Label(win._body,
+                  text="Здесь будут дополнительные программы\nдля установки на роутер.\nПока пусто — вернитесь позже.",
+                  wraplength=400, justify="center").pack(padx=18, pady=(18, 12))
+        ttk.Button(win._body, text="Закрыть", style="Accent.TButton", width=10,
                    command=win.destroy).pack(pady=(0, 14))
         win.lift()
         win.focus_force()
