@@ -32,7 +32,7 @@ Name: "{autoprograms}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFil
 Name: "{autodesktop}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFilename: "{app}\RouterMaster.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\RouterMaster.exe"; Description: "Запустить RouterMaster"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\RouterMaster.exe"; Description: "Запустить RouterMaster"; Flags: nowait postinstall
 
 [UninstallDelete]
 Type: files; Name: "{app}\router_tool_config.json"

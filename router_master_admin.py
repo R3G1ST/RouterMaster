@@ -605,15 +605,8 @@ class RouterToolApp:
                         'timeout /t 2 /nobreak >nul\r\n'
                         'taskkill /F /IM RouterMaster.exe /T >nul 2>&1\r\n'
                         'taskkill /F /IM RouterMasterAdmin.exe /T >nul 2>&1\r\n'
-                        'start "" "%s" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-\r\n'
-                        'timeout /t 30 /nobreak >nul\r\n'
-                        'if exist "%%LOCALAPPDATA%%\\Programs\\RouterMaster\\RouterMaster.exe" (\r\n'
-                        '  start "" "%%LOCALAPPDATA%%\\Programs\\RouterMaster\\RouterMaster.exe"\r\n'
-                        ') else (\r\n'
-                        '  if exist "%%ProgramFiles%%\\RouterMaster\\RouterMaster.exe" (\r\n'
-                        '    start "" "%%ProgramFiles%%\\RouterMaster\\RouterMaster.exe"\r\n'
-                        '  )\r\n'
-                        ')\r\n' % tmp)
+                        'start "" /wait "%s" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-\r\n'
+                        'del /f /q "%s" >nul 2>&1\r\n' % (tmp, tmp))
                 subprocess.Popen(["cmd", "/c", bat],
                                  creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
                 self.root.after(1000, self.root.destroy)
