@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.3.5"
+APP_VERSION = "1.3.6"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -385,6 +385,8 @@ class RouterToolApp:
         x = self.root.winfo_rootx() + (self.root.winfo_width() - win.winfo_reqwidth()) // 2
         y = self.root.winfo_rooty() + (self.root.winfo_height() - win.winfo_reqheight()) // 3
         win.geometry("+%d+%d" % (max(x, 0), max(y, 0)))
+        win.lift()
+        win.focus_force()
         return win
 
     def show_message(self, title, message):
@@ -392,6 +394,8 @@ class RouterToolApp:
         ttk.Label(win._body, text=message, wraplength=400, justify="left").pack(padx=18, pady=(16, 12))
         ttk.Button(win._body, text="OK", style="Accent.TButton", width=10,
                    command=win.destroy).pack(pady=(0, 14))
+        win.lift()
+        win.focus_force()
         self.root.wait_window(win)
 
     def ask_confirm(self, title, message):
@@ -407,6 +411,8 @@ class RouterToolApp:
         btns.pack(pady=(0, 14))
         ttk.Button(btns, text="Да", style="Accent.TButton", width=10, command=yes).pack(side="left", padx=6)
         ttk.Button(btns, text="Отмена", width=10, command=win.destroy).pack(side="left", padx=6)
+        win.lift()
+        win.focus_force()
         self.root.wait_window(win)
         return result["ok"]
 
