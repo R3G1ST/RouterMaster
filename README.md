@@ -8,7 +8,7 @@
 [![Платформа](https://img.shields.io/badge/платформа-Windows-orange)]()
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-24.10%2B-green)]()
 [![Лицензия](https://img.shields.io/badge/лицензия-MIT-lightgrey)]()
-
+                      https://routermaster.ru
 **Одна кнопка — полностью настроенный роутер: обход блокировок, темы LuCI, Wi-Fi, прокси и русский язык.**
                              
 </div>
