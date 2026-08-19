@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.2.8"
+APP_VERSION = "1.2.9"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -291,13 +291,13 @@ class RouterToolApp:
         style.configure("TLabelframe", background=bg, foreground=fg, bordercolor=panel, borderwidth=1)
         style.configure("TLabelframe.Label", background=bg, foreground=fg)
         style.configure("TButton", background=field, foreground=fg, bordercolor=panel,
-                        borderwidth=1, padding=(8, 4), focuscolor=panel)
+                        borderwidth=1, padding=(4, 2), focuscolor=panel)
         style.map("TButton", background=[("active", accent if dark else "#d8e0f0"),
                                          ("pressed", accent)],
                   bordercolor=[("active", accent)],
                   foreground=[("disabled", "#9aa0a6" if dark else "#a0a4b0")])
         style.configure("Accent.TButton", background=accent, foreground=bg,
-                        font=("Segoe UI", 9, "bold"), padding=(10, 5), borderwidth=0)
+                        font=("Segoe UI", 9, "bold"), padding=(6, 3), borderwidth=0)
         style.map("Accent.TButton", background=[("active", accent_active)])
         style.configure("TEntry", fieldbackground=field, foreground=fg,
                         bordercolor=panel, borderwidth=1, insertcolor=fg, padding=(6, 4))
