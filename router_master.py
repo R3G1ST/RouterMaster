@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.3.7"
+APP_VERSION = "1.3.8"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -201,7 +201,7 @@ class RouterToolApp:
         self.var_channel_2g = tk.StringVar(value=self.config.get("wifi_channel_2g", DEFAULTS["wifi_channel_2g"]))
         self.var_proxy_str = tk.StringVar(value=self.config.get("proxy_string", DEFAULTS["proxy_string"]))
 
-        ttk.Label(params, text="SSID Wi-Fi:").grid(row=0, column=0, sticky="e", padx=6, pady=3)
+        ttk.Label(params, text="SSID 5G:").grid(row=0, column=0, sticky="e", padx=6, pady=3)
         e_ssid = ttk.Entry(params, textvariable=self.var_ssid, width=16)
         e_ssid.grid(row=0, column=1, sticky="w", padx=6)
         self.add_context_menu(e_ssid)
@@ -960,10 +960,11 @@ class RouterToolApp:
             "Сброс роутера",
             "ВНИМАНИЕ! Все настройки роутера будут сброшены к заводским:\n"
             "- удалятся пароли, Wi-Fi, Podkop, тема, пакеты\n\n"
-            "После сброса роутер перезагрузится (ожидание до 10 минут),\n"
+            "После сброса роутер перезагрузится,\n"
             "затем пароль %s будет установлен автоматически,\n"
             "и автоматически выполнится полная настройка:\n"
             "Wi-Fi 2.4/5 ГГц, Podkop, тема, язык.\n\n"
+            "Обычно это занимает 3-4 минуты, редко дольше.\n\n"
             "Продолжить?" % self.var_pass.get())
         if not ok:
             return
