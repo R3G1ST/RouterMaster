@@ -26,7 +26,6 @@ Name: "desktopicon"; Description: "Создать ярлык на рабочем
 
 [Files]
 Source: "C:\Users\R3G1S\OneDrive\Документы\Default Project\dist\RouterMaster.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\R3G1S\OneDrive\Документы\Default Project\dist\RouterMasterAdmin.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFilename: "{app}\RouterMaster.exe"
