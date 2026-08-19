@@ -1,0 +1,7 @@
+__pycache__/
+build/
+dist/
+*.spec
+router_tool_config.json
+.DS_Store
+Thumbs.db
