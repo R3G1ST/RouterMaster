@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.3.4"
+APP_VERSION = "1.3.5"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -351,34 +351,59 @@ class RouterToolApp:
     # ---------- Диалоги в стиле темы ----------
     def _dialog_window(self, title):
         win = tk.Toplevel(self.root)
-        win.title(title)
-        win.configure(bg=self.cur_bg)
-        win.resizable(False, False)
+        win.overrideredirect(True)
+        win.configure(bg=self.cur_panel)
         win.transient(self.root)
         win.grab_set()
+
+        bar = tk.Frame(win, bg=self.cur_panel)
+        bar.pack(fill="x")
+        tk.Label(bar, text=title, bg=self.cur_panel, fg=self.cur_fg,
+                 font=("Segoe UI", 10, "bold")).pack(side="left", padx=10, pady=6)
+        close = tk.Label(bar, text="\u2715", bg=self.cur_panel, fg=self.cur_fg,
+                         cursor="hand2", font=("Segoe UI", 10))
+        close.pack(side="right", padx=8, pady=4)
+        close.bind("<Button-1>", lambda e: win.destroy())
+
+        def start_drag(e):
+            win._dx = e.x
+            win._dy = e.y
+
+        def drag(e):
+            try:
+                win.geometry("+%d+%d" % (e.x_root - win._dx, e.y_root - win._dy))
+            except Exception:
+                pass
+
+        bar.bind("<Button-1>", start_drag)
+        bar.bind("<B1-Motion>", drag)
+
+        body = tk.Frame(win, bg=self.cur_bg)
+        body.pack(fill="both", expand=True)
+        win._body = body
         win.update_idletasks()
         x = self.root.winfo_rootx() + (self.root.winfo_width() - win.winfo_reqwidth()) // 2
         y = self.root.winfo_rooty() + (self.root.winfo_height() - win.winfo_reqheight()) // 3
         win.geometry("+%d+%d" % (max(x, 0), max(y, 0)))
-        win.after(100, lambda: self.set_dark_titlebar(self.is_dark, win))
         return win
 
     def show_message(self, title, message):
         win = self._dialog_window(title)
-        ttk.Label(win, text=message, wraplength=400, justify="left").pack(padx=18, pady=(16, 12))
-        ttk.Button(win, text="OK", style="Accent.TButton", width=10, command=win.destroy).pack(pady=(0, 14))
+        ttk.Label(win._body, text=message, wraplength=400, justify="left").pack(padx=18, pady=(16, 12))
+        ttk.Button(win._body, text="OK", style="Accent.TButton", width=10,
+                   command=win.destroy).pack(pady=(0, 14))
         self.root.wait_window(win)
 
     def ask_confirm(self, title, message):
         result = {"ok": False}
         win = self._dialog_window(title)
-        ttk.Label(win, text=message, wraplength=420, justify="left").pack(padx=18, pady=(16, 12))
+        ttk.Label(win._body, text=message, wraplength=420, justify="left").pack(padx=18, pady=(16, 12))
 
         def yes():
             result["ok"] = True
             win.destroy()
 
-        btns = ttk.Frame(win)
+        btns = ttk.Frame(win._body)
         btns.pack(pady=(0, 14))
         ttk.Button(btns, text="Да", style="Accent.TButton", width=10, command=yes).pack(side="left", padx=6)
         ttk.Button(btns, text="Отмена", width=10, command=win.destroy).pack(side="left", padx=6)
@@ -927,9 +952,11 @@ class RouterToolApp:
             "Сброс роутера",
             "ВНИМАНИЕ! Все настройки роутера будут сброшены к заводским:\n"
             "- удалятся пароли, Wi-Fi, Podkop, тема, пакеты\n\n"
-            "После сброса откроется веб-панель — введите в ней пароль,\n"
-            "который уже указан в настройках программы:\n\n"
-            "%s\n\nПродолжить?" % self.var_pass.get())
+            "После сброса роутер перезагрузится (ожидание до 10 минут),\n"
+            "затем пароль %s будет установлен автоматически,\n"
+            "и автоматически выполнится полная настройка:\n"
+            "Wi-Fi 2.4/5 ГГц, Podkop, тема, язык.\n\n"
+            "Продолжить?" % self.var_pass.get())
         if not ok:
             return
         self.new_password = self.var_pass.get()
