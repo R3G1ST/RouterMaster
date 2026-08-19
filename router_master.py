@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.3.9"
+APP_VERSION = "1.4.0"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -186,7 +186,7 @@ class RouterToolApp:
         ttk.Checkbutton(steps, text="Задать прокси для Podkop", variable=self.var_proxy).grid(row=4, column=0, sticky="w", padx=8, pady=4)
 
         ttk.Checkbutton(steps, text="Проверить и обновить ОС (прошивку)", variable=self.var_os).grid(row=3, column=1, sticky="w", padx=8, pady=4)
-        ttk.Button(steps, text="Дополнительный Софт", width=17, command=self.open_extra_soft).grid(
+        ttk.Button(steps, text="Доп. Софт", width=12, command=self.open_extra_soft).grid(
             row=4, column=1, sticky="w", padx=8, pady=(0, 4))
 
         steps.columnconfigure(0, weight=1, uniform="steps")
