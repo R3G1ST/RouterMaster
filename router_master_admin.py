@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.2.4"
+APP_VERSION = "1.2.5"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -125,9 +125,12 @@ class RouterToolApp:
         e_user.grid(row=1, column=1, sticky="w", padx=6)
         self.add_context_menu(e_user)
         ttk.Label(conn, text="Пароль:").grid(row=1, column=2, sticky="e", padx=6)
-        e_pass = ttk.Entry(conn, textvariable=self.var_pass, width=18, show="*")
-        e_pass.grid(row=1, column=3, sticky="w", padx=6)
-        self.add_context_menu(e_pass)
+        self.e_pass = ttk.Entry(conn, textvariable=self.var_pass, width=18, show="*")
+        self.e_pass.grid(row=1, column=3, sticky="w", padx=6)
+        self.add_context_menu(self.e_pass)
+        self.btn_show_pass = ttk.Button(conn, text="Показать", width=9,
+                                        command=self.toggle_show_password)
+        self.btn_show_pass.grid(row=1, column=4, sticky="w", padx=(0, 6))
         conn.columnconfigure(4, weight=1)
         ttk.Button(conn, text="Проверить обновление", command=self.check_update).grid(
             row=0, column=5, rowspan=2, sticky="e", padx=6, pady=3)
@@ -229,7 +232,7 @@ class RouterToolApp:
         btns = ttk.Frame(main)
         btns.pack(fill="x", pady=(0, 8))
 
-        self.btn_run = ttk.Button(btns, text="ВЫПОЛНИТЬ ВСЁ", command=self.run_all, style="Accent.TButton")
+        self.btn_run = ttk.Button(btns, text="ВЫПОЛНИТЬ", command=self.run_all, style="Accent.TButton")
         self.btn_run.pack(side="left", padx=4, pady=2)
         self.btn_reset = ttk.Button(btns, text="Сброс + настройка", command=self.reset_and_setup)
         self.btn_reset.pack(side="left", padx=4, pady=2)
@@ -333,6 +336,14 @@ class RouterToolApp:
         self.is_dark = bool(self.var_gui_dark.get())
         self.config["gui_theme"] = "dark" if self.is_dark else "light"
         self.apply_theme(self.root, self.is_dark)
+
+    def toggle_show_password(self):
+        if self.e_pass.cget("show") == "*":
+            self.e_pass.config(show="")
+            self.btn_show_pass.config(text="Скрыть")
+        else:
+            self.e_pass.config(show="*")
+            self.btn_show_pass.config(text="Показать")
 
     # ---------- Диалоги в стиле темы ----------
     def _dialog_window(self, title):
