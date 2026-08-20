@@ -304,23 +304,23 @@
       <a href="#install">Установка</a>
       <a href="#faq">Вопросы</a>
     </nav>
-    <a class="btn btn-primary btn-sm" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">Скачать</a>
+    <a class="btn btn-primary btn-sm download-link" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">Скачать</a>
   </div>
 </header>
 
 <section class="hero">
   <div class="wrap">
-    <div class="badge"><span class="dot"></span> Версия 1.4.0 · бесплатно · для Windows</div>
+    <div class="badge"><span class="dot"></span> Версия <span class="dl-version">1.4.0</span> · бесплатно · для Windows</div>
     <h1>Настройка роутера — <span class="grad-text">одной кнопкой</span></h1>
     <p class="sub">RouterMaster сам сбросит роутер, установит обход блокировок, настроит Wi-Fi, тему интерфейса и русский язык. Никаких команд и инструкций на 50 страниц — просто нажмите «Выполнить».</p>
     <div class="hero-btns">
-      <a class="btn btn-primary" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">
+      <a class="btn btn-primary download-link" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
         Скачать для Windows
       </a>
       <a class="btn btn-ghost" href="#how">Как это работает</a>
     </div>
-    <div class="hero-note"><b>18 МБ</b> · без регистрации · без рекламы · открытый код (MIT)</div>
+    <div class="hero-note"><b><span class="dl-size">18</span> МБ</b> · без регистрации · без рекламы · открытый код (MIT)</div>
 
     <div class="hero-mock reveal">
       <div class="window">
@@ -536,7 +536,7 @@
     <div class="cta reveal">
       <h2>Роутер, который работает сам —<br><span class="grad-text">без вашего участия</span></h2>
       <p>Скачайте, подключите роутер, нажмите одну кнопку — и интернет заработает так, как надо. YouTube, игры, мессенджеры — всё открывается на всех устройствах дома.</p>
-      <a class="btn btn-primary" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">
+      <a class="btn btn-primary download-link" href="https://github.com/R3G1ST/RouterMaster/releases/download/v1.4.0/RouterMaster-Setup.exe">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
         Скачать для Windows · бесплатно
       </a>
@@ -586,6 +586,23 @@
     });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+
+<script>
+  fetch('https://api.github.com/repos/R3G1ST/RouterMaster/releases/latest')
+    .then(r => r.ok ? r.json() : Promise.reject(new Error(r.status)))
+    .then(d => {
+      const asset = (d.assets || []).find(a => a.name === 'RouterMaster-Setup.exe');
+      if (asset) {
+        document.querySelectorAll('.download-link').forEach(el => { el.href = asset.browser_download_url; });
+        const mb = Math.max(1, Math.round(asset.size / 1048576));
+        document.querySelectorAll('.dl-size').forEach(el => { el.textContent = mb; });
+      }
+      if (d.tag_name) {
+        document.querySelectorAll('.dl-version').forEach(el => { el.textContent = d.tag_name.replace(/^v/i, ''); });
+      }
+    })
+    .catch(() => {});
 </script>
 </body>
 </html>
