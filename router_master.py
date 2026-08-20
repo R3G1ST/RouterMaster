@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+import math
 import ctypes
 import shutil
 import threading
@@ -162,52 +163,71 @@ class RouterToolApp:
                              text_color=self.P["text"],
                              font=ctk.CTkFont("Segoe UI", 12))
 
-    def _nav_btn(self, parent, text, page):
-        btn = ctk.CTkButton(parent, text=text, anchor="w", corner_radius=10,
+    def _nav_btn(self, parent, icon, label, page):
+        btn = ctk.CTkButton(parent, text=icon + "  " + label, anchor="w", corner_radius=10,
                             fg_color="transparent", hover_color=self.P["card"],
                             text_color=self.P["text"], height=36,
                             font=ctk.CTkFont("Segoe UI", 12),
                             command=lambda: self._show_page(page))
         btn.pack(fill="x", padx=10, pady=2)
+        btn._label = label
+        btn._icon = icon
+        self.nav_btns[page] = btn
         return btn
 
     def _build_ui(self):
         root = self.root
         root.configure(fg_color=self.P["bg"])
 
-        outer = ctk.CTkFrame(root, fg_color=self.P["bg"])
+        self.bg_canvas = tk.Canvas(root, highlightthickness=0, bg=self.P["bg"])
+        self.bg_canvas.place(x=0, y=0, relwidth=1, relheight=1)
+        self._bg_phase = 0
+        self._draw_gradient()
+
+        outer = ctk.CTkFrame(root, fg_color="transparent")
         outer.pack(fill="both", expand=True)
 
-        # ===== Сайдбар =====
-        side = ctk.CTkFrame(outer, width=210, fg_color=self.P["panel"], corner_radius=0)
+        # ===== Сайдбар (сворачивается при наведении) =====
+        self.side_w = 210
+        self.side_cw = 62
+        self.side_target = self.side_w
+        side = ctk.CTkFrame(outer, width=self.side_w, fg_color=self.P["panel"], corner_radius=0)
         side.pack(side="left", fill="y")
         side.pack_propagate(False)
+        self.side = side
+        self.nav_btns = {}
 
         brand = ctk.CTkFrame(side, fg_color="transparent")
         brand.pack(fill="x", padx=14, pady=(18, 14))
-        ctk.CTkLabel(brand, text="RouterMaster", font=ctk.CTkFont("Segoe UI", 17, "bold"),
-                     text_color=self.P["text"]).pack(anchor="w")
-        ctk.CTkLabel(brand, text="умный помощник OpenWrt", font=ctk.CTkFont("Segoe UI", 10),
-                     text_color=self.P["muted"]).pack(anchor="w")
+        self.brand_title = ctk.CTkLabel(brand, text="RouterMaster", font=ctk.CTkFont("Segoe UI", 17, "bold"),
+                                        text_color=self.P["text"])
+        self.brand_title.pack(anchor="w")
+        self.brand_sub = ctk.CTkLabel(brand, text="умный помощник OpenWrt", font=ctk.CTkFont("Segoe UI", 10),
+                                      text_color=self.P["muted"])
+        self.brand_sub.pack(anchor="w")
 
-        self._nav_btn(side, "\u2302 Главная", "home")
-        self._nav_btn(side, "\u2039 Подключение", "conn")
-        self._nav_btn(side, "\u2699 Что выполнить", "steps")
-        self._nav_btn(side, "\u2726 Параметры", "params")
+        self._nav_btn(side, "\u2302", "Главная", "home")
+        self._nav_btn(side, "\u2039", "Подключение", "conn")
+        self._nav_btn(side, "\u2699", "Что выполнить", "steps")
+        self._nav_btn(side, "\u2726", "Параметры", "params")
 
         side_foot = ctk.CTkFrame(side, fg_color="transparent")
         side_foot.pack(side="bottom", fill="x", padx=14, pady=14)
-        ctk.CTkButton(side_foot, text="Проверить обновление", height=32,
-                      fg_color=self.P["card"], hover_color=self.P["border"],
-                      text_color=self.P["text"], corner_radius=8,
-                      font=ctk.CTkFont("Segoe UI", 11),
-                      command=self.check_update).pack(fill="x")
-        ctk.CTkLabel(side_foot, text="RouterMaster v%s\nАвтор: R3G1ST" % APP_VERSION,
-                     font=ctk.CTkFont("Segoe UI", 10), text_color=self.P["muted"],
-                     justify="center").pack(pady=(10, 0))
+        self.foot_check = ctk.CTkButton(side_foot, text="\u21bb Проверить обновление", height=32,
+                                        fg_color=self.P["card"], hover_color=self.P["border"],
+                                        text_color=self.P["text"], corner_radius=8,
+                                        font=ctk.CTkFont("Segoe UI", 11),
+                                        command=self.check_update)
+        self.foot_check.pack(fill="x")
+        self.foot_ver = ctk.CTkLabel(side_foot, text="RouterMaster v%s\nАвтор: R3G1ST" % APP_VERSION,
+                                     font=ctk.CTkFont("Segoe UI", 10), text_color=self.P["muted"],
+                                     justify="center")
+        self.foot_ver.pack(pady=(10, 0))
+
+        root.bind("<Motion>", self._on_motion)
 
         # ===== Контент =====
-        content = ctk.CTkFrame(outer, fg_color=self.P["bg"], corner_radius=0)
+        content = ctk.CTkFrame(outer, fg_color="transparent", corner_radius=0)
         content.pack(side="left", fill="both", expand=True, padx=(0, 0))
 
         self.pages_area = ctk.CTkFrame(content, fg_color="transparent")
@@ -300,6 +320,19 @@ class RouterToolApp:
         self.switch_theme = self._switch(theme_row, "Тёмная тема", self.var_gui_dark,
                                          command=self.toggle_gui_theme)
         self.switch_theme.pack(side="left")
+
+        test_row = ctk.CTkFrame(b, fg_color="transparent")
+        test_row.pack(fill="x", pady=(8, 0))
+        self.btn_test = ctk.CTkButton(test_row, text="\u2699 Тест системы и подключения", height=36,
+                                      fg_color=self.P["accent"], hover_color=self.P["accent_hover"],
+                                      text_color="#ffffff", corner_radius=10,
+                                      font=ctk.CTkFont("Segoe UI", 12, "bold"),
+                                      command=self.test_system)
+        self.btn_test.pack(side="left")
+        ctk.CTkLabel(test_row,
+                     text="Проверит вашу систему, связь с роутером и его состояние",
+                     font=ctk.CTkFont("Segoe UI", 10), text_color=self.P["muted"]).pack(
+                         side="left", padx=(10, 0))
 
         self.pages["conn"] = page
 
@@ -398,6 +431,8 @@ class RouterToolApp:
             pg.place(in_=self.pages_area, relx=0, rely=0, relwidth=1, relheight=1)
 
         self._show_page("home")
+        self._animate_bg()
+        self._animate_sidebar()
 
     def _show_page(self, name):
         for n, pg in self.pages.items():
@@ -405,6 +440,115 @@ class RouterToolApp:
                 pg.lift()
             else:
                 pg.lower()
+
+    # ---------- Динамический фон ----------
+    def _gradient_colors(self):
+        if self.is_dark:
+            return ("#0a0f1c", "#141a2e", "#0d1526")
+        return ("#f2f5fb", "#e6ebf6", "#ffffff")
+
+    def _draw_gradient(self):
+        try:
+            c = self.bg_canvas
+            c.delete("bg")
+            w = max(c.winfo_width(), 400)
+            h = max(c.winfo_height(), 300)
+            c1, c2, c3 = self._gradient_colors()
+            phase = self._bg_phase
+            base = [c1, c2, c3]
+            top = base[0]
+            mid = base[1]
+            bottom = base[2]
+
+            def hex_shift(hexc, amount):
+                r = min(255, max(0, int(hexc[1:3], 16) + amount))
+                g = min(255, max(0, int(hexc[3:5], 16) + amount))
+                b = min(255, max(0, int(hexc[5:7], 16) + amount))
+                return "#%02x%02x%02x" % (r, g, b)
+
+            shift = int(5 * (1 + math.sin(phase / 40.0)))
+            top = hex_shift(top, -shift)
+            mid = hex_shift(mid, shift)
+            bottom = hex_shift(bottom, -shift)
+
+            n = 40
+            for i in range(n):
+                t = i / float(n - 1)
+                if t < 0.5:
+                    a = top
+                    b = mid
+                    tt = t * 2
+                else:
+                    a = mid
+                    b = bottom
+                    tt = (t - 0.5) * 2
+                r = int(int(a[1:3], 16) + (int(b[1:3], 16) - int(a[1:3], 16)) * tt)
+                g = int(int(a[3:5], 16) + (int(b[3:5], 16) - int(a[3:5], 16)) * tt)
+                bl = int(int(a[5:7], 16) + (int(b[5:7], 16) - int(a[5:7], 16)) * tt)
+                color = "#%02x%02x%02x" % (r, g, bl)
+                y0 = int(h * t)
+                y1 = int(h * (t + 1.0 / n)) + 1
+                c.create_rectangle(0, y0, w, y1, fill=color, outline=color, tags="bg")
+            c.tag_lower("bg")
+        except Exception:
+            pass
+
+    def _animate_bg(self):
+        try:
+            if self.root.state() != "iconic":
+                self._bg_phase += 1
+                self._draw_gradient()
+        except Exception:
+            pass
+        try:
+            self.root.after(90, self._animate_bg)
+        except Exception:
+            pass
+
+    # ---------- Сворачивание сайдбара ----------
+    def _on_motion(self, event):
+        try:
+            inside = event.x < self.side_w + 10
+        except Exception:
+            inside = False
+        self.side_target = self.side_w if inside else self.side_cw
+
+    def _set_sidebar_width(self, w):
+        try:
+            self.side.configure(width=w)
+            if w < 90:
+                self.brand_title.configure(text="RM")
+                self.brand_sub.pack_forget()
+                self.foot_ver.pack_forget()
+                self.foot_check.configure(text="\u21bb")
+                for btn in self.nav_btns.values():
+                    btn.configure(text=btn._icon)
+            else:
+                self.brand_title.configure(text="RouterMaster")
+                self.brand_sub.pack(anchor="w", after=self.brand_title)
+                self.foot_ver.pack(pady=(10, 0))
+                self.foot_check.configure(text="\u21bb Проверить обновление")
+                for btn in self.nav_btns.values():
+                    btn.configure(text=btn._icon + "  " + btn._label)
+        except Exception:
+            pass
+
+    def _animate_sidebar(self):
+        try:
+            diff = self.side_target - self.side_w
+            if abs(diff) > 2:
+                step = 8 if diff > 0 else -8
+                self.side_w += step
+                self._set_sidebar_width(self.side_w)
+            elif diff != 0:
+                self.side_w = self.side_target
+                self._set_sidebar_width(self.side_w)
+        except Exception:
+            pass
+        try:
+            self.root.after(12, self._animate_sidebar)
+        except Exception:
+            pass
 
     # ---------- Окно лога (модалка) ----------
     def _ensure_log(self):
@@ -1207,6 +1351,101 @@ class RouterToolApp:
             self.root.after(0, lambda: self.btn_reset.config(state="normal"))
             self.root.after(0, self._show_log)
             self.log("Завершено.")
+
+    # ---------- Тест системы и подключения ----------
+    def test_system(self):
+        if not self.var_host.get().strip() or not self.var_pass.get():
+            self.show_message("Внимание", "Укажите IP роутера и пароль SSH!")
+            return
+        self._ensure_log()
+        self._show_log()
+        self.clear_log()
+        self.btn_test.config(state="disabled")
+        threading.Thread(target=self.test_worker, daemon=True).start()
+
+    def test_worker(self):
+        import socket
+        import platform
+        ok = True
+
+        def check(cond, good, bad):
+            nonlocal ok
+            if cond:
+                self.log("[OK] " + good)
+            else:
+                ok = False
+                self.log("[ОШИБКА] " + bad)
+
+        self.start_progress()
+        try:
+            self.log("=== Тест системы и подключения ===")
+            host = self.var_host.get().strip()
+            port = int(self.var_port.get() or 22)
+
+            self.log("--- Ваша система ---")
+            self.log("ОС: %s" % platform.platform())
+            self.log("Python: %s" % sys.version.split()[0])
+            check(sys.version_info >= (3, 8), "Версия Python поддерживается", "Python слишком старый")
+
+            self.log("--- Связь с роутером %s:%s ---" % (host, port))
+            try:
+                s = socket.create_connection((host, port), timeout=5)
+                s.close()
+                self.log("[OK] Порт %s доступен по сети" % port)
+            except Exception:
+                ok = False
+                self.log("[ОШИБКА] Роутер недоступен по адресу %s:%s" % (host, port))
+                self.log("Проверьте кабель, что роутер включён и IP указан верно.")
+                raise SystemExit
+
+            client = self._connect_ssh()
+            check(True, "SSH-подключение установлено", "")
+
+            self.log("--- Система роутера ---")
+            out, _ = self.ssh_exec(client, "uname -a")
+            check(bool(out.strip()), "Ядро: " + out.strip()[:90], "Не удалось получить информацию о ядре")
+
+            out, _ = self.ssh_exec(client, "cat /etc/openwrt_release 2>/dev/null | head -2 || cat /etc/os-release | head -2")
+            check(bool(out.strip()), "ПО роутера: " + " ".join(out.split())[:100], "Не удалось определить прошивку")
+
+            out, _ = self.ssh_exec(client, "cat /proc/meminfo | head -2")
+            check(bool(out.strip()), "Память: " + " ".join(out.split())[:80], "Не удалось прочитать память")
+
+            out, _ = self.ssh_exec(client, "df -h / | tail -1")
+            check(bool(out.strip()), "Диск: " + " ".join(out.split())[:80], "Не удалось прочитать диск")
+
+            self.log("--- Интернет на роутере ---")
+            out, _ = self.ssh_exec(client, "ping -c 2 -W 2 8.8.8.8 2>&1 | tail -2")
+            check("0% packet loss" in out or "2 received" in out,
+                  "Интернет работает: " + " ".join(out.split())[:80],
+                  "Роутер не имеет доступа в интернет")
+
+            self.log("--- Службы ---")
+            out, _ = self.ssh_exec(client, "uci get network.lan.ipaddr 2>/dev/null || ip -4 addr show br-lan 2>/dev/null | grep inet")
+            check(bool(out.strip()), "IP роутера: " + " ".join(out.split())[:60], "Не удалось определить IP роутера")
+
+            self.log("")
+            if ok:
+                self.log("=== ИТОГ: все проверки пройдены. Роутер готов к настройке. ===")
+            else:
+                self.log("=== ИТОГ: обнаружены проблемы (см. выше) ===")
+        except SystemExit:
+            pass
+        except Exception as e:
+            ok = False
+            self.log("ОШИБКА: " + str(e))
+        finally:
+            self.stop_progress()
+            self.root.after(0, lambda: self.btn_test.config(state="normal"))
+            self.root.after(0, self._show_log)
+            if ok:
+                self.log("Завершено. Подключение удачное.")
+                self.root.after(0, lambda: self.show_message(
+                    "Тест завершён", "Система и подключение в порядке!\nРоутер готов к настройке."))
+            else:
+                self.log("Завершено. Подключение НЕ удалось или есть проблемы.")
+                self.root.after(0, lambda: self.show_message(
+                    "Тест завершён", "Обнаружены проблемы.\nПодробности — в логе."))
 
     def do_reset_and_setup(self):
         host = self.var_host.get().strip()
