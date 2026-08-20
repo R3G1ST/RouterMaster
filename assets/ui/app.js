@@ -139,7 +139,11 @@ const App = {
     document.getElementById('btn-save')?.addEventListener('click', () => this.api?.save_config().then(() => this.msg('Настройки сохранены', 'Готово')));
     document.getElementById('btn-log').addEventListener('click', () => this.openLog());
     document.getElementById('btn-test').addEventListener('click', () => this.api?.test_system());
-    document.getElementById('btn-check').addEventListener('click', () => this.api?.check_update());
+    const btnCheck = document.getElementById('btn-check');
+    btnCheck.addEventListener('click', () => {
+      btnCheck.classList.add('checking');
+      (this.api?.check_update() || Promise.resolve()).finally(() => btnCheck.classList.remove('checking'));
+    });
     document.getElementById('btn-extra').addEventListener('click', () => this.api?.open_extra_soft());
     document.getElementById('btn-side-toggle').addEventListener('click', () => this.toggleSidebar());
     this.byId('repo-widget').addEventListener('click', e => {

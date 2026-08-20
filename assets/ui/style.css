@@ -128,26 +128,27 @@ html, body {
 .nav-btn:hover { background: var(--card); }
 .nav-btn.active { background: var(--card); color: var(--accent2); font-weight: 600; }
 .sidebar.collapsed .nav-btn,
-.sidebar.collapsed .foot-btn { justify-content: center; padding: 10px 0; }
-.side-foot { padding: 8px 8px 0; }
+.sidebar.collapsed .foot-btn { padding: 0; }
+.sidebar.collapsed .side-foot { grid-template-columns: 1fr; }
+.side-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px 8px 0; }
 .foot-btn {
-  width: 100%;
+  height: 36px;
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 8px 10px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 15px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
   display: flex;
   align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  margin-bottom: 6px;
+  justify-content: center;
 }
-.foot-btn:hover { background: var(--card2); }
-.foot-ver { font-size: 10px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.4; }
+.foot-btn:hover { background: var(--card2); border-color: var(--accent); }
+.foot-settings { color: var(--accent2); }
+.foot-btn.checking .nav-ico { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.foot-ver { grid-column: 1 / -1; font-size: 10px; color: var(--muted); text-align: center; margin-top: 6px; line-height: 1.4; }
 
 /* Контент */
 .content {
