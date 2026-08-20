@@ -44,40 +44,41 @@ html, body {
   transition: width 0.25s ease, min-width 0.25s ease;
 }
 .sidebar.collapsed { width: 56px; min-width: 56px; }
-.brand { display: flex; align-items: center; padding: 4px 8px 16px; }
+.brand { display: flex; align-items: center; gap: 6px; padding: 2px 8px 14px; }
 .side-toggle {
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--muted);
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 12px;
+  line-height: 1;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s, color 0.15s;
+  transition: transform 0.3s ease, background 0.15s, color 0.15s, border-color 0.15s;
 }
-.side-toggle:hover { background: var(--card2); color: var(--text); }
+.side-toggle:hover { background: var(--card2); color: var(--text); border-color: var(--accent); }
+.sidebar.collapsed .side-toggle { transform: rotate(180deg); }
 .repo-widget {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  gap: 6px;
   margin-left: auto;
-  background: var(--card);
+  background: linear-gradient(135deg, var(--card), var(--card2));
   border: 1px solid var(--border);
-  color: var(--text);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 10px;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: border-color 0.15s, transform 0.15s;
 }
-.repo-widget:hover { background: var(--card2); }
-.repo-stars { color: var(--accent2); font-weight: 700; margin-left: auto; padding-left: 6px; }
+.repo-widget:hover { border-color: var(--accent); transform: translateY(-1px); }
+.repo-name { color: var(--muted); font-weight: 600; letter-spacing: 0.2px; }
+.repo-widget:hover .repo-name { color: var(--text); }
+.repo-stars { color: #e3b341; font-weight: 700; font-size: 11px; }
 .sidebar.collapsed .repo-widget { display: none; }
 .sidebar.collapsed .brand { padding: 4px 0 16px; justify-content: center; }
 .sidebar.collapsed .nav-txt,
