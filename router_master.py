@@ -178,16 +178,15 @@ class RouterToolApp:
     def _build_ui(self):
         root = self.root
         root.configure(fg_color=self.P["bg"])
+        self.lava_phase = 0
+        self.lava_colors = [self.P["accent"], self.P["accent2"], self.P["ok"],
+                            "#8b5cf6", "#f472b6", "#f59e0b"]
+        self.lava_pages = []
 
-        self.bg_canvas = tk.Canvas(root, highlightthickness=0, bg=self.P["bg"])
-        self.bg_canvas.place(x=0, y=0, relwidth=1, relheight=1)
-        self._bg_phase = 0
-        self._draw_gradient()
-
-        outer = ctk.CTkFrame(root, fg_color="transparent")
+        outer = ctk.CTkFrame(root, fg_color=self.P["bg"])
         outer.pack(fill="both", expand=True)
 
-        # ===== Сайдбар (сворачивается при наведении) =====
+        # ===== Сайдбар =====
         self.side_w = 210
         self.side_cw = 62
         self.side_target = self.side_w
@@ -198,13 +197,23 @@ class RouterToolApp:
         self.nav_btns = {}
 
         brand = ctk.CTkFrame(side, fg_color="transparent")
-        brand.pack(fill="x", padx=14, pady=(18, 14))
-        self.brand_title = ctk.CTkLabel(brand, text="RouterMaster", font=ctk.CTkFont("Segoe UI", 17, "bold"),
+        brand.pack(fill="x", padx=8, pady=(12, 10))
+        brand_row = ctk.CTkFrame(brand, fg_color="transparent")
+        brand_row.pack(fill="x")
+        self.brand_title = ctk.CTkLabel(brand_row, text="RouterMaster",
+                                        font=ctk.CTkFont("Segoe UI", 15, "bold"),
                                         text_color=self.P["text"])
-        self.brand_title.pack(anchor="w")
-        self.brand_sub = ctk.CTkLabel(brand, text="умный помощник OpenWrt", font=ctk.CTkFont("Segoe UI", 10),
+        self.brand_title.pack(side="left", padx=(4, 0))
+        self.btn_toggle = ctk.CTkButton(brand_row, text="\u2261", width=30, height=30,
+                                        fg_color=self.P["card"], hover_color=self.P["border"],
+                                        text_color=self.P["text"], corner_radius=8,
+                                        font=ctk.CTkFont("Segoe UI", 14),
+                                        command=self._toggle_sidebar)
+        self.btn_toggle.pack(side="right")
+        self.brand_sub = ctk.CTkLabel(brand, text="умный помощник OpenWrt",
+                                      font=ctk.CTkFont("Segoe UI", 10),
                                       text_color=self.P["muted"])
-        self.brand_sub.pack(anchor="w")
+        self.brand_sub.pack(anchor="w", padx=(4, 0), pady=(2, 0))
 
         self._nav_btn(side, "\u2302", "Главная", "home")
         self._nav_btn(side, "\u2039", "Подключение", "conn")
@@ -212,7 +221,7 @@ class RouterToolApp:
         self._nav_btn(side, "\u2726", "Параметры", "params")
 
         side_foot = ctk.CTkFrame(side, fg_color="transparent")
-        side_foot.pack(side="bottom", fill="x", padx=14, pady=14)
+        side_foot.pack(side="bottom", fill="x", padx=8, pady=12)
         self.foot_check = ctk.CTkButton(side_foot, text="\u21bb Проверить обновление", height=32,
                                         fg_color=self.P["card"], hover_color=self.P["border"],
                                         text_color=self.P["text"], corner_radius=8,
@@ -222,26 +231,26 @@ class RouterToolApp:
         self.foot_ver = ctk.CTkLabel(side_foot, text="RouterMaster v%s\nАвтор: R3G1ST" % APP_VERSION,
                                      font=ctk.CTkFont("Segoe UI", 10), text_color=self.P["muted"],
                                      justify="center")
-        self.foot_ver.pack(pady=(10, 0))
-
-        root.bind("<Motion>", self._on_motion)
+        self.foot_ver.pack(pady=(8, 0))
 
         # ===== Контент =====
         content = ctk.CTkFrame(outer, fg_color="transparent", corner_radius=0)
         content.pack(side="left", fill="both", expand=True, padx=(0, 0))
-
-        self.pages_area = ctk.CTkFrame(content, fg_color="transparent")
-        self.pages_area.pack(side="top", fill="both", expand=True)
+        self.content = content
 
         self.pages = {}
 
         # ----- Страница: Главная -----
-        page = ctk.CTkFrame(content, fg_color="transparent")
+        page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
+        page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
+        self._setup_lava(page)
+        page.bind("<Configure>", lambda e: self._layout_page(page))
 
-        hero = ctk.CTkFrame(page, fg_color="transparent")
-        hero.pack(fill="both", expand=True, padx=28, pady=24)
+        hero = ctk.CTkFrame(page, fg_color=self.P["card"], border_width=1,
+                            border_color=self.P["border"], corner_radius=14)
+        self._page_card(page, hero, "top")
         ctk.CTkLabel(hero, text="RouterMaster", font=ctk.CTkFont("Segoe UI", 34, "bold"),
-                     text_color=self.P["text"]).pack(anchor="w")
+                     text_color=self.P["text"]).pack(anchor="w", padx=24, pady=(20, 0))
         ctk.CTkLabel(hero, text="Умный помощник по настройке роутеров на OpenWrt",
                      font=ctk.CTkFont("Segoe UI", 13), text_color=self.P["muted"]).pack(anchor="w", pady=(2, 16))
 
@@ -275,7 +284,7 @@ class RouterToolApp:
 
         info = ctk.CTkFrame(page, fg_color=self.P["card"], border_width=1,
                             border_color=self.P["border"], corner_radius=14)
-        info.pack(fill="x", padx=28, pady=(0, 24))
+        self._page_card(page, info, "bottom")
         ctk.CTkLabel(info,
                      text="1. Введите данные роутера на вкладке «Подключение»\n"
                           "2. Выберите шаги на вкладке «Что выполнить»\n"
@@ -287,9 +296,12 @@ class RouterToolApp:
         self.pages["home"] = page
 
         # ----- Страница: Подключение -----
-        page = ctk.CTkFrame(content, fg_color="transparent")
+        page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
+        page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
+        self._setup_lava(page)
+        page.bind("<Configure>", lambda e: self._layout_page(page))
         card = self._card(page, "Подключение к роутеру")
-        card.pack(fill="x", padx=14, pady=(14, 10))
+        self._page_card(page, card, "top")
 
         self.var_host = tk.StringVar(value=self.config.get("host", DEFAULTS["host"]))
         self.var_port = tk.StringVar(value=self.config.get("port", DEFAULTS["port"]))
@@ -337,9 +349,12 @@ class RouterToolApp:
         self.pages["conn"] = page
 
         # ----- Страница: Что выполнить -----
-        page = ctk.CTkFrame(content, fg_color="transparent")
+        page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
+        page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
+        self._setup_lava(page)
+        page.bind("<Configure>", lambda e: self._layout_page(page))
         card = self._card(page, "Что выполнить (можно выбрать несколько)")
-        card.pack(fill="x", padx=14, pady=(14, 10))
+        self._page_card(page, card, "top")
         b = card._body
 
         self.var_update = tk.BooleanVar(value=self.config["steps"].get("update_packages", True))
@@ -393,9 +408,12 @@ class RouterToolApp:
         self.pages["steps"] = page
 
         # ----- Страница: Параметры -----
-        page = ctk.CTkFrame(content, fg_color="transparent")
+        page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
+        page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
+        self._setup_lava(page)
+        page.bind("<Configure>", lambda e: self._layout_page(page))
         card = self._card(page, "Параметры")
-        card.pack(fill="x", padx=14, pady=(14, 10))
+        self._page_card(page, card, "top")
         b = card._body
 
         self.var_ssid = tk.StringVar(value=self.config.get("wifi_ssid", DEFAULTS["wifi_ssid"]))
@@ -428,90 +446,104 @@ class RouterToolApp:
         self.pages["params"] = page
 
         for name, pg in self.pages.items():
-            pg.place(in_=self.pages_area, relx=0, rely=0, relwidth=1, relheight=1)
+            pg.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
 
         self._show_page("home")
-        self._animate_bg()
+        self._animate_lava()
         self._animate_sidebar()
 
     def _show_page(self, name):
         for n, pg in self.pages.items():
             if n == name:
-                pg.lift()
+                pg.tk.call("raise", pg._w)
             else:
-                pg.lower()
+                pg.tk.call("lower", pg._w)
 
-    # ---------- Динамический фон ----------
-    def _gradient_colors(self):
-        if self.is_dark:
-            return ("#0a0f1c", "#141a2e", "#0d1526")
-        return ("#f2f5fb", "#e6ebf6", "#ffffff")
-
-    def _draw_gradient(self):
+    # ---------- Фон «лава-лампа» ----------
+    def _setup_lava(self, canvas):
         try:
-            c = self.bg_canvas
-            c.delete("bg")
-            w = max(c.winfo_width(), 400)
-            h = max(c.winfo_height(), 300)
-            c1, c2, c3 = self._gradient_colors()
-            phase = self._bg_phase
-            base = [c1, c2, c3]
-            top = base[0]
-            mid = base[1]
-            bottom = base[2]
-
-            def hex_shift(hexc, amount):
-                r = min(255, max(0, int(hexc[1:3], 16) + amount))
-                g = min(255, max(0, int(hexc[3:5], 16) + amount))
-                b = min(255, max(0, int(hexc[5:7], 16) + amount))
-                return "#%02x%02x%02x" % (r, g, b)
-
-            shift = int(5 * (1 + math.sin(phase / 40.0)))
-            top = hex_shift(top, -shift)
-            mid = hex_shift(mid, shift)
-            bottom = hex_shift(bottom, -shift)
-
-            n = 40
-            for i in range(n):
-                t = i / float(n - 1)
-                if t < 0.5:
-                    a = top
-                    b = mid
-                    tt = t * 2
-                else:
-                    a = mid
-                    b = bottom
-                    tt = (t - 0.5) * 2
-                r = int(int(a[1:3], 16) + (int(b[1:3], 16) - int(a[1:3], 16)) * tt)
-                g = int(int(a[3:5], 16) + (int(b[3:5], 16) - int(a[3:5], 16)) * tt)
-                bl = int(int(a[5:7], 16) + (int(b[5:7], 16) - int(a[5:7], 16)) * tt)
-                color = "#%02x%02x%02x" % (r, g, bl)
-                y0 = int(h * t)
-                y1 = int(h * (t + 1.0 / n)) + 1
-                c.create_rectangle(0, y0, w, y1, fill=color, outline=color, tags="bg")
-            c.tag_lower("bg")
+            w = max(canvas.winfo_width(), 400)
+            h = max(canvas.winfo_height(), 300)
+            rnd = __import__("random").Random(7)
+            blobs = []
+            for i in range(7):
+                blobs.append({
+                    "id": None,
+                    "x": rnd.uniform(0.15, 0.85) * w,
+                    "y": rnd.uniform(0.1, 0.9) * h,
+                    "r": rnd.uniform(60, 140),
+                    "p": rnd.uniform(0, 6.283),
+                    "fx": rnd.uniform(0.005, 0.011),
+                    "fy": rnd.uniform(0.005, 0.011),
+                })
+            for b in blobs:
+                b["id"] = canvas.create_oval(0, 0, 10, 10, fill=self.P["accent"],
+                                             outline="", stipple="gray50")
+            canvas._blobs = blobs
+            canvas._w0 = w
+            canvas._h0 = h
+            self.lava_pages.append(canvas)
         except Exception:
             pass
 
-    def _animate_bg(self):
+    def _animate_lava(self):
+        self.lava_phase += 1
+        for canvas in self.lava_pages:
+            try:
+                w = max(canvas.winfo_width(), 400)
+                h = max(canvas.winfo_height(), 300)
+                for i, b in enumerate(canvas._blobs):
+                    x = b["x"] + math.sin(self.lava_phase * b["fx"] + b["p"]) * 90
+                    y = b["y"] + math.cos(self.lava_phase * b["fy"] + b["p"]) * 70
+                    r = b["r"] * (1 + 0.18 * math.sin(self.lava_phase * 0.02 + b["p"]))
+                    canvas.coords(b["id"], x - r, y - r, x + r, y + r)
+                    idx = (int(self.lava_phase * 0.02) + i) % len(self.lava_colors)
+                    canvas.itemconfig(b["id"], fill=self.lava_colors[idx])
+            except Exception:
+                pass
         try:
-            if self.root.state() != "iconic":
-                self._bg_phase += 1
-                self._draw_gradient()
+            self.root.after(80, self._animate_lava)
         except Exception:
             pass
+
+    # ---------- Карточки на canvas-страницах ----------
+    def _page_card(self, page, card, mode="top"):
+        win = page.create_window(0, 0, anchor="nw", window=card)
+        card._win = win
+        card._mode = mode
+        if not hasattr(page, "_cards"):
+            page._cards = []
+        page._cards.append(card)
+        return card
+
+    def _layout_page(self, page):
         try:
-            self.root.after(90, self._animate_bg)
+            page.update_idletasks()
+            w = max(page.winfo_width(), 300)
+            h = max(page.winfo_height(), 300)
+            m = 14
+            cards = getattr(page, "_cards", [])
+            for c in cards:
+                page.coords(c._win, m, 0)
+                page.itemconfigure(c._win, width=w - 2 * m)
+            page.update_idletasks()
+            tops = [c for c in cards if c._mode != "bottom"]
+            bottoms = [c for c in cards if c._mode == "bottom"]
+            y = m
+            for c in tops:
+                page.coords(c._win, m, y)
+                y += c.winfo_reqheight() + 10
+            y = h - m
+            for c in bottoms:
+                y -= c.winfo_reqheight()
+                page.coords(c._win, m, y)
+                y -= 10
         except Exception:
             pass
 
     # ---------- Сворачивание сайдбара ----------
-    def _on_motion(self, event):
-        try:
-            inside = event.x < self.side_w + 10
-        except Exception:
-            inside = False
-        self.side_target = self.side_w if inside else self.side_cw
+    def _toggle_sidebar(self):
+        self.side_target = self.side_cw if self.side_w > self.side_cw else self.side_w
 
     def _set_sidebar_width(self, w):
         try:
@@ -521,13 +553,15 @@ class RouterToolApp:
                 self.brand_sub.pack_forget()
                 self.foot_ver.pack_forget()
                 self.foot_check.configure(text="\u21bb")
+                self.btn_toggle.configure(text="\u00bb")
                 for btn in self.nav_btns.values():
                     btn.configure(text=btn._icon)
             else:
                 self.brand_title.configure(text="RouterMaster")
-                self.brand_sub.pack(anchor="w", after=self.brand_title)
-                self.foot_ver.pack(pady=(10, 0))
+                self.brand_sub.pack(anchor="w", padx=(4, 0), pady=(2, 0))
+                self.foot_ver.pack(pady=(8, 0))
                 self.foot_check.configure(text="\u21bb Проверить обновление")
+                self.btn_toggle.configure(text="\u2261")
                 for btn in self.nav_btns.values():
                     btn.configure(text=btn._icon + "  " + btn._label)
         except Exception:
