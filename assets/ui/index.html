@@ -43,15 +43,17 @@
           <button class="btn-primary btn-big" id="btn-run">ВЫПОЛНИТЬ</button>
           <button class="btn-ghost" id="btn-reset">Сброс + настройка</button>
           <div class="hero-actions">
-            <button class="btn-link" id="btn-save">Сохранить настройки</button>
             <button class="btn-link" id="btn-log">Открыть лог</button>
           </div>
         </div>
         <div class="card info-card">
-          <p>1. Введите данные роутера на вкладке «Подключение»<br>
-             2. Выберите шаги на вкладке «Что выполнить»<br>
-             3. Настройте Wi-Fi и прокси на вкладке «Параметры»<br>
-             4. Нажмите «ВЫПОЛНИТЬ» — результат будет виден в окне лога</p>
+          <h2 class="card-title">Как начать</h2>
+          <ol class="steps">
+            <li class="step"><span class="step-num">1</span><span>Введите данные роутера на вкладке «Подключение»</span></li>
+            <li class="step"><span class="step-num">2</span><span>Выберите шаги на вкладке «Что выполнить»</span></li>
+            <li class="step"><span class="step-num">3</span><span>Настройте Wi-Fi и прокси на вкладке «Параметры»</span></li>
+            <li class="step"><span class="step-num">4</span><span>Нажмите «ВЫПОЛНИТЬ» — результат будет в окне лога</span></li>
+          </ol>
         </div>
       </section>
 
@@ -176,7 +178,8 @@
       <label class="switch-row"><input type="checkbox" id="st-autocheck"><span>Проверять обновления при запуске</span></label>
       <div class="modal-btns">
         <button class="btn-danger" id="settings-reset">Сбросить настройки</button>
-        <button class="btn-primary" id="settings-ok">OK</button>
+        <button class="btn-primary" id="settings-save">Сохранить настройки</button>
+        <button class="btn-ghost" id="settings-ok">OK</button>
       </div>
     </div>
   </div>

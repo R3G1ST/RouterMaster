@@ -218,7 +218,32 @@ html, body {
 .btn-link { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; padding: 4px; }
 .btn-link:hover { color: var(--text); text-decoration: underline; }
 .info-card { margin-top: 16px; }
-.info-card p { line-height: 1.8; font-size: 13px; color: var(--text); }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; list-style: none; }
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.step-num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* Формы */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }

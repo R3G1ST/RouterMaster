@@ -148,6 +148,9 @@ const App = {
     });
     document.getElementById('btn-settings').addEventListener('click', () => this.openSettings());
     document.getElementById('settings-ok').addEventListener('click', () => this.byId('settings-overlay').style.display = 'none');
+    document.getElementById('settings-save').addEventListener('click', () => {
+      this.api?.save_config().then(() => this.msg('Настройки сохранены', 'Готово'));
+    });
     document.getElementById('settings-reset').addEventListener('click', () => this.resetSettings());
     document.getElementById('st-dark2').addEventListener('change', e => this.setDark(e.target.checked));
     document.getElementById('st-autocheck').addEventListener('change', e => this.api?.save_field('auto_check_update', e.target.checked));
