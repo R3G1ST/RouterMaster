@@ -121,7 +121,6 @@ class RouterToolApp:
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self._build_ui()
-        self.log("Готово. Заполните настройки и нажмите «ВЫПОЛНИТЬ».")
 
     # ---------- Построение интерфейса ----------
     def _card(self, parent, title):
@@ -191,6 +190,7 @@ class RouterToolApp:
         ctk.CTkLabel(brand, text="умный помощник OpenWrt", font=ctk.CTkFont("Segoe UI", 10),
                      text_color=self.P["muted"]).pack(anchor="w")
 
+        self._nav_btn(side, "\u2302 Главная", "home")
         self._nav_btn(side, "\u2039 Подключение", "conn")
         self._nav_btn(side, "\u2699 Что выполнить", "steps")
         self._nav_btn(side, "\u2726 Параметры", "params")
@@ -214,6 +214,57 @@ class RouterToolApp:
         self.pages_area.pack(side="top", fill="both", expand=True)
 
         self.pages = {}
+
+        # ----- Страница: Главная -----
+        page = ctk.CTkFrame(content, fg_color="transparent")
+
+        hero = ctk.CTkFrame(page, fg_color="transparent")
+        hero.pack(fill="both", expand=True, padx=28, pady=24)
+        ctk.CTkLabel(hero, text="RouterMaster", font=ctk.CTkFont("Segoe UI", 34, "bold"),
+                     text_color=self.P["text"]).pack(anchor="w")
+        ctk.CTkLabel(hero, text="Умный помощник по настройке роутеров на OpenWrt",
+                     font=ctk.CTkFont("Segoe UI", 13), text_color=self.P["muted"]).pack(anchor="w", pady=(2, 16))
+
+        self.btn_run = ctk.CTkButton(hero, text="ВЫПОЛНИТЬ", height=56,
+                                     fg_color=self.P["accent"], hover_color=self.P["accent_hover"],
+                                     text_color="#ffffff", corner_radius=14,
+                                     font=ctk.CTkFont("Segoe UI", 16, "bold"),
+                                     command=self.run_all)
+        self.btn_run.pack(anchor="w", fill="x", pady=(4, 10))
+
+        self.btn_reset = ctk.CTkButton(hero, text="Сброс + настройка", height=44,
+                                       fg_color=self.P["card"], hover_color=self.P["border"],
+                                       border_width=1, border_color=self.P["border"],
+                                       text_color=self.P["text"], corner_radius=12,
+                                       font=ctk.CTkFont("Segoe UI", 13),
+                                       command=self.reset_and_setup)
+        self.btn_reset.pack(anchor="w", fill="x")
+
+        hero_actions = ctk.CTkFrame(hero, fg_color="transparent")
+        hero_actions.pack(anchor="w", pady=(14, 0))
+        ctk.CTkButton(hero_actions, text="Сохранить настройки", height=32,
+                      fg_color="transparent", hover_color=self.P["card"],
+                      text_color=self.P["muted"], corner_radius=8,
+                      font=ctk.CTkFont("Segoe UI", 11),
+                      command=self.save_config).pack(side="left", padx=(0, 8))
+        ctk.CTkButton(hero_actions, text="Открыть лог", height=32,
+                      fg_color="transparent", hover_color=self.P["card"],
+                      text_color=self.P["muted"], corner_radius=8,
+                      font=ctk.CTkFont("Segoe UI", 11),
+                      command=self._show_log).pack(side="left", padx=8)
+
+        info = ctk.CTkFrame(page, fg_color=self.P["card"], border_width=1,
+                            border_color=self.P["border"], corner_radius=14)
+        info.pack(fill="x", padx=28, pady=(0, 24))
+        ctk.CTkLabel(info,
+                     text="1. Введите данные роутера на вкладке «Подключение»\n"
+                          "2. Выберите шаги на вкладке «Что выполнить»\n"
+                          "3. Настройте Wi-Fi и прокси на вкладке «Параметры»\n"
+                          "4. Нажмите «ВЫПОЛНИТЬ» — результат будет виден в окне лога",
+                     justify="left", text_color=self.P["text"],
+                     font=ctk.CTkFont("Segoe UI", 12)).pack(anchor="w", padx=18, pady=16)
+
+        self.pages["home"] = page
 
         # ----- Страница: Подключение -----
         page = ctk.CTkFrame(content, fg_color="transparent")
@@ -346,64 +397,7 @@ class RouterToolApp:
         for name, pg in self.pages.items():
             pg.place(in_=self.pages_area, relx=0, rely=0, relwidth=1, relheight=1)
 
-        self._show_page("conn")
-
-        # ===== Кнопки действий =====
-        bar = ctk.CTkFrame(content, fg_color="transparent")
-        bar.pack(side="bottom", fill="x", padx=14, pady=(0, 12))
-
-        self.btn_run = ctk.CTkButton(bar, text="ВЫПОЛНИТЬ", height=44,
-                                     fg_color=self.P["accent"], hover_color=self.P["accent_hover"],
-                                     text_color="#ffffff", corner_radius=10,
-                                     font=ctk.CTkFont("Segoe UI", 13, "bold"),
-                                     command=self.run_all)
-        self.btn_run.pack(side="left", padx=(0, 8))
-        self.btn_reset = ctk.CTkButton(bar, text="Сброс + настройка", height=44,
-                                       fg_color=self.P["card"], hover_color=self.P["border"],
-                                       border_width=1, border_color=self.P["border"],
-                                       text_color=self.P["text"], corner_radius=10,
-                                       font=ctk.CTkFont("Segoe UI", 12),
-                                       command=self.reset_and_setup)
-        self.btn_reset.pack(side="left", padx=8)
-        ctk.CTkButton(bar, text="Сохранить настройки", height=36,
-                      fg_color="transparent", hover_color=self.P["card"],
-                      text_color=self.P["muted"], corner_radius=8,
-                      font=ctk.CTkFont("Segoe UI", 11),
-                      command=self.save_config).pack(side="right", padx=(8, 0))
-        ctk.CTkButton(bar, text="Скопировать лог", height=36,
-                      fg_color="transparent", hover_color=self.P["card"],
-                      text_color=self.P["muted"], corner_radius=8,
-                      font=ctk.CTkFont("Segoe UI", 11),
-                      command=self.copy_log).pack(side="right", padx=(8, 0))
-        ctk.CTkButton(bar, text="Очистить лог", height=36,
-                      fg_color="transparent", hover_color=self.P["card"],
-                      text_color=self.P["muted"], corner_radius=8,
-                      font=ctk.CTkFont("Segoe UI", 11),
-                      command=self.clear_log).pack(side="right", padx=(8, 0))
-
-        # ===== Лог =====
-        log_card = ctk.CTkFrame(content, fg_color=self.P["card"],
-                                border_width=1, border_color=self.P["border"], corner_radius=14)
-        log_card.pack(side="bottom", fill="x", padx=14, pady=(0, 12))
-        head = ctk.CTkFrame(log_card, fg_color="transparent")
-        head.pack(fill="x", padx=14, pady=(10, 0))
-        ctk.CTkLabel(head, text="Лог", font=ctk.CTkFont("Segoe UI", 12, "bold"),
-                     text_color=self.P["text"]).pack(side="left")
-        self.lbl_time = ctk.CTkLabel(head, text="Время: 0:00",
-                                     font=ctk.CTkFont("Segoe UI", 10), text_color=self.P["muted"])
-        self.lbl_time.pack(side="right")
-        self.progress = ctk.CTkProgressBar(log_card, mode="indeterminate",
-                                           progress_color=self.P["accent2"], height=6,
-                                           corner_radius=3)
-        self.progress.pack(fill="x", padx=14, pady=(6, 2))
-        self.progress.set(0)
-
-        self.log_text = ctk.CTkTextbox(log_card, height=170, wrap="word",
-                                       fg_color=self.P["field"], border_color=self.P["border"],
-                                       border_width=1, text_color=self.P["text"],
-                                       corner_radius=8, font=ctk.CTkFont("Consolas", 10))
-        self.log_text.pack(fill="x", padx=14, pady=(4, 12))
-        self.log_text.configure(state="disabled")
+        self._show_page("home")
 
     def _show_page(self, name):
         for n, pg in self.pages.items():
@@ -411,6 +405,69 @@ class RouterToolApp:
                 pg.lift()
             else:
                 pg.lower()
+
+    # ---------- Окно лога (модалка) ----------
+    def _ensure_log(self):
+        if hasattr(self, "log_win") and self.log_win.winfo_exists():
+            return
+        win = ctk.CTkToplevel(self.root)
+        win.title("RouterMaster — лог выполнения")
+        win.geometry("760x480")
+        win.minsize(560, 360)
+        win.configure(fg_color=self.P["panel"])
+        self.log_win = win
+
+        head = ctk.CTkFrame(win, fg_color="transparent")
+        head.pack(fill="x", padx=16, pady=(12, 0))
+        ctk.CTkLabel(head, text="Лог выполнения", font=ctk.CTkFont("Segoe UI", 14, "bold"),
+                     text_color=self.P["text"]).pack(side="left")
+        self.lbl_time = ctk.CTkLabel(head, text="Время: 0:00",
+                                     font=ctk.CTkFont("Segoe UI", 11), text_color=self.P["muted"])
+        self.lbl_time.pack(side="right")
+
+        self.progress = ctk.CTkProgressBar(win, mode="indeterminate",
+                                           progress_color=self.P["accent2"], height=6,
+                                           corner_radius=3)
+        self.progress.pack(fill="x", padx=16, pady=(8, 0))
+        self.progress.set(0)
+
+        self.log_text = ctk.CTkTextbox(win, wrap="word",
+                                       fg_color=self.P["field"], border_color=self.P["border"],
+                                       border_width=1, text_color=self.P["text"],
+                                       corner_radius=10, font=ctk.CTkFont("Consolas", 11))
+        self.log_text.pack(fill="both", expand=True, padx=16, pady=(8, 0))
+        self.log_text.configure(state="disabled")
+
+        btns = ctk.CTkFrame(win, fg_color="transparent")
+        btns.pack(fill="x", padx=16, pady=12)
+        self._dialog_btn(btns, "Скопировать лог", self.copy_log).pack(side="left")
+        self._dialog_btn(btns, "Очистить лог", self.clear_log).pack(side="left", padx=(8, 0))
+        self._dialog_btn(btns, "Скрыть окно", self._close_log).pack(side="right")
+
+        win.protocol("WM_DELETE_WINDOW", self._close_log)
+        self.root.after(120, self._center_log)
+        self.log("Готово. Заполните настройки и нажмите «ВЫПОЛНИТЬ».")
+        win.lift()
+        win.focus_force()
+
+    def _center_log(self):
+        try:
+            self.log_win.update_idletasks()
+            x = self.root.winfo_rootx() + (self.root.winfo_width() - self.log_win.winfo_width()) // 2
+            y = self.root.winfo_rooty() + (self.root.winfo_height() - self.log_win.winfo_height()) // 2
+            self.log_win.geometry("+%d+%d" % (max(x, 0), max(y, 0)))
+        except Exception:
+            pass
+
+    def _show_log(self):
+        self._ensure_log()
+        self.log_win.deiconify()
+        self.log_win.lift()
+        self.log_win.focus_force()
+
+    def _close_log(self):
+        if hasattr(self, "log_win") and self.log_win.winfo_exists():
+            self.log_win.withdraw()
 
     def apply_theme(self, dark):
         if dark:
@@ -715,6 +772,8 @@ class RouterToolApp:
         self.root.destroy()
 
     def log(self, msg):
+        if not hasattr(self, "log_text") or not self.log_text.winfo_exists():
+            return
         self.log_text.configure(state="normal")
         self.log_text.insert("end", msg + "\n")
         self.log_text.see("end")
@@ -722,11 +781,15 @@ class RouterToolApp:
         self.root.update_idletasks()
 
     def clear_log(self):
+        if not hasattr(self, "log_text") or not self.log_text.winfo_exists():
+            return
         self.log_text.configure(state="normal")
         self.log_text.delete("1.0", "end")
         self.log_text.configure(state="disabled")
 
     def copy_log(self):
+        if not hasattr(self, "log_text") or not self.log_text.winfo_exists():
+            return
         content = self.log_text.get("1.0", "end-1c")
         self.root.clipboard_clear()
         self.root.clipboard_append(content)
@@ -913,6 +976,8 @@ class RouterToolApp:
         if need_key and len(self.var_wifi_pass.get()) < 8:
             self.show_message("Внимание", "Пароль Wi-Fi должен быть не короче 8 символов!")
             return
+        self._ensure_log()
+        self._show_log()
         self.btn_run.config(state="disabled")
         threading.Thread(target=self.worker, daemon=True).start()
 
@@ -926,6 +991,7 @@ class RouterToolApp:
         finally:
             self.stop_progress()
             self.root.after(0, lambda: self.btn_run.config(state="normal"))
+            self.root.after(0, self._show_log)
             self.log("Завершено.")
 
     def run_steps(self):
@@ -1122,6 +1188,8 @@ class RouterToolApp:
         if not ok:
             return
         self.new_password = self.var_pass.get()
+        self._ensure_log()
+        self._show_log()
         self.btn_run.config(state="disabled")
         self.btn_reset.config(state="disabled")
         threading.Thread(target=self.reset_worker, daemon=True).start()
@@ -1137,6 +1205,7 @@ class RouterToolApp:
             self.stop_progress()
             self.root.after(0, lambda: self.btn_run.config(state="normal"))
             self.root.after(0, lambda: self.btn_reset.config(state="normal"))
+            self.root.after(0, self._show_log)
             self.log("Завершено.")
 
     def do_reset_and_setup(self):
