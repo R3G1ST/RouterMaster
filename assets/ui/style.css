@@ -246,6 +246,56 @@ select {
 }
 select:hover { border-color: var(--accent); }
 select option { background: var(--card); color: var(--text); }
+select.dd-native { display: none !important; }
+.dd { position: relative; display: inline-block; vertical-align: middle; margin-top: 5px; }
+.switch-row .dd { margin: 0; }
+.dd-btn {
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 9px 30px 9px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 170px;
+  text-align: left;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%2397a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.15s;
+}
+.dd-btn:hover, .dd-btn.open { border-color: var(--accent); }
+.dd-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  max-height: 220px;
+  overflow: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 60;
+  padding: 4px;
+}
+.dd-item {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dd-item:hover { background: var(--accent); color: #fff; }
+.dd-item.sel { color: var(--accent2); font-weight: 600; }
 textarea { resize: vertical; }
 
 .pass-wrap { position: relative; display: block; margin-top: 5px; }

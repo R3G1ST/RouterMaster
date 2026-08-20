@@ -11,8 +11,69 @@ const App = {
     this.bindActions();
     this.bindFields();
     this.bindTitlebar();
+    this.initDropdowns();
     this.loadStars();
     setInterval(() => this.loadStars(), 300000);
+  },
+
+  initDropdowns() {
+    this._dds = [];
+    document.querySelectorAll('select').forEach(sel => this.buildDropdown(sel));
+  },
+
+  buildDropdown(sel) {
+    const wrap = document.createElement('div');
+    wrap.className = 'dd';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'dd-btn';
+    const list = document.createElement('div');
+    list.className = 'dd-list hidden';
+    const render = () => {
+      btn.textContent = sel.options[sel.selectedIndex]?.text || '';
+    };
+    const close = () => list.classList.add('hidden');
+    sel.querySelectorAll('option').forEach((o, i) => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'dd-item' + (o.selected ? ' sel' : '');
+      item.textContent = o.text;
+      item.addEventListener('click', () => {
+        sel.selectedIndex = i;
+        sel.dispatchEvent(new Event('change'));
+        list.querySelectorAll('.dd-item').forEach(el => el.classList.remove('sel'));
+        item.classList.add('sel');
+        render();
+        close();
+      });
+      list.appendChild(item);
+    });
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.dd-list').forEach(l => {
+        if (l !== list) l.classList.add('hidden');
+      });
+      list.classList.toggle('hidden');
+      btn.classList.toggle('open', !list.classList.contains('hidden'));
+    });
+    document.addEventListener('mousedown', e => {
+      if (!wrap.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') close();
+    });
+    render();
+    wrap.appendChild(btn);
+    wrap.appendChild(list);
+    sel.insertAdjacentElement('afterend', wrap);
+    sel.classList.add('dd-native');
+    this._dds.push({ sel, btn });
+  },
+
+  syncDropdowns() {
+    this._dds.forEach(({ sel, btn }) => {
+      btn.textContent = sel.options[sel.selectedIndex]?.text || '';
+    });
   },
 
   bindTitlebar() {
@@ -169,6 +230,7 @@ async loadConfig() {
     this.byId('st-enc2').value = cfg.wifi_enc_2g || 'WPA2 (PSK)';
     this.byId('cfg-dark').checked = (cfg.gui_theme || 'light') === 'dark';
     this.byId('app-ver').textContent = cfg.app_version || '';
+    this.syncDropdowns();
     if (cfg.sidebar_collapsed) this.byId('sidebar').classList.add('collapsed');
     if ((cfg.gui_theme || 'light') === 'dark') document.body.classList.add('dark');
   },
