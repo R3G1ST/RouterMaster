@@ -17,6 +17,8 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
+CloseApplications=yes
+CloseApplicationsFilter=RouterMaster.exe,RouterMasterAdmin.exe
 
 [Languages]
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
@@ -26,6 +28,9 @@ Name: "desktopicon"; Description: "Создать ярлык на рабочем
 
 [Files]
 Source: "C:\Users\R3G1S\OneDrive\Документы\Default Project Redesign\dist\RouterMaster.exe"; DestDir: "{app}"; Flags: ignoreversion
+
+[Run]
+Filename: "{app}\RouterMaster.exe"; Description: "Запустить RouterMaster"; Flags: nowait postinstall
 
 [Icons]
 Name: "{autoprograms}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFilename: "{app}\RouterMaster.exe"
