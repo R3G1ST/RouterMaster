@@ -10,6 +10,17 @@ const App = {
     this.bindNav();
     this.bindActions();
     this.bindFields();
+    this.loadStars();
+  },
+
+  async loadStars() {
+    const el = this.byId('repo-widget');
+    try {
+      const s = await this.api?.get_stars();
+      el.textContent = '★ ' + (s >= 1000 ? (s / 1000).toFixed(1).replace('.', ',') + 'k' : s || '—');
+    } catch (e) {
+      el.textContent = '★ —';
+    }
   },
 
   bindNav() {
@@ -38,6 +49,10 @@ const App = {
     document.getElementById('btn-check').addEventListener('click', () => this.api?.check_update());
     document.getElementById('btn-extra').addEventListener('click', () => this.api?.open_extra_soft());
     document.getElementById('btn-side-toggle').addEventListener('click', () => this.toggleSidebar());
+    this.byId('repo-widget').addEventListener('click', e => {
+      e.preventDefault();
+      this.api?.open_repo();
+    });
     document.getElementById('btn-settings').addEventListener('click', () => this.openSettings());
     document.getElementById('settings-ok').addEventListener('click', () => this.byId('settings-overlay').style.display = 'none');
     document.getElementById('settings-reset').addEventListener('click', () => this.resetSettings());

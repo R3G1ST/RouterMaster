@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta8"
+APP_VERSION = "1.5.0-beta9"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -163,6 +163,20 @@ class Api:
         self._app.show_message("Доп. Софт",
                               "Здесь будут дополнительные программы\nдля установки на роутер.\nПока пусто — вернитесь позже.")
         return True
+
+    def open_repo(self):
+        webbrowser.open("https://github.com/%s" % UPDATE_REPO)
+        return True
+
+    def get_stars(self):
+        try:
+            req = urllib.request.Request(
+                "https://api.github.com/repos/%s" % UPDATE_REPO,
+                headers={"User-Agent": "RouterMaster"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return json.loads(r.read().decode("utf-8")).get("stargazers_count", 0)
+        except Exception:
+            return 0
 
     def clear_log(self):
         self._app.clear_log()

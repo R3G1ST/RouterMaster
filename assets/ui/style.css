@@ -58,6 +58,25 @@ html, body {
   transition: background 0.15s, color 0.15s;
 }
 .side-toggle:hover { background: var(--card2); color: var(--text); }
+.repo-widget {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--accent2);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.repo-widget:hover { background: var(--card2); }
+.sidebar.collapsed .repo-widget { display: none; }
 .sidebar.collapsed .brand { padding: 4px 0 16px; justify-content: center; }
 .sidebar.collapsed .nav-txt,
 .sidebar.collapsed .foot-ver { display: none; }
