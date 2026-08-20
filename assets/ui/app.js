@@ -14,12 +14,12 @@ const App = {
   },
 
   async loadStars() {
-    const el = this.byId('repo-widget');
+    const el = this.byId('repo-stars');
     try {
       const s = await this.api?.get_stars();
-      el.textContent = '★ ' + (s >= 1000 ? (s / 1000).toFixed(1).replace('.', ',') + 'k' : s || '—');
+      el.textContent = '★ ' + (s >= 1000 ? (s / 1000).toFixed(1).replace('.', ',') + 'k' : (s ?? 0));
     } catch (e) {
-      el.textContent = '★ —';
+      el.textContent = '★ 0';
     }
   },
 

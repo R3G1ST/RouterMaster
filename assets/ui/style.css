@@ -61,12 +61,13 @@ html, body {
 .repo-widget {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 4px;
   margin-left: auto;
   background: var(--card);
   border: 1px solid var(--border);
-  color: var(--accent2);
-  font-size: 12px;
+  color: var(--text);
+  font-size: 11px;
   font-weight: 600;
   padding: 6px 10px;
   border-radius: 8px;
@@ -76,6 +77,7 @@ html, body {
   transition: background 0.15s;
 }
 .repo-widget:hover { background: var(--card2); }
+.repo-stars { color: var(--accent2); font-weight: 700; margin-left: auto; padding-left: 6px; }
 .sidebar.collapsed .repo-widget { display: none; }
 .sidebar.collapsed .brand { padding: 4px 0 16px; justify-content: center; }
 .sidebar.collapsed .nav-txt,
