@@ -44,7 +44,7 @@ html, body {
   transition: width 0.25s ease, min-width 0.25s ease;
 }
 .sidebar.collapsed { width: 56px; min-width: 56px; }
-.brand { display: flex; align-items: center; gap: 8px; padding: 4px 8px 16px; white-space: nowrap; }
+.brand { display: flex; align-items: center; padding: 4px 8px 16px; }
 .side-toggle {
   background: var(--card);
   border: 1px solid var(--border);
@@ -59,11 +59,8 @@ html, body {
 }
 .side-toggle:hover { background: var(--card2); color: var(--text); }
 .sidebar.collapsed .brand { padding: 4px 0 16px; justify-content: center; }
-.sidebar.collapsed .brand-text,
 .sidebar.collapsed .nav-txt,
 .sidebar.collapsed .foot-ver { display: none; }
-.brand-name { font-size: 17px; font-weight: 700; }
-.brand-sub { font-size: 11px; color: var(--muted); }
 .nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .nav-btn {
   background: transparent;
@@ -193,6 +190,24 @@ input[type="text"], input[type="password"], select, textarea {
 }
 input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 textarea { resize: vertical; }
+
+.pass-wrap { position: relative; display: block; margin-top: 5px; }
+.pass-wrap input { margin-top: 0; padding-right: 78px; }
+.pass-toggle {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.pass-toggle:hover { color: var(--text); background: var(--card2); }
 
 .btn-small {
   background: var(--card);

@@ -43,11 +43,17 @@ const App = {
     document.getElementById('settings-reset').addEventListener('click', () => this.resetSettings());
     document.getElementById('st-dark2').addEventListener('change', e => this.setDark(e.target.checked));
     document.getElementById('st-autocheck').addEventListener('change', e => this.api?.save_field('auto_check_update', e.target.checked));
-    document.getElementById('btn-show-pass').addEventListener('click', () => {
-      const inp = document.getElementById('cfg-pass');
-      inp.type = inp.type === 'password' ? 'text' : 'password';
-      this.byId('btn-show-pass').textContent = inp.type === 'password' ? 'Показать' : 'Скрыть';
-    });
+    const bindPassToggle = (btnId, inpId) => {
+      const btn = document.getElementById(btnId);
+      btn.addEventListener('click', () => {
+        const inp = document.getElementById(inpId);
+        const show = inp.type === 'password';
+        inp.type = show ? 'text' : 'password';
+        btn.textContent = show ? 'Скрыть' : 'Показать';
+      });
+    };
+    bindPassToggle('btn-show-pass', 'cfg-pass');
+    bindPassToggle('btn-show-pass-wifi', 'cfg-wifi-pass');
     document.querySelectorAll('[data-act]').forEach(b => {
       b.addEventListener('click', () => this.api[b.dataset.act]());
     });

@@ -949,7 +949,7 @@ def main():
     html = _find_html()
     api = Api(None)
     window = webview.create_window(
-        "RouterMaster — OpenWrt",
+        "RouterMaster",
         url=html,
         width=1040,
         height=720,
