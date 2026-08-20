@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RouterMaster</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-name">RouterMaster</div>
+        <div class="brand-sub">умный помощник OpenWrt</div>
+      </div>
+      <nav class="nav">
+        <button class="nav-btn active" data-page="home">⌂ Главная</button>
+        <button class="nav-btn" data-page="conn">⇠ Подключение</button>
+        <button class="nav-btn" data-page="steps">⚙ Что выполнить</button>
+        <button class="nav-btn" data-page="params">✦ Параметры</button>
+      </nav>
+      <div class="side-foot">
+        <button class="foot-btn" id="btn-check">↻ Проверить обновление</button>
+        <div class="foot-ver" id="foot-ver">RouterMaster <span id="app-ver">–</span></div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- Страница: Главная -->
+      <section class="page active" id="page-home">
+        <div class="hero card">
+          <h1>RouterMaster</h1>
+          <p class="muted">Умный помощник по настройке роутеров на OpenWrt</p>
+          <button class="btn-primary btn-big" id="btn-run">ВЫПОЛНИТЬ</button>
+          <button class="btn-ghost" id="btn-reset">Сброс + настройка</button>
+          <div class="hero-actions">
+            <button class="btn-link" id="btn-save">Сохранить настройки</button>
+            <button class="btn-link" id="btn-log">Открыть лог</button>
+          </div>
+        </div>
+        <div class="card info-card">
+          <p>1. Введите данные роутера на вкладке «Подключение»<br>
+             2. Выберите шаги на вкладке «Что выполнить»<br>
+             3. Настройте Wi-Fi и прокси на вкладке «Параметры»<br>
+             4. Нажмите «ВЫПОЛНИТЬ» — результат будет виден в окне лога</p>
+        </div>
+      </section>
+
+      <!-- Страница: Подключение -->
+      <section class="page" id="page-conn">
+        <div class="card">
+          <h2 class="card-title">Подключение к роутеру</h2>
+          <div class="grid">
+            <label>IP роутера<input type="text" id="cfg-host" placeholder="192.168.1.1"></label>
+            <label>Порт<input type="text" id="cfg-port" placeholder="22"></label>
+            <label>Логин<input type="text" id="cfg-user" placeholder="root"></label>
+            <label>Пароль<input type="password" id="cfg-pass"></label>
+            <button class="btn-small" id="btn-show-pass">Показать</button>
+          </div>
+          <label class="switch-row">
+            <input type="checkbox" id="cfg-dark">
+            <span>Тёмная тема</span>
+          </label>
+          <div class="test-row">
+            <button class="btn-accent" id="btn-test">⚙ Тест системы и подключения</button>
+            <span class="muted small">Проверит вашу систему, связь с роутером и его состояние</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Страница: Что выполнить -->
+      <section class="page" id="page-steps">
+        <div class="card">
+          <h2 class="card-title">Что выполнить (можно выбрать несколько)</h2>
+          <label class="switch-row"><input type="checkbox" id="st-update"><span>Обновить все пакеты</span></label>
+          <label class="switch-row"><input type="checkbox" id="st-podkop"><span>Установить / обновить Podkop</span><button class="btn-tiny" data-act="rm-podkop">Удалить</button></label>
+          <label class="switch-row"><input type="checkbox" id="st-zapret"><span>Установить / обновить Zapret</span><button class="btn-tiny" data-act="rm-zapret">Удалить</button></label>
+          <label class="switch-row"><input type="checkbox" id="st-theme"><span>Установить тему:</span>
+            <select id="st-theme-sel"><option>Argon</option><option>Proton2025</option><option>Bootstrap</option><option>Bootstrap Dark</option><option>Bootstrap Light</option></select>
+          </label>
+          <label class="switch-row"><input type="checkbox" id="st-ru"><span>Русский язык интерфейса</span></label>
+          <label class="switch-row"><input type="checkbox" id="st-wifi"><span>Создать Wi-Fi 5G:</span>
+            <select id="st-enc5"><option>WPA3 (SAE)</option><option>WPA3 + WPA2 (переходный)</option><option>WPA2 (PSK)</option><option>WPA (устаревший)</option><option>Открытая сеть</option></select>
+          </label>
+          <label class="switch-row"><input type="checkbox" id="st-wifi2"><span>Создать Wi-Fi 2G:</span>
+            <select id="st-enc2"><option>WPA3 (SAE)</option><option>WPA3 + WPA2 (переходный)</option><option selected>WPA2 (PSK)</option><option>WPA (устаревший)</option><option>Открытая сеть</option></select>
+          </label>
+          <label class="switch-row"><input type="checkbox" id="st-proxy"><span>Задать прокси для Podkop</span></label>
+          <label class="switch-row"><input type="checkbox" id="st-os"><span>Проверить и обновить ОС (прошивку)</span>
+            <button class="btn-tiny" id="btn-extra">Доп. Софт</button>
+          </label>
+        </div>
+      </section>
+
+      <!-- Страница: Параметры -->
+      <section class="page" id="page-params">
+        <div class="card">
+          <h2 class="card-title">Параметры</h2>
+          <div class="grid">
+            <label>SSID 5G<input type="text" id="cfg-ssid"></label>
+            <label>SSID 2G<input type="text" id="cfg-ssid2"></label>
+            <label>Пароль Wi-Fi<input type="text" id="cfg-wifi-pass"></label>
+            <label>Канал 5G<input type="text" id="cfg-ch5"></label>
+            <label>Канал 2G<input type="text" id="cfg-ch2"></label>
+          </div>
+          <label class="field-label">Прокси (vless:// или подписка):</label>
+          <textarea id="cfg-proxy" rows="4"></textarea>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Модалка лога -->
+  <div class="overlay hidden" id="log-overlay">
+    <div class="logwin">
+      <div class="logwin-head">
+        <span class="logwin-title">Лог выполнения</span>
+        <span class="logwin-time" id="log-time">Время: 0:00</span>
+        <button class="btn-tiny" id="log-close">Скрыть</button>
+      </div>
+      <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+      <pre class="log" id="log-text"></pre>
+      <div class="logwin-btns">
+        <button class="btn-ghost" id="log-copy">Скопировать лог</button>
+        <button class="btn-ghost" id="log-clear">Очистить лог</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка подтверждения -->
+  <div class="overlay" id="confirm-overlay" style="display:none">
+    <div class="modal card">
+      <h2 class="card-title" id="confirm-title">Подтверждение</h2>
+      <p id="confirm-text"></p>
+      <div class="modal-btns">
+        <button class="btn-primary" id="confirm-ok">OK</button>
+        <button class="btn-ghost" id="confirm-cancel">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка сообщения -->
+  <div class="overlay" id="msg-overlay" style="display:none">
+    <div class="modal card">
+      <h2 class="card-title" id="msg-title">Сообщение</h2>
+      <p id="msg-text"></p>
+      <div class="modal-btns">
+        <button class="btn-primary" id="msg-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

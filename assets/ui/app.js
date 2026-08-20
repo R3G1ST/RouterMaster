@@ -1,0 +1,152 @@
+// RouterMaster UI
+const App = {
+  api: null,
+  current: 'home',
+  _logBuf: '',
+  timer: null,
+  running: false,
+
+  init() {
+    this.bindNav();
+    this.bindActions();
+    this.bindFields();
+  },
+
+  bindNav() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.show(btn.dataset.page));
+    });
+  },
+
+  show(page) {
+    this.current = page;
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+  },
+
+  bindActions() {
+    document.getElementById('btn-run').addEventListener('click', () => {
+      this.api?.run_all();
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      this.api?.reset_and_setup();
+    });
+    document.getElementById('btn-save').addEventListener('click', () => this.api?.save_config().then(() => this.msg('Настройки сохранены')));
+    document.getElementById('btn-log').addEventListener('click', () => this.openLog());
+    document.getElementById('btn-test').addEventListener('click', () => this.api?.test_system());
+    document.getElementById('btn-check').addEventListener('click', () => this.api?.check_update());
+    document.getElementById('btn-extra').addEventListener('click', () => this.api?.open_extra_soft());
+    document.getElementById('btn-show-pass').addEventListener('click', () => {
+      const inp = document.getElementById('cfg-pass');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      this.byId('btn-show-pass').textContent = inp.type === 'password' ? 'Показать' : 'Скрыть';
+    });
+    document.querySelectorAll('[data-act]').forEach(b => {
+      b.addEventListener('click', () => this.api[b.dataset.act]());
+    });
+
+    document.getElementById('cfg-dark').addEventListener('change', e => {
+      this.api?.set_theme(e.target.checked);
+    });
+
+    document.getElementById('log-close').addEventListener('click', () => this.hideLog());
+    document.getElementById('log-copy').addEventListener('click', () => this.api?.copy_log());
+    document.getElementById('log-clear').addEventListener('click', () => this.clearLog());
+    document.getElementById('confirm-ok').addEventListener('click', () => this.confirmResolve(true));
+    document.getElementById('confirm-cancel').addEventListener('click', () => this.confirmResolve(false));
+    document.getElementById('msg-ok').addEventListener('click', () => this.byId('msg-overlay').style.display = 'none');
+  },
+
+  byId(id) { return document.getElementById(id); },
+
+  bindFields() {
+    const map = {
+      'cfg-host': 'host', 'cfg-port': 'port', 'cfg-user': 'user', 'cfg-pass': 'password',
+      'cfg-ssid': 'wifi_ssid', 'cfg-ssid2': 'wifi_ssid_2g', 'cfg-wifi-pass': 'wifi_password',
+      'cfg-ch5': 'wifi_channel', 'cfg-ch2': 'wifi_channel_2g', 'cfg-proxy': 'proxy_string'
+    };
+    Object.entries(map).forEach(([id, key]) => {
+      const el = this.byId(id);
+      el.addEventListener('input', () => this.api?.save_field(key, el.value));
+    });
+
+    const stepsMap = {
+      'st-update': 'update_packages', 'st-podkop': 'install_podkop', 'st-zapret': 'install_zapret',
+      'st-theme': 'install_argon', 'st-ru': 'install_ru', 'st-wifi': 'setup_wifi',
+      'st-wifi2': 'setup_wifi_2g', 'st-proxy': 'setup_proxy', 'st-os': 'update_os'
+    };
+    Object.entries(stepsMap).forEach(([id, key]) => {
+      this.byId(id).addEventListener('change', e => this.api?.save_field('steps.' + key, e.target.checked));
+    });
+
+    const selMap = { 'st-theme-sel': 'theme', 'st-enc5': 'wifi_enc_5g', 'st-enc2': 'wifi_enc_2g' };
+    Object.entries(selMap).forEach(([id, key]) => {
+      this.byId(id).addEventListener('change', e => this.api?.save_field(key, e.target.value));
+    });
+  },
+
+  async loadConfig() {
+    const cfg = await this.api?.get_config();
+    if (!cfg) return;
+    const set = (id, val) => { const el = this.byId(id); if (el && val !== undefined && val !== null) el.value = val; };
+    set('cfg-host', cfg.host); set('cfg-port', cfg.port); set('cfg-user', cfg.user); set('cfg-pass', cfg.password);
+    set('cfg-ssid', cfg.wifi_ssid); set('cfg-ssid2', cfg.wifi_ssid_2g); set('cfg-wifi-pass', cfg.wifi_password);
+    set('cfg-ch5', cfg.wifi_channel); set('cfg-ch2', cfg.wifi_channel_2g); set('cfg-proxy', cfg.proxy_string);
+    const st = cfg.steps || {};
+    const stSet = (id, val) => { const el = this.byId(id); if (el) el.checked = !!val; };
+    stSet('st-update', st.update_packages); stSet('st-podkop', st.install_podkop); stSet('st-zapret', st.install_zapret);
+    stSet('st-theme', st.install_argon); stSet('st-ru', st.install_ru); stSet('st-wifi', st.setup_wifi);
+    stSet('st-wifi2', st.setup_wifi_2g); stSet('st-proxy', st.setup_proxy); stSet('st-os', st.update_os);
+    this.byId('st-theme-sel').value = cfg.theme || 'Argon';
+    this.byId('st-enc5').value = cfg.wifi_enc_5g || 'WPA3 (SAE)';
+    this.byId('st-enc2').value = cfg.wifi_enc_2g || 'WPA2 (PSK)';
+    this.byId('cfg-dark').checked = (cfg.gui_theme || 'light') === 'dark';
+    this.byId('app-ver').textContent = cfg.app_version || '';
+    if ((cfg.gui_theme || 'light') === 'dark') document.body.classList.add('dark');
+  },
+
+  // API вызывается из Python
+  log(msg) {
+    const el = this.byId('log-text');
+    if (!el) return;
+    el.textContent += msg + '\n';
+    el.scrollTop = el.scrollHeight;
+  },
+  clearLog() { this.byId('log-text').textContent = ''; },
+  setTime(text) { this.byId('log-time').textContent = 'Время: ' + text; },
+  setProgress(on) {
+    const el = this.byId('progress-bar');
+    el.closest('.progress').classList.toggle('running', !!on);
+    el.style.width = on ? '100%' : '0';
+  },
+  setRunning(on) {
+    this.running = !!on;
+    this.byId('btn-run').disabled = on;
+    this.byId('btn-reset').disabled = on;
+    this.byId('btn-test').disabled = on;
+  },
+  openLog() { this.byId('log-overlay').classList.remove('hidden'); this.byId('log-overlay').style.display = 'flex'; },
+  hideLog() { this.byId('log-overlay').style.display = 'none'; },
+  async confirm(text, title = 'Подтверждение') {
+    return new Promise(resolve => {
+      this.byId('confirm-text').textContent = text;
+      this.byId('confirm-title').textContent = title;
+      this.byId('confirm-overlay').style.display = 'flex';
+      this._confirmResolve = resolve;
+    });
+  },
+  confirmResolve(ok) { this.byId('confirm-overlay').style.display = 'none'; if (this._confirmResolve) this._confirmResolve(ok); },
+  msg(text, title = 'Сообщение') {
+    this.byId('msg-text').textContent = text;
+    this.byId('msg-title').textContent = title;
+    this.byId('msg-overlay').style.display = 'flex';
+  },
+};
+
+document.addEventListener('DOMContentLoaded', () => App.init());
+window.addEventListener('pywebviewready', () => {
+  App.api = window.pywebview.api;
+  App.loadConfig();
+});
+window.App = App;
