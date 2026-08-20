@@ -935,6 +935,16 @@ def _find_html():
     return os.path.join(APP_DIR, "assets", "ui", "index.html")
 
 
+def _find_icon():
+    for base in (getattr(sys, "_MEIPASS", None), APP_DIR):
+        if not base:
+            continue
+        p = os.path.join(base, "assets", "icon.ico")
+        if os.path.exists(p):
+            return p
+    return None
+
+
 def main():
     html = _find_html()
     api = Api(None)
@@ -959,7 +969,7 @@ def main():
     window.events.loaded += on_loaded
     window.events.closing += lambda: app.save_config()
 
-    webview.start()
+    webview.start(icon=_find_icon())
     return app
 
 
