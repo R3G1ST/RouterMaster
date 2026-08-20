@@ -286,6 +286,12 @@
     .hero { padding: 64px 0 40px; }
     section { padding: 64px 0; }
   }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #3b3f55; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent1); }
+  html { scrollbar-width: thin; scrollbar-color: #3b3f55 var(--bg); }
 </style>
 </head>
 <body>
