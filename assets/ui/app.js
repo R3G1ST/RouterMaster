@@ -37,6 +37,12 @@ const App = {
     document.getElementById('btn-test').addEventListener('click', () => this.api?.test_system());
     document.getElementById('btn-check').addEventListener('click', () => this.api?.check_update());
     document.getElementById('btn-extra').addEventListener('click', () => this.api?.open_extra_soft());
+    document.getElementById('btn-side-toggle').addEventListener('click', () => this.toggleSidebar());
+    document.getElementById('btn-settings').addEventListener('click', () => this.openSettings());
+    document.getElementById('settings-ok').addEventListener('click', () => this.byId('settings-overlay').style.display = 'none');
+    document.getElementById('settings-reset').addEventListener('click', () => this.resetSettings());
+    document.getElementById('st-dark2').addEventListener('change', e => this.setDark(e.target.checked));
+    document.getElementById('st-autocheck').addEventListener('change', e => this.api?.save_field('auto_check_update', e.target.checked));
     document.getElementById('btn-show-pass').addEventListener('click', () => {
       const inp = document.getElementById('cfg-pass');
       inp.type = inp.type === 'password' ? 'text' : 'password';
@@ -46,8 +52,8 @@ const App = {
       b.addEventListener('click', () => this.api[b.dataset.act]());
     });
 
-    document.getElementById('cfg-dark').addEventListener('change', e => {
-      this.api?.set_theme(e.target.checked);
+document.getElementById('cfg-dark').addEventListener('change', e => {
+      this.setDark(e.target.checked);
     });
 
     document.getElementById('log-close').addEventListener('click', () => this.hideLog());
@@ -86,9 +92,10 @@ const App = {
     });
   },
 
-  async loadConfig() {
+async loadConfig() {
     const cfg = await this.api?.get_config();
     if (!cfg) return;
+    this.cfg = cfg;
     const set = (id, val) => { const el = this.byId(id); if (el && val !== undefined && val !== null) el.value = val; };
     set('cfg-host', cfg.host); set('cfg-port', cfg.port); set('cfg-user', cfg.user); set('cfg-pass', cfg.password);
     set('cfg-ssid', cfg.wifi_ssid); set('cfg-ssid2', cfg.wifi_ssid_2g); set('cfg-wifi-pass', cfg.wifi_password);
@@ -103,7 +110,36 @@ const App = {
     this.byId('st-enc2').value = cfg.wifi_enc_2g || 'WPA2 (PSK)';
     this.byId('cfg-dark').checked = (cfg.gui_theme || 'light') === 'dark';
     this.byId('app-ver').textContent = cfg.app_version || '';
+    if (cfg.sidebar_collapsed) this.byId('sidebar').classList.add('collapsed');
     if ((cfg.gui_theme || 'light') === 'dark') document.body.classList.add('dark');
+  },
+
+  setDark(on) {
+    this.byId('cfg-dark').checked = !!on;
+    this.byId('st-dark2').checked = !!on;
+    document.body.classList.toggle('dark', !!on);
+    this.api?.set_theme(!!on);
+  },
+
+  toggleSidebar() {
+    const sb = this.byId('sidebar');
+    sb.classList.toggle('collapsed');
+    this.api?.save_field('sidebar_collapsed', sb.classList.contains('collapsed'));
+  },
+
+  openSettings() {
+    this.byId('st-dark2').checked = this.byId('cfg-dark').checked;
+    this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
+    this.byId('settings-overlay').style.display = 'flex';
+  },
+
+  async resetSettings() {
+    const ok = await this.confirm('Сбросить все настройки программы к значениям по умолчанию?', 'Сброс настроек');
+    if (!ok) return;
+    await this.api?.reset_settings();
+    this.byId('settings-overlay').style.display = 'none';
+    await this.loadConfig();
+    this.msg('Настройки программы сброшены к значениям по умолчанию.');
   },
 
   // API вызывается из Python

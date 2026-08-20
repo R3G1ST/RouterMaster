@@ -40,8 +40,28 @@ html, body {
   flex-direction: column;
   padding: 14px 8px;
   z-index: 2;
+  overflow: hidden;
+  transition: width 0.25s ease, min-width 0.25s ease;
 }
-.brand { padding: 4px 8px 16px; }
+.sidebar.collapsed { width: 56px; min-width: 56px; }
+.brand { display: flex; align-items: center; gap: 8px; padding: 4px 8px 16px; white-space: nowrap; }
+.side-toggle {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.side-toggle:hover { background: var(--card2); color: var(--text); }
+.sidebar.collapsed .brand { padding: 4px 0 16px; justify-content: center; }
+.sidebar.collapsed .brand-text,
+.sidebar.collapsed .nav-txt,
+.sidebar.collapsed .foot-ver { display: none; }
 .brand-name { font-size: 17px; font-weight: 700; }
 .brand-sub { font-size: 11px; color: var(--muted); }
 .nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
@@ -55,9 +75,16 @@ html, body {
   font-size: 13px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
+.nav-ico { font-size: 14px; min-width: 20px; text-align: center; }
 .nav-btn:hover { background: var(--card); }
 .nav-btn.active { background: var(--card); color: var(--accent2); font-weight: 600; }
+.sidebar.collapsed .nav-btn,
+.sidebar.collapsed .foot-btn { justify-content: center; padding: 10px 0; }
 .side-foot { padding: 8px 8px 0; }
 .foot-btn {
   width: 100%;
@@ -69,6 +96,11 @@ html, body {
   font-size: 12px;
   cursor: pointer;
   transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  margin-bottom: 6px;
 }
 .foot-btn:hover { background: var(--card2); }
 .foot-ver { font-size: 10px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.4; }
@@ -256,6 +288,19 @@ textarea { resize: vertical; }
 .modal p { font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-line; }
 .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 .modal-btns .btn-ghost { width: auto; padding: 8px 20px; margin: 0; }
+.modal-btns .btn-primary { width: auto; padding: 8px 26px; margin: 0; }
+.modal-btns .btn-danger { margin-right: auto; }
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--err);
+  color: var(--err);
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-danger:hover { background: rgba(248, 113, 113, 0.12); }
 
 .logwin {
   width: 780px;

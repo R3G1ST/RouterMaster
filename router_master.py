@@ -74,6 +74,8 @@ DEFAULTS = {
     "wifi_enc_2g": "WPA2 (PSK)",
     "proxy_string": "",
     "gui_theme": "light",
+    "sidebar_collapsed": False,
+    "auto_check_update": False,
     "steps": {
         "update_packages": True,
         "install_podkop": True,
@@ -124,6 +126,12 @@ class Api:
             self._app.save_config()
         except Exception:
             pass
+        return True
+
+    def reset_settings(self):
+        import copy
+        self._app.config = copy.deepcopy(DEFAULTS)
+        self._app.save_config()
         return True
 
     # ---------- Действия ----------
@@ -944,6 +952,8 @@ def main():
     api._window = window
 
     def on_loaded():
+        if app.config.get("auto_check_update"):
+            threading.Thread(target=app._check_update_worker, daemon=True).start()
         app.log("Готово. Заполните настройки и нажмите «ВЫПОЛНИТЬ».")
 
     window.events.loaded += on_loaded

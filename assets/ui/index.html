@@ -10,17 +10,21 @@
   <div class="app">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <div class="brand-name">RouterMaster</div>
-        <div class="brand-sub">умный помощник OpenWrt</div>
+        <button class="side-toggle" id="btn-side-toggle" title="Свернуть / развернуть">☰</button>
+        <div class="brand-text">
+          <div class="brand-name">RouterMaster</div>
+          <div class="brand-sub">умный помощник OpenWrt</div>
+        </div>
       </div>
       <nav class="nav">
-        <button class="nav-btn active" data-page="home">⌂ Главная</button>
-        <button class="nav-btn" data-page="conn">⇠ Подключение</button>
-        <button class="nav-btn" data-page="steps">⚙ Что выполнить</button>
-        <button class="nav-btn" data-page="params">✦ Параметры</button>
+        <button class="nav-btn active" data-page="home" title="Главная"><span class="nav-ico">⌂</span><span class="nav-txt">Главная</span></button>
+        <button class="nav-btn" data-page="conn" title="Подключение"><span class="nav-ico">⇠</span><span class="nav-txt">Подключение</span></button>
+        <button class="nav-btn" data-page="steps" title="Что выполнить"><span class="nav-ico">▦</span><span class="nav-txt">Что выполнить</span></button>
+        <button class="nav-btn" data-page="params" title="Параметры"><span class="nav-ico">✦</span><span class="nav-txt">Параметры</span></button>
       </nav>
       <div class="side-foot">
-        <button class="foot-btn" id="btn-check">↻ Проверить обновление</button>
+        <button class="foot-btn" id="btn-check" title="Проверить обновление"><span class="nav-ico">↻</span><span class="nav-txt">Проверить обновление</span></button>
+        <button class="foot-btn" id="btn-settings" title="Настройки программы"><span class="nav-ico">⚙</span><span class="nav-txt">Настройки программы</span></button>
         <div class="foot-ver" id="foot-ver">RouterMaster <span id="app-ver">–</span></div>
       </div>
     </aside>
@@ -146,6 +150,19 @@
       <p id="msg-text"></p>
       <div class="modal-btns">
         <button class="btn-primary" id="msg-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка настроек программы -->
+  <div class="overlay" id="settings-overlay" style="display:none">
+    <div class="modal card">
+      <h2 class="card-title">Настройки программы</h2>
+      <label class="switch-row"><input type="checkbox" id="st-dark2"><span>Тёмная тема</span></label>
+      <label class="switch-row"><input type="checkbox" id="st-autocheck"><span>Проверять обновления при запуске</span></label>
+      <div class="modal-btns">
+        <button class="btn-danger" id="settings-reset">Сбросить настройки</button>
+        <button class="btn-primary" id="settings-ok">OK</button>
       </div>
     </div>
   </div>
