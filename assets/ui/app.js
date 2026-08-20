@@ -82,7 +82,8 @@ document.getElementById('cfg-dark').addEventListener('change', e => {
     const map = {
       'cfg-host': 'host', 'cfg-port': 'port', 'cfg-user': 'user', 'cfg-pass': 'password',
       'cfg-ssid': 'wifi_ssid', 'cfg-ssid2': 'wifi_ssid_2g', 'cfg-wifi-pass': 'wifi_password',
-      'cfg-ch5': 'wifi_channel', 'cfg-ch2': 'wifi_channel_2g', 'cfg-proxy': 'proxy_string'
+      'cfg-ch5': 'wifi_channel', 'cfg-ch2': 'wifi_channel_2g', 'cfg-proxy': 'proxy_string',
+      'cfg-hostname': 'hostname'
     };
     Object.entries(map).forEach(([id, key]) => {
       const el = this.byId(id);
@@ -112,6 +113,7 @@ async loadConfig() {
     set('cfg-host', cfg.host); set('cfg-port', cfg.port); set('cfg-user', cfg.user); set('cfg-pass', cfg.password);
     set('cfg-ssid', cfg.wifi_ssid); set('cfg-ssid2', cfg.wifi_ssid_2g); set('cfg-wifi-pass', cfg.wifi_password);
     set('cfg-ch5', cfg.wifi_channel); set('cfg-ch2', cfg.wifi_channel_2g); set('cfg-proxy', cfg.proxy_string);
+    set('cfg-hostname', cfg.hostname);
     const st = cfg.steps || {};
     const stSet = (id, val) => { const el = this.byId(id); if (el) el.checked = !!val; };
     stSet('st-update', st.update_packages); stSet('st-podkop', st.install_podkop); stSet('st-zapret', st.install_zapret);

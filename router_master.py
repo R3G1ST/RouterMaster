@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta4"
+APP_VERSION = "1.5.0-beta5"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -73,6 +73,7 @@ DEFAULTS = {
     "wifi_enc_5g": "WPA3 (SAE)",
     "wifi_enc_2g": "WPA2 (PSK)",
     "proxy_string": "",
+    "hostname": "RouterMaster",
     "gui_theme": "light",
     "sidebar_collapsed": False,
     "auto_check_update": False,
@@ -463,6 +464,12 @@ class RouterToolApp:
         client.connect(host, port=port, username=user, password=password,
                        timeout=15, look_for_keys=False, allow_agent=False)
         self.log("Подключено.")
+
+        hostname = str(self.config.get("hostname") or "RouterMaster").strip() or "RouterMaster"
+        self.log("--- Имя хоста: %s ---" % hostname)
+        self.ssh_exec(client,
+                      "uci set system.@system[0].hostname='%s'; uci commit system; /etc/init.d/system reload"
+                      % hostname.replace("'", ""))
 
         steps = self.config["steps"]
 
