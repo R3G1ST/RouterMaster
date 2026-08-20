@@ -9,6 +9,7 @@
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-24.10%2B-green)]()
 [![Лицензия](https://img.shields.io/badge/лицензия-MIT-lightgrey)]()
 [![GitHub stars](https://img.shields.io/github/stars/R3G1ST/RouterMaster)](https://github.com/R3G1ST/RouterMaster/stargazers)
+[![Поддержать через Ozon Карту](https://img.shields.io/badge/Поддержать-Ozon_Карта-005BFF?style=for-the-badge&logo=ozon)](https://finance.ozon.ru/apps/sbp/ozonbankpay/019e1286-96ed-761a-94a4-f3c252d75937)
 
 **Одна кнопка — полностью настроенный роутер: обход блокировок, темы LuCI, Wi-Fi, прокси и русский язык.**
 <p align="center">
