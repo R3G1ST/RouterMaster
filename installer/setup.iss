@@ -38,3 +38,36 @@ Name: "{autodesktop}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFile
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{userappdata}\RouterMaster"
+
+[Code]
+procedure KillProcesses;
+var
+  Locator, WMIService, Items, Item: Variant;
+  i: Integer;
+begin
+  try
+    Locator := CreateOleObject('WbemScripting.SWbemLocator');
+    WMIService := Locator.ConnectServer('.', 'root\cimv2');
+    Items := WMIService.ExecQuery('SELECT ProcessId FROM Win32_Process WHERE Name = ''RouterMaster.exe'' OR Name = ''RouterMasterAdmin.exe''');
+    for i := 0 to Items.Count - 1 do
+    begin
+      Item := Items.ItemIndex(i);
+      Item.Terminate();
+    end;
+    Sleep(500);
+    for i := 1 to 10 do
+    begin
+      Items := WMIService.ExecQuery('SELECT ProcessId FROM Win32_Process WHERE Name = ''RouterMaster.exe'' OR Name = ''RouterMasterAdmin.exe''');
+      if Items.Count = 0 then
+        break;
+      Sleep(500);
+    end;
+  except
+  end;
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  KillProcesses;
+  Result := True;
+end;
