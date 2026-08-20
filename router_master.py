@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta2"
+APP_VERSION = "1.5.0-beta3"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -259,20 +259,31 @@ class RouterToolApp:
 
     # ---------- Обновление ----------
     def _ver_tuple(self, v):
-        parts = re.findall(r"\d+", v)
-        parts = (parts + ["0", "0", "0"])[:3]
-        return tuple(int(x) for x in parts)
+        v = str(v).lstrip("v")
+        base, _, pre = v.partition("-")
+        t = [int(x) for x in re.findall(r"\d+", base)][:3]
+        t = (t + [0, 0, 0])[:3]
+        if pre:
+            m = re.search(r"(\d+)", pre)
+            return tuple(t) + (-1, int(m.group(1)) if m else 0)
+        return tuple(t) + (0, 0)
 
     def _check_update_worker(self):
         try:
             req = urllib.request.Request(
-                "https://api.github.com/repos/%s/releases/latest" % UPDATE_REPO,
+                "https://api.github.com/repos/%s/releases?per_page=10" % UPDATE_REPO,
                 headers={"User-Agent": "RouterMaster"})
             with urllib.request.urlopen(req, timeout=15) as r:
-                data = json.loads(r.read().decode("utf-8"))
-            latest_tag = str(data.get("tag_name", "v0.0.0")).lstrip("v")
-            if self._ver_tuple(latest_tag) > self._ver_tuple(APP_VERSION):
-                self._prompt_update(data, latest_tag)
+                releases = json.loads(r.read().decode("utf-8"))
+            candidates = []
+            for rel in releases:
+                tag = str(rel.get("tag_name", "v0.0.0")).lstrip("v")
+                candidates.append((self._ver_tuple(tag), tag, rel))
+            if not candidates:
+                raise RuntimeError("релизы не найдены")
+            best = max(candidates, key=lambda c: c[0])
+            if best[0] > self._ver_tuple(APP_VERSION):
+                self._prompt_update(best[2], best[1])
             else:
                 self.show_message("Обновление", "Установлена последняя версия %s" % APP_VERSION)
         except Exception as e:
