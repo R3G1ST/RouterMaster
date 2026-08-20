@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta5"
+APP_VERSION = "1.5.0-beta6"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -313,8 +313,23 @@ class RouterToolApp:
             try:
                 tmp = os.path.join(tempfile.gettempdir(), name)
                 req = urllib.request.Request(url, headers={"User-Agent": "RouterMaster"})
-                with urllib.request.urlopen(req, timeout=180) as r, open(tmp, "wb") as f:
-                    shutil.copyfileobj(r, f)
+                with urllib.request.urlopen(req, timeout=180) as r:
+                    total = int(r.headers.get("Content-Length") or 0)
+                    done = 0
+                    last_pct = -1
+                    with open(tmp, "wb") as f:
+                        while True:
+                            chunk = r.read(65536)
+                            if not chunk:
+                                break
+                            f.write(chunk)
+                            done += len(chunk)
+                            if total:
+                                pct = int(done * 100 / total)
+                                if pct >= last_pct + 5:
+                                    last_pct = pct
+                                    self.log("Скачивание: %d%% (%d МБ из %d МБ)" % (
+                                        pct, done // 1048576, total // 1048576))
                 self.log("Обновление скачано: %s" % tmp)
                 self.log("Снимаю блокировку SmartScreen (Mark of the Web)...")
                 self._unblock_file(tmp)
@@ -326,15 +341,20 @@ class RouterToolApp:
                 shutil.copyfile(upd_src, upd_tmp)
                 subprocess.Popen([upd_tmp, tmp, self._installed_exe()],
                                  creationflags=subprocess.CREATE_NO_WINDOW)
-                self.log("Программа закроется и перезапустится автоматически.")
+                self.log("Установка выполняется. Программа закроется и перезапустится автоматически.")
                 time.sleep(1)
                 try:
                     self._window.destroy()
                 except Exception:
                     pass
             except Exception as e:
+                self.log("ОШИБКА обновления: " + str(e))
+                self.stop_progress()
                 self.show_message("Ошибка", "Не удалось скачать обновление:\n%s" % e)
-        self.log("Скачивание обновления...")
+        self.clear_log()
+        self.open_log()
+        self.start_progress()
+        self.log("Скачивание обновления %s ..." % name)
         threading.Thread(target=work, daemon=True).start()
 
     def _installed_exe(self):
