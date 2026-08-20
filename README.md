@@ -4,7 +4,7 @@
 
 **Умный помощник по настройке роутеров на OpenWrt**
 
-[![Версия](https://img.shields.io/badge/версия-1.4.0-blue)]()
+[![Версия](https://img.shields.io/badge/версия-1.5.0--beta-blue)]()
 [![Платформа](https://img.shields.io/badge/платформа-Windows-orange)]()
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-24.10%2B-green)]()
 [![Лицензия](https://img.shields.io/badge/лицензия-MIT-lightgrey)]()
@@ -115,7 +115,22 @@ Podkop и Zapret можно полностью удалить с роутера 
 
 ## ⚙️ Настройки
 
-Все настройки сохраняются в файле `router_tool_config.json` рядом с программой:
+> ℹ️ **Где хранятся настройки:**
+>
+> Все настройки (и папка загрузок тем) хранятся **не рядом с программой**, а в папке пользователя:
+>
+> ```
+> %APPDATA%\RouterMaster\
+> ├── router_tool_config.json   # все настройки программы
+> └── downloads\                # скачанные темы (apk-файлы)
+> ```
+>
+> На практике это `C:\Users\<имя_пользователя>\AppData\Roaming\RouterMaster\`.
+> Открыть быстро: нажмите `Win+R`, вставьте `%APPDATA%\RouterMaster` и Enter.
+>
+> Благодаря этому программа работает с любого диска (включая `C:\Program Files`) без прав администратора, а при установке обновлений настройки не теряются.
+
+Что хранится в `router_tool_config.json`:
 
 - IP/порт/логин/пароль роутера
 - SSID, пароль и каналы Wi-Fi (5G и 2G)
@@ -125,7 +140,7 @@ Podkop и Zapret можно полностью удалить с роутера 
 - Тема интерфейса (светлая/тёмная)
 - Выбранные шаги
 
-Настройки сохраняются кнопкой **«Сохранить настройки»** и автоматически при закрытии программы.
+Настройки сохраняются кнопкой **«Сохранить настройки»** и автоматически при закрытии программы. При первом запуске старый файл настроек (если он лежал рядом с программой) переносится в `%APPDATA%` автоматически.
 
 ---
 
@@ -136,7 +151,8 @@ Podkop и Zapret можно полностью удалить с роутера 
 ```bash
 pip install -r requirements.txt pyinstaller
 pyinstaller --onefile --windowed --icon assets/icon.ico ^
-            --add-data "assets;assets" router_master.py
+            --add-data "assets;assets" ^
+            --collect-all customtkinter router_master.py
 ```
 
 ### Updater (C# .NET Framework)
@@ -158,7 +174,7 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /optimize
 
 ```
 RouterMaster/
-├── router_master.py          # Основная программа
+├── router_master.py          # Основная программа (CustomTkinter)
 ├── assets/
 │   ├── icon.ico              # Иконка программы
 │   └── rm_updater.exe        # Updater для тихой установки обновлений
@@ -168,7 +184,7 @@ RouterMaster/
 ├── screenshots/
 │   ├── light.png             # Скриншот светлой темы
 │   └── dark.png              # Скриншот тёмной темы
-└── requirements.txt          # Зависимости Python
+└── requirements.txt          # Зависимости Python (paramiko, customtkinter)
 ```
 
 ---

@@ -13,10 +13,10 @@ import urllib.error
 import http.cookiejar
 import webbrowser
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog, simpledialog
+import customtkinter as ctk
 import paramiko
 
-APP_VERSION = "1.4.1"
+APP_VERSION = "1.5.0-beta1"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -88,63 +88,172 @@ DEFAULTS = {
 }
 
 
+PAL = {
+    "dark": {
+        "bg": "#05070d", "panel": "#0a0f1c", "card": "#101828",
+        "border": "#1c2740", "field": "#0d1526", "text": "#e8ecf4",
+        "muted": "#97a3b8", "accent": "#6366f1", "accent_hover": "#818cf8",
+        "accent2": "#22d3ee", "ok": "#34d399", "err": "#f87171",
+    },
+    "light": {
+        "bg": "#f2f5fb", "panel": "#e6ebf6", "card": "#ffffff",
+        "border": "#d4dcec", "field": "#ffffff", "text": "#0f172a",
+        "muted": "#64748b", "accent": "#4f46e5", "accent_hover": "#6366f1",
+        "accent2": "#0e7490", "ok": "#059669", "err": "#dc2626",
+    },
+}
+
+
 class RouterToolApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Роутер Мастер — OpenWrt")
-        self.root.geometry("900x660")
-        self.root.resizable(False, False)
+        self.root.title("RouterMaster — OpenWrt")
+        self.root.geometry("1040x720")
+        self.root.minsize(920, 640)
         self.config = self.load_config()
 
         self.is_dark = self.config.get("gui_theme", DEFAULTS["gui_theme"]) == "dark"
         self.var_gui_dark = tk.BooleanVar(value=self.is_dark)
-        self.apply_theme(root, self.is_dark)
+        self.P = PAL["dark" if self.is_dark else "light"]
+        ctk.set_appearance_mode("dark" if self.is_dark else "light")
+        self.apply_theme(self.is_dark)
         self.set_app_icon(root)
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        main = ttk.Frame(root, padding=12)
-        main.pack(fill="both", expand=True)
+        self._build_ui()
+        self.log("Готово. Заполните настройки и нажмите «ВЫПОЛНИТЬ».")
 
-        # ============ Настройки подключения ============
-        conn = ttk.LabelFrame(main, text="Подключение к роутеру", padding=8)
-        conn.pack(fill="x", pady=(0, 8))
+    # ---------- Построение интерфейса ----------
+    def _card(self, parent, title):
+        card = ctk.CTkFrame(parent, fg_color=self.P["card"],
+                            border_width=1, border_color=self.P["border"],
+                            corner_radius=14)
+        if title:
+            head = ctk.CTkFrame(card, fg_color="transparent")
+            head.pack(fill="x", padx=16, pady=(12, 0))
+            ctk.CTkLabel(head, text=title, font=ctk.CTkFont("Segoe UI", 13, "bold"),
+                         text_color=self.P["text"]).pack(side="left")
+            ctk.CTkLabel(head, text="\u25cf", text_color=self.P["accent2"],
+                         font=ctk.CTkFont("Segoe UI", 9)).pack(side="left", padx=(8, 0))
+        body = ctk.CTkFrame(card, fg_color="transparent")
+        body.pack(fill="both", expand=True, padx=16, pady=(8, 14))
+        card._body = body
+        return card
+
+    def _lbl(self, parent, text, **kw):
+        kw.setdefault("text_color", self.P["muted"])
+        kw.setdefault("font", ctk.CTkFont("Segoe UI", 11))
+        return ctk.CTkLabel(parent, text=text, **kw)
+
+    def _entry(self, parent, variable, width=180, show=None):
+        return ctk.CTkEntry(parent, textvariable=variable, width=width,
+                            fg_color=self.P["field"], border_color=self.P["border"],
+                            text_color=self.P["text"], placeholder_text_color=self.P["muted"],
+                            show=show, corner_radius=8, border_width=1)
+
+    def _option(self, parent, variable, values, width=200):
+        return ctk.CTkOptionMenu(parent, variable=variable, values=values, width=width,
+                                 fg_color=self.P["field"], button_color=self.P["accent"],
+                                 button_hover_color=self.P["accent_hover"],
+                                 text_color=self.P["text"], corner_radius=8)
+
+    def _switch(self, parent, text, variable, command=None):
+        return ctk.CTkSwitch(parent, text=text, variable=variable, command=command,
+                             fg_color=self.P["border"], progress_color=self.P["accent"],
+                             text_color=self.P["text"],
+                             font=ctk.CTkFont("Segoe UI", 12))
+
+    def _nav_btn(self, parent, text, page):
+        btn = ctk.CTkButton(parent, text=text, anchor="w", corner_radius=10,
+                            fg_color="transparent", hover_color=self.P["card"],
+                            text_color=self.P["text"], height=36,
+                            font=ctk.CTkFont("Segoe UI", 12),
+                            command=lambda: self._show_page(page))
+        btn.pack(fill="x", padx=10, pady=2)
+        return btn
+
+    def _build_ui(self):
+        root = self.root
+        root.configure(fg_color=self.P["bg"])
+
+        outer = ctk.CTkFrame(root, fg_color=self.P["bg"])
+        outer.pack(fill="both", expand=True)
+
+        # ===== Сайдбар =====
+        side = ctk.CTkFrame(outer, width=210, fg_color=self.P["panel"], corner_radius=0)
+        side.pack(side="left", fill="y")
+        side.pack_propagate(False)
+
+        brand = ctk.CTkFrame(side, fg_color="transparent")
+        brand.pack(fill="x", padx=14, pady=(18, 14))
+        ctk.CTkLabel(brand, text="RouterMaster", font=ctk.CTkFont("Segoe UI", 17, "bold"),
+                     text_color=self.P["text"]).pack(anchor="w")
+        ctk.CTkLabel(brand, text="умный помощник OpenWrt", font=ctk.CTkFont("Segoe UI", 10),
+                     text_color=self.P["muted"]).pack(anchor="w")
+
+        self._nav_btn(side, "\u2039 Подключение", "conn")
+        self._nav_btn(side, "\u2699 Что выполнить", "steps")
+        self._nav_btn(side, "\u2726 Параметры", "params")
+
+        side_foot = ctk.CTkFrame(side, fg_color="transparent")
+        side_foot.pack(side="bottom", fill="x", padx=14, pady=14)
+        ctk.CTkButton(side_foot, text="Проверить обновление", height=32,
+                      fg_color=self.P["card"], hover_color=self.P["border"],
+                      text_color=self.P["text"], corner_radius=8,
+                      font=ctk.CTkFont("Segoe UI", 11),
+                      command=self.check_update).pack(fill="x")
+        ctk.CTkLabel(side_foot, text="RouterMaster v%s\nАвтор: R3G1ST" % APP_VERSION,
+                     font=ctk.CTkFont("Segoe UI", 10), text_color=self.P["muted"],
+                     justify="center").pack(pady=(10, 0))
+
+        # ===== Контент =====
+        content = ctk.CTkFrame(outer, fg_color=self.P["bg"], corner_radius=0)
+        content.pack(side="left", fill="both", expand=True, padx=(0, 0))
+
+        self.pages = {}
+
+        # ----- Страница: Подключение -----
+        page = ctk.CTkFrame(content, fg_color="transparent")
+        card = self._card(page, "Подключение к роутеру")
+        card.pack(fill="x", padx=14, pady=(14, 10))
 
         self.var_host = tk.StringVar(value=self.config.get("host", DEFAULTS["host"]))
         self.var_port = tk.StringVar(value=self.config.get("port", DEFAULTS["port"]))
         self.var_user = tk.StringVar(value=self.config.get("user", DEFAULTS["user"]))
         self.var_pass = tk.StringVar(value=self.config.get("password", DEFAULTS["password"]))
 
-        ttk.Label(conn, text="IP роутера:").grid(row=0, column=0, sticky="e", padx=6, pady=3)
-        e_host = ttk.Entry(conn, textvariable=self.var_host, width=18)
-        e_host.grid(row=0, column=1, sticky="w", padx=6)
-        self.add_context_menu(e_host)
-        ttk.Label(conn, text="Порт:").grid(row=0, column=2, sticky="e", padx=6)
-        e_port = ttk.Entry(conn, textvariable=self.var_port, width=6)
-        e_port.grid(row=0, column=3, sticky="w", padx=6)
-        self.add_context_menu(e_port)
-        ttk.Label(conn, text="Логин:").grid(row=1, column=0, sticky="e", padx=6, pady=3)
-        e_user = ttk.Entry(conn, textvariable=self.var_user, width=18)
-        e_user.grid(row=1, column=1, sticky="w", padx=6)
-        self.add_context_menu(e_user)
-        ttk.Label(conn, text="Пароль:").grid(row=1, column=2, sticky="e", padx=6)
-        self.e_pass = ttk.Entry(conn, textvariable=self.var_pass, width=18, show="*")
-        self.e_pass.grid(row=1, column=3, sticky="w", padx=6)
-        self.add_context_menu(self.e_pass)
-        self.btn_show_pass = ttk.Button(conn, text="Показать", width=9,
-                                        command=self.toggle_show_password)
-        self.btn_show_pass.grid(row=1, column=4, sticky="w", padx=(0, 6))
-        conn.columnconfigure(4, weight=1)
-        ttk.Button(conn, text="Проверить обновление", command=self.check_update).grid(
-            row=0, column=5, rowspan=2, sticky="e", padx=6, pady=3)
-        ttk.Checkbutton(conn, text="Тёмная тема", variable=self.var_gui_dark,
-                        command=self.toggle_gui_theme).grid(
-            row=0, column=6, rowspan=2, sticky="e", padx=(0, 6))
-        ttk.Label(conn, text="RouterMaster v%s\nАвтор: R3G1ST" % APP_VERSION,
-                  justify="right").grid(row=0, column=7, rowspan=2, sticky="ne", padx=(0, 2))
+        b = card._body
+        grid = ctk.CTkFrame(b, fg_color="transparent")
+        grid.pack(fill="x")
+        self._lbl(grid, "IP роутера").grid(row=0, column=0, sticky="w", padx=(0, 8), pady=6)
+        self._entry(grid, self.var_host, 170).grid(row=0, column=1, sticky="w", pady=6)
+        self._lbl(grid, "Порт").grid(row=0, column=2, sticky="w", padx=(18, 8), pady=6)
+        self._entry(grid, self.var_port, 70).grid(row=0, column=3, sticky="w", pady=6)
+        self._lbl(grid, "Логин").grid(row=1, column=0, sticky="w", padx=(0, 8), pady=6)
+        self._entry(grid, self.var_user, 170).grid(row=1, column=1, sticky="w", pady=6)
+        self._lbl(grid, "Пароль").grid(row=1, column=2, sticky="w", padx=(18, 8), pady=6)
+        self.e_pass = self._entry(grid, self.var_pass, 170, show="*")
+        self.e_pass.grid(row=1, column=3, sticky="w", pady=6)
+        self.btn_show_pass = ctk.CTkButton(grid, text="Показать", width=90, height=32,
+                                           fg_color=self.P["card"], hover_color=self.P["border"],
+                                           border_width=1, border_color=self.P["border"],
+                                           text_color=self.P["text"], corner_radius=8,
+                                           command=self.toggle_show_password)
+        self.btn_show_pass.grid(row=1, column=4, sticky="w", padx=(10, 0), pady=6)
 
-        # ============ Что делать ============
-        steps = ttk.LabelFrame(main, text="Что выполнить (можно выбрать несколько)", padding=8)
-        steps.pack(fill="x", pady=(0, 8))
+        theme_row = ctk.CTkFrame(b, fg_color="transparent")
+        theme_row.pack(fill="x", pady=(10, 2))
+        self.switch_theme = self._switch(theme_row, "Тёмная тема", self.var_gui_dark,
+                                         command=self.toggle_gui_theme)
+        self.switch_theme.pack(side="left")
+
+        self.pages["conn"] = page
+
+        # ----- Страница: Что выполнить -----
+        page = ctk.CTkFrame(content, fg_color="transparent")
+        card = self._card(page, "Что выполнить (можно выбрать несколько)")
+        card.pack(fill="x", padx=14, pady=(14, 10))
+        b = card._body
 
         self.var_update = tk.BooleanVar(value=self.config["steps"].get("update_packages", True))
         self.var_podkop = tk.BooleanVar(value=self.config["steps"].get("install_podkop", True))
@@ -158,215 +267,194 @@ class RouterToolApp:
         self.var_proxy = tk.BooleanVar(value=self.config["steps"].get("setup_proxy", False))
         self.var_os = tk.BooleanVar(value=self.config["steps"].get("update_os", False))
 
-        ttk.Checkbutton(steps, text="Обновить все пакеты", variable=self.var_update).grid(row=0, column=0, sticky="w", padx=8, pady=4)
-        ttk.Checkbutton(steps, text="Установить / обновить Podkop", variable=self.var_podkop).grid(row=0, column=1, sticky="w", padx=8, pady=4)
-        ttk.Button(steps, text="Удалить", width=8, command=self.remove_podkop).grid(row=0, column=2, sticky="w", padx=(0, 8), pady=4)
-        ttk.Checkbutton(steps, text="Установить / обновить Zapret", variable=self.var_zapret).grid(row=1, column=1, sticky="w", padx=8, pady=4)
-        ttk.Button(steps, text="Удалить", width=8, command=self.remove_zapret).grid(row=1, column=2, sticky="w", padx=(0, 8), pady=4)
+        def row_switch(text, var):
+            r = ctk.CTkFrame(b, fg_color="transparent")
+            r.pack(fill="x", pady=3)
+            self._switch(r, text, var).pack(side="left")
+            return r
 
-        theme_cell = ttk.Frame(steps)
-        theme_cell.grid(row=1, column=0, sticky="w", padx=8, pady=4)
-        ttk.Checkbutton(theme_cell, text="Установить тему:", variable=self.var_argon).pack(side="left")
+        def small_btn(parent, text, cmd, side="left"):
+            return ctk.CTkButton(parent, text=text, width=80, height=28,
+                                 fg_color=self.P["card"], hover_color=self.P["border"],
+                                 border_width=1, border_color=self.P["border"],
+                                 text_color=self.P["muted"], corner_radius=8,
+                                 font=ctk.CTkFont("Segoe UI", 10), command=cmd).pack(
+                                     side=side, padx=(10, 0))
+
+        row_switch("Обновить все пакеты", self.var_update)
+        r = row_switch("Установить / обновить Podkop", self.var_podkop)
+        small_btn(r, "Удалить", self.remove_podkop)
+        r = row_switch("Установить / обновить Zapret", self.var_zapret)
+        small_btn(r, "Удалить", self.remove_zapret)
+
+        r = row_switch("Установить тему:", self.var_argon)
         self.var_theme = tk.StringVar(value=self.config.get("theme", DEFAULTS["theme"]))
-        ttk.Combobox(theme_cell, textvariable=self.var_theme, values=list(THEMES.keys()),
-                     state="readonly", width=20).pack(side="left", padx=(8, 0))
+        self._option(r, self.var_theme, list(THEMES.keys()), 210).pack(side="left", padx=(10, 0))
 
-        ttk.Checkbutton(steps, text="Русский язык интерфейса", variable=self.var_ru).grid(row=2, column=1, sticky="w", padx=8, pady=4)
+        row_switch("Русский язык интерфейса", self.var_ru)
 
-        wifi5_cell = ttk.Frame(steps)
-        wifi5_cell.grid(row=2, column=0, sticky="w", padx=8, pady=4)
-        ttk.Checkbutton(wifi5_cell, text="Создать Wi-Fi 5G:", variable=self.var_wifi).pack(side="left")
-        ttk.Combobox(wifi5_cell, textvariable=self.var_enc_5g, values=list(ENC_LABELS.keys()),
-                     state="readonly", width=20).pack(side="left", padx=(8, 0))
+        r = row_switch("Создать Wi-Fi 5G:", self.var_wifi)
+        self._option(r, self.var_enc_5g, list(ENC_LABELS.keys()), 210).pack(side="left", padx=(10, 0))
+        r = row_switch("Создать Wi-Fi 2G:", self.var_wifi_2g)
+        self._option(r, self.var_enc_2g, list(ENC_LABELS.keys()), 210).pack(side="left", padx=(10, 0))
 
-        wifi2_cell = ttk.Frame(steps)
-        wifi2_cell.grid(row=3, column=0, sticky="w", padx=8, pady=4)
-        ttk.Checkbutton(wifi2_cell, text="Создать Wi-Fi 2G:", variable=self.var_wifi_2g).pack(side="left")
-        ttk.Combobox(wifi2_cell, textvariable=self.var_enc_2g, values=list(ENC_LABELS.keys()),
-                     state="readonly", width=20).pack(side="left", padx=(8, 0))
+        row_switch("Задать прокси для Podkop", self.var_proxy)
 
-        ttk.Checkbutton(steps, text="Задать прокси для Podkop", variable=self.var_proxy).grid(row=4, column=0, sticky="w", padx=8, pady=4)
+        r = row_switch("Проверить и обновить ОС (прошивку)", self.var_os)
+        small_btn(r, "Доп. Софт", self.open_extra_soft)
 
-        ttk.Checkbutton(steps, text="Проверить и обновить ОС (прошивку)", variable=self.var_os).grid(row=3, column=1, sticky="w", padx=8, pady=4)
-        ttk.Button(steps, text="Доп. Софт", width=12, command=self.open_extra_soft).grid(
-            row=4, column=1, sticky="w", padx=8, pady=(0, 4))
+        self.pages["steps"] = page
 
-        steps.columnconfigure(0, weight=1, uniform="steps")
-        steps.columnconfigure(1, weight=1, uniform="steps")
-
-        # ============ Параметры ============
-        params = ttk.LabelFrame(main, text="Параметры", padding=8)
-        params.pack(fill="x", pady=(0, 8))
+        # ----- Страница: Параметры -----
+        page = ctk.CTkFrame(content, fg_color="transparent")
+        card = self._card(page, "Параметры")
+        card.pack(fill="x", padx=14, pady=(14, 10))
+        b = card._body
 
         self.var_ssid = tk.StringVar(value=self.config.get("wifi_ssid", DEFAULTS["wifi_ssid"]))
         self.var_ssid_2g = tk.StringVar(value=self.config.get("wifi_ssid_2g", DEFAULTS["wifi_ssid_2g"]))
         self.var_wifi_pass = tk.StringVar(value=self.config.get("wifi_password", DEFAULTS["wifi_password"]))
         self.var_channel = tk.StringVar(value=self.config.get("wifi_channel", DEFAULTS["wifi_channel"]))
         self.var_channel_2g = tk.StringVar(value=self.config.get("wifi_channel_2g", DEFAULTS["wifi_channel_2g"]))
-        self.var_proxy_str = tk.StringVar(value=self.config.get("proxy_string", DEFAULTS["proxy_string"]))
 
-        ttk.Label(params, text="SSID 5G:").grid(row=0, column=0, sticky="e", padx=6, pady=3)
-        e_ssid = ttk.Entry(params, textvariable=self.var_ssid, width=16)
-        e_ssid.grid(row=0, column=1, sticky="w", padx=6)
-        self.add_context_menu(e_ssid)
-        ttk.Label(params, text="SSID 2G:").grid(row=0, column=2, sticky="e", padx=6)
-        e_ssid2 = ttk.Entry(params, textvariable=self.var_ssid_2g, width=16)
-        e_ssid2.grid(row=0, column=3, sticky="w", padx=6)
-        self.add_context_menu(e_ssid2)
-        ttk.Label(params, text="Пароль Wi-Fi:").grid(row=0, column=4, sticky="e", padx=6)
-        e_wpass = ttk.Entry(params, textvariable=self.var_wifi_pass, width=16)
-        e_wpass.grid(row=0, column=5, sticky="w", padx=6)
-        self.add_context_menu(e_wpass)
-        ttk.Label(params, text="Канал 5G:").grid(row=1, column=0, sticky="e", padx=6, pady=3)
-        e_chan = ttk.Entry(params, textvariable=self.var_channel, width=5)
-        e_chan.grid(row=1, column=1, sticky="w", padx=6)
-        self.add_context_menu(e_chan)
-        ttk.Label(params, text="Канал 2G:").grid(row=1, column=2, sticky="e", padx=6, pady=3)
-        e_chan2 = ttk.Entry(params, textvariable=self.var_channel_2g, width=5)
-        e_chan2.grid(row=1, column=3, sticky="w", padx=6)
-        self.add_context_menu(e_chan2)
-        ttk.Label(params, text="Прокси (vless:// или подписка):").grid(row=2, column=0, sticky="e", padx=6, pady=3)
-        self.proxy_text = tk.Text(params, width=38, height=2, wrap="word",
-                                  relief="flat", borderwidth=2)
-        self.proxy_text.grid(row=2, column=1, columnspan=5, sticky="we", padx=6, pady=3)
+        grid = ctk.CTkFrame(b, fg_color="transparent")
+        grid.pack(fill="x")
+        self._lbl(grid, "SSID 5G").grid(row=0, column=0, sticky="w", padx=(0, 8), pady=6)
+        self._entry(grid, self.var_ssid, 160).grid(row=0, column=1, sticky="w", pady=6)
+        self._lbl(grid, "SSID 2G").grid(row=0, column=2, sticky="w", padx=(18, 8), pady=6)
+        self._entry(grid, self.var_ssid_2g, 160).grid(row=0, column=3, sticky="w", pady=6)
+        self._lbl(grid, "Пароль Wi-Fi").grid(row=1, column=0, sticky="w", padx=(0, 8), pady=6)
+        self._entry(grid, self.var_wifi_pass, 160).grid(row=1, column=1, sticky="w", pady=6)
+        self._lbl(grid, "Канал 5G").grid(row=1, column=2, sticky="w", padx=(18, 8), pady=6)
+        self._entry(grid, self.var_channel, 70).grid(row=1, column=3, sticky="w", pady=6)
+        self._lbl(grid, "Канал 2G").grid(row=1, column=4, sticky="w", padx=(18, 8), pady=6)
+        self._entry(grid, self.var_channel_2g, 70).grid(row=1, column=5, sticky="w", pady=6)
+
+        self._lbl(b, "Прокси (vless:// или подписка):").pack(anchor="w", pady=(10, 4))
+        self.proxy_text = ctk.CTkTextbox(b, height=56, wrap="word",
+                                         fg_color=self.P["field"], border_color=self.P["border"],
+                                         border_width=1, text_color=self.P["text"],
+                                         corner_radius=8, font=ctk.CTkFont("Consolas", 11))
+        self.proxy_text.pack(fill="x")
         self.proxy_text.insert("1.0", self.config.get("proxy_string", DEFAULTS["proxy_string"]))
-        self.add_context_menu(self.proxy_text)
 
-        # ============ Кнопки ============
-        btns = ttk.Frame(main)
-        btns.pack(fill="x", pady=(0, 8))
+        self.pages["params"] = page
 
-        self.btn_run = ttk.Button(btns, text="ВЫПОЛНИТЬ", command=self.run_all, style="Accent.TButton")
-        self.btn_run.pack(side="left", padx=4, pady=2)
-        self.btn_reset = ttk.Button(btns, text="Сброс + настройка", command=self.reset_and_setup)
-        self.btn_reset.pack(side="left", padx=4, pady=2)
-        ttk.Button(btns, text="Сохранить настройки", command=self.save_config).pack(side="left", padx=4, pady=2)
-        ttk.Button(btns, text="Скопировать лог", command=self.copy_log).pack(side="left", padx=4, pady=2)
-        ttk.Button(btns, text="Очистить лог", command=self.clear_log).pack(side="left", padx=4, pady=2)
+        for name, pg in self.pages.items():
+            pg.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        # ============ Лог ============
-        log_frame = ttk.LabelFrame(main, text="Лог", padding=4)
-        log_frame.pack(fill="both", expand=True)
+        self._show_page("conn")
 
-        self.lbl_time = ttk.Label(log_frame, text="Время: 0:00")
-        self.lbl_time.pack(side="right", padx=(4, 8), pady=2)
-        self.progress = ttk.Progressbar(log_frame, mode="indeterminate", length=140)
-        self.progress.pack(side="right", padx=4, pady=2)
+        # ===== Кнопки действий =====
+        bar = ctk.CTkFrame(content, fg_color="transparent")
+        bar.pack(side="bottom", fill="x", padx=14, pady=(0, 12))
 
-        self.log_text = tk.Text(log_frame, height=12, wrap="word", state="disabled",
-                                relief="flat", borderwidth=2, font=("Consolas", 9))
-        self.log_text.pack(side="left", fill="both", expand=True)
-        scroll = ttk.Scrollbar(log_frame, command=self.log_text.yview)
-        scroll.pack(side="right", fill="y")
-        self.log_text.config(yscrollcommand=scroll.set)
-        self._apply_text_colors()
+        self.btn_run = ctk.CTkButton(bar, text="ВЫПОЛНИТЬ", height=44,
+                                     fg_color=self.P["accent"], hover_color=self.P["accent_hover"],
+                                     text_color="#ffffff", corner_radius=10,
+                                     font=ctk.CTkFont("Segoe UI", 13, "bold"),
+                                     command=self.run_all)
+        self.btn_run.pack(side="left", padx=(0, 8))
+        self.btn_reset = ctk.CTkButton(bar, text="Сброс + настройка", height=44,
+                                       fg_color=self.P["card"], hover_color=self.P["border"],
+                                       border_width=1, border_color=self.P["border"],
+                                       text_color=self.P["text"], corner_radius=10,
+                                       font=ctk.CTkFont("Segoe UI", 12),
+                                       command=self.reset_and_setup)
+        self.btn_reset.pack(side="left", padx=8)
+        ctk.CTkButton(bar, text="Сохранить настройки", height=36,
+                      fg_color="transparent", hover_color=self.P["card"],
+                      text_color=self.P["muted"], corner_radius=8,
+                      font=ctk.CTkFont("Segoe UI", 11),
+                      command=self.save_config).pack(side="right", padx=(8, 0))
+        ctk.CTkButton(bar, text="Скопировать лог", height=36,
+                      fg_color="transparent", hover_color=self.P["card"],
+                      text_color=self.P["muted"], corner_radius=8,
+                      font=ctk.CTkFont("Segoe UI", 11),
+                      command=self.copy_log).pack(side="right", padx=(8, 0))
+        ctk.CTkButton(bar, text="Очистить лог", height=36,
+                      fg_color="transparent", hover_color=self.P["card"],
+                      text_color=self.P["muted"], corner_radius=8,
+                      font=ctk.CTkFont("Segoe UI", 11),
+                      command=self.clear_log).pack(side="right", padx=(8, 0))
 
-        self.add_context_menu(self.log_text)
+        # ===== Лог =====
+        log_card = ctk.CTkFrame(content, fg_color=self.P["card"],
+                                border_width=1, border_color=self.P["border"], corner_radius=14)
+        log_card.pack(side="bottom", fill="x", padx=14, pady=(0, 12))
+        head = ctk.CTkFrame(log_card, fg_color="transparent")
+        head.pack(fill="x", padx=14, pady=(10, 0))
+        ctk.CTkLabel(head, text="Лог", font=ctk.CTkFont("Segoe UI", 12, "bold"),
+                     text_color=self.P["text"]).pack(side="left")
+        self.lbl_time = ctk.CTkLabel(head, text="Время: 0:00",
+                                     font=ctk.CTkFont("Segoe UI", 10), text_color=self.P["muted"])
+        self.lbl_time.pack(side="right")
+        self.progress = ctk.CTkProgressBar(log_card, mode="indeterminate",
+                                           progress_color=self.P["accent2"], height=6,
+                                           corner_radius=3)
+        self.progress.pack(fill="x", padx=14, pady=(6, 2))
+        self.progress.set(0)
 
-        self.log("Готово. Заполните настройки и нажмите «Выполнить всё».")
+        self.log_text = ctk.CTkTextbox(log_card, height=170, wrap="word",
+                                       fg_color=self.P["field"], border_color=self.P["border"],
+                                       border_width=1, text_color=self.P["text"],
+                                       corner_radius=8, font=ctk.CTkFont("Consolas", 10))
+        self.log_text.pack(fill="x", padx=14, pady=(4, 12))
+        self.log_text.configure(state="disabled")
 
-    def apply_theme(self, root, dark):
+    def _show_page(self, name):
+        for n, pg in self.pages.items():
+            if n == name:
+                pg.lift()
+            else:
+                pg.lower()
+
+    def apply_theme(self, dark):
         if dark:
-            bg, panel, field = "#1e1e2e", "#313244", "#45475a"
-            fg, accent, accent_active = "#cdd6f4", "#89b4fa", "#a6c8ff"
             titlebar_dark = True
         else:
-            bg, panel, field = "#f2f3f5", "#e4e5ea", "#ffffff"
-            fg, accent, accent_active = "#1e1e2e", "#2f6fdf", "#4a84e8"
             titlebar_dark = False
-        self.cur_bg, self.cur_panel, self.cur_field = bg, panel, field
-        self.cur_fg, self.cur_accent = fg, accent
-
-        root.configure(bg=bg)
-        root.after(100, lambda: self.set_dark_titlebar(titlebar_dark))
-
-        style = ttk.Style(root)
-        try:
-            style.theme_use("clam")
-        except tk.TclError:
-            pass
-
-        style.configure(".", background=bg, foreground=fg, fieldbackground=field,
-                        bordercolor=panel, lightcolor=panel, darkcolor=panel,
-                        troughcolor=panel, selectbackground=accent, selectforeground=bg,
-                        font=("Segoe UI", 9))
-        style.configure("TLabel", background=bg, foreground=fg)
-        style.configure("TFrame", background=bg)
-        style.configure("TLabelframe", background=bg, foreground=fg, bordercolor=panel, borderwidth=1)
-        style.configure("TLabelframe.Label", background=bg, foreground=fg)
-        style.configure("TButton", background=field, foreground=fg, bordercolor=panel,
-                        borderwidth=1, padding=(4, 2), focuscolor=panel)
-        style.map("TButton", background=[("active", accent if dark else "#d8e0f0"),
-                                         ("pressed", accent)],
-                  bordercolor=[("active", accent)],
-                  foreground=[("disabled", "#9aa0a6" if dark else "#a0a4b0")])
-        style.configure("Accent.TButton", background=accent, foreground=bg,
-                        font=("Segoe UI", 9, "bold"), padding=(6, 3), borderwidth=0)
-        style.map("Accent.TButton", background=[("active", accent_active)])
-        style.configure("TEntry", fieldbackground=field, foreground=fg,
-                        bordercolor=panel, borderwidth=1, insertcolor=fg, padding=(6, 4))
-        style.map("TEntry", bordercolor=[("focus", accent)])
-        style.configure("TCombobox", fieldbackground=field, background=panel,
-                        foreground=fg, bordercolor=panel, borderwidth=1,
-                        arrowcolor=fg, padding=(6, 4))
-        style.map("TCombobox", fieldbackground=[("readonly", field)],
-                  foreground=[("readonly", fg)], bordercolor=[("focus", accent)])
-        style.configure("TCheckbutton", background=bg, foreground=fg, padding=(4, 3))
-        style.map("TCheckbutton", background=[("active", bg)], foreground=[("active", fg)])
-        style.configure("Vertical.TScrollbar", background=panel, troughcolor=bg,
-                        bordercolor=bg, arrowcolor=fg)
-        style.map("Vertical.TScrollbar", background=[("active", field)])
-        style.configure("Horizontal.TScrollbar", background=panel, troughcolor=bg,
-                        bordercolor=bg, arrowcolor=fg)
-        root.option_add("*TCombobox*Listbox.background", field)
-        root.option_add("*TCombobox*Listbox.foreground", fg)
-        root.option_add("*TCombobox*Listbox.selectBackground", accent)
-        root.option_add("*TCombobox*Listbox.selectForeground", bg)
-        root.option_add("*Menu.background", panel)
-        root.option_add("*Menu.foreground", fg)
-        root.option_add("*Menu.activeBackground", accent)
-        root.option_add("*Menu.activeForeground", bg)
-        if hasattr(self, "log_text") and hasattr(self, "proxy_text"):
-            self._apply_text_colors()
-
-    def _apply_text_colors(self):
-        if self.is_dark:
-            log_bg, log_fg = "#181825", "#a6adc8"
-            field_bg, field_fg = "#45475a", "#cdd6f4"
-        else:
-            log_bg, log_fg = "#f6f8fa", "#24292f"
-            field_bg, field_fg = "#ffffff", "#1e1e2e"
-        self.log_text.configure(bg=log_bg, fg=log_fg, insertbackground=log_fg)
-        self.proxy_text.configure(bg=field_bg, fg=field_fg, insertbackground=field_fg)
+        self.root.after(100, lambda: self.set_dark_titlebar(titlebar_dark))
 
     def toggle_gui_theme(self):
         self.is_dark = bool(self.var_gui_dark.get())
         self.config["gui_theme"] = "dark" if self.is_dark else "light"
-        self.apply_theme(self.root, self.is_dark)
+        try:
+            self.save_config()
+        except Exception:
+            pass
+        try:
+            self.root.destroy()
+        except Exception:
+            pass
+        if getattr(sys, "frozen", False):
+            subprocess.Popen([sys.executable])
+        else:
+            subprocess.Popen([sys.executable, os.path.abspath(__file__)])
 
     def toggle_show_password(self):
         if self.e_pass.cget("show") == "*":
-            self.e_pass.config(show="")
-            self.btn_show_pass.config(text="Скрыть")
+            self.e_pass.configure(show="")
+            self.btn_show_pass.configure(text="Скрыть")
         else:
-            self.e_pass.config(show="*")
-            self.btn_show_pass.config(text="Показать")
+            self.e_pass.configure(show="*")
+            self.btn_show_pass.configure(text="Показать")
 
     # ---------- Диалоги в стиле темы ----------
     def _dialog_window(self, title):
-        win = tk.Toplevel(self.root)
+        win = ctk.CTkToplevel(self.root)
         win.overrideredirect(True)
-        win.configure(bg=self.cur_panel)
+        win.configure(fg_color=self.P["panel"])
         win.transient(self.root)
         win.grab_set()
 
-        bar = tk.Frame(win, bg=self.cur_panel)
+        bar = ctk.CTkFrame(win, fg_color=self.P["panel"], corner_radius=0)
         bar.pack(fill="x")
-        tk.Label(bar, text=title, bg=self.cur_panel, fg=self.cur_fg,
-                 font=("Segoe UI", 10, "bold")).pack(side="left", padx=10, pady=6)
-        close = tk.Label(bar, text="\u2715", bg=self.cur_panel, fg=self.cur_fg,
-                         cursor="hand2", font=("Segoe UI", 10))
-        close.pack(side="right", padx=8, pady=4)
+        ctk.CTkLabel(bar, text=title, text_color=self.P["text"],
+                     font=ctk.CTkFont("Segoe UI", 11, "bold")).pack(side="left", padx=12, pady=8)
+        close = ctk.CTkLabel(bar, text="\u2715", text_color=self.P["muted"],
+                             cursor="hand2", font=ctk.CTkFont("Segoe UI", 12))
+        close.pack(side="right", padx=10, pady=4)
         close.bind("<Button-1>", lambda e: win.destroy())
 
         def start_drag(e):
@@ -382,7 +470,7 @@ class RouterToolApp:
         bar.bind("<Button-1>", start_drag)
         bar.bind("<B1-Motion>", drag)
 
-        body = tk.Frame(win, bg=self.cur_bg)
+        body = ctk.CTkFrame(win, fg_color=self.P["card"], corner_radius=0)
         body.pack(fill="both", expand=True)
         win._body = body
         win.update_idletasks()
@@ -395,22 +483,35 @@ class RouterToolApp:
         win.focus_force()
         return win
 
+    def _dialog_btn(self, parent, text, command, accent=False, width=90):
+        if accent:
+            return ctk.CTkButton(parent, text=text, width=width, height=34,
+                                 fg_color=self.P["accent"], hover_color=self.P["accent_hover"],
+                                 text_color="#ffffff", corner_radius=8,
+                                 font=ctk.CTkFont("Segoe UI", 11, "bold"), command=command)
+        return ctk.CTkButton(parent, text=text, width=width, height=34,
+                             fg_color=self.P["card"], hover_color=self.P["border"],
+                             border_width=1, border_color=self.P["border"],
+                             text_color=self.P["text"], corner_radius=8,
+                             font=ctk.CTkFont("Segoe UI", 11), command=command)
+
     def show_message(self, title, message):
         win = self._dialog_window(title)
-        ttk.Label(win._body, text=message, wraplength=400, justify="left").pack(padx=18, pady=(16, 12))
-        ttk.Button(win._body, text="OK", style="Accent.TButton", width=10,
-                   command=win.destroy).pack(pady=(0, 14))
+        ctk.CTkLabel(win._body, text=message, wraplength=400, justify="left",
+                     text_color=self.P["text"],
+                     font=ctk.CTkFont("Segoe UI", 11)).pack(padx=18, pady=(16, 12))
+        self._dialog_btn(win._body, "OK", win.destroy, accent=True).pack(pady=(0, 14))
         win.lift()
         win.focus_force()
         self.root.wait_window(win)
 
     def open_extra_soft(self):
-        win = self._dialog_window("Дополнительный Софт")
-        ttk.Label(win._body,
-                  text="Здесь будут дополнительные программы\nдля установки на роутер.\nПока пусто — вернитесь позже.",
-                  wraplength=400, justify="center").pack(padx=18, pady=(18, 12))
-        ttk.Button(win._body, text="Закрыть", style="Accent.TButton", width=10,
-                   command=win.destroy).pack(pady=(0, 14))
+        win = self._dialog_window("Доп. Софт")
+        ctk.CTkLabel(win._body,
+                     text="Здесь будут дополнительные программы\nдля установки на роутер.\nПока пусто — вернитесь позже.",
+                     wraplength=400, justify="center", text_color=self.P["text"],
+                     font=ctk.CTkFont("Segoe UI", 11)).pack(padx=18, pady=(18, 12))
+        self._dialog_btn(win._body, "Закрыть", win.destroy, accent=True).pack(pady=(0, 14))
         win.lift()
         win.focus_force()
         self.root.wait_window(win)
@@ -418,16 +519,18 @@ class RouterToolApp:
     def ask_confirm(self, title, message):
         result = {"ok": False}
         win = self._dialog_window(title)
-        ttk.Label(win._body, text=message, wraplength=420, justify="left").pack(padx=18, pady=(16, 12))
+        ctk.CTkLabel(win._body, text=message, wraplength=420, justify="left",
+                     text_color=self.P["text"],
+                     font=ctk.CTkFont("Segoe UI", 11)).pack(padx=18, pady=(16, 12))
 
         def yes():
             result["ok"] = True
             win.destroy()
 
-        btns = ttk.Frame(win._body)
+        btns = ctk.CTkFrame(win._body, fg_color="transparent")
         btns.pack(pady=(0, 14))
-        ttk.Button(btns, text="Да", style="Accent.TButton", width=10, command=yes).pack(side="left", padx=6)
-        ttk.Button(btns, text="Отмена", width=10, command=win.destroy).pack(side="left", padx=6)
+        self._dialog_btn(btns, "Да", yes, accent=True).pack(side="left", padx=6)
+        self._dialog_btn(btns, "Отмена", win.destroy).pack(side="left", padx=6)
         win.lift()
         win.focus_force()
         self.root.wait_window(win)
@@ -438,7 +541,7 @@ class RouterToolApp:
         self._timer_running = True
         self._start_time = time.time()
         self.progress.start(10)
-        self.lbl_time.config(text="Время: 0:00")
+        self.lbl_time.configure(text="Время: 0:00")
         self._update_timer()
 
     def _update_timer(self):
@@ -446,16 +549,17 @@ class RouterToolApp:
             return
         el = int(time.time() - self._start_time)
         m, s = divmod(el, 60)
-        self.lbl_time.config(text="Время: %d:%02d" % (m, s))
+        self.lbl_time.configure(text="Время: %d:%02d" % (m, s))
         self.root.after(1000, self._update_timer)
 
     def stop_progress(self):
         self._timer_running = False
         self.progress.stop()
+        self.progress.set(0)
         if hasattr(self, "_start_time"):
             el = int(time.time() - self._start_time)
             m, s = divmod(el, 60)
-            self.lbl_time.config(text="Время: %d:%02d (готово)" % (m, s))
+            self.lbl_time.configure(text="Время: %d:%02d (готово)" % (m, s))
 
     # ---------- Удаление сервисов ----------
     def _connect_ssh(self):
@@ -577,9 +681,26 @@ class RouterToolApp:
 
     def add_context_menu(self, widget):
         menu = tk.Menu(widget, tearoff=0)
-        menu.add_command(label="Копировать", command=lambda: widget.event_generate("<<Copy>>"))
-        menu.add_command(label="Вставить", command=lambda: widget.event_generate("<<Paste>>"))
-        menu.add_command(label="Выделить всё", command=lambda: widget.event_generate("<<SelectAll>>"))
+
+        def get_text():
+            try:
+                return widget.get("1.0", "end-1c")
+            except Exception:
+                try:
+                    return widget.get()
+                except Exception:
+                    return ""
+
+        menu.add_command(label="Копировать", command=lambda: (
+            self.root.clipboard_clear(),
+            self.root.clipboard_append(get_text())))
+        try:
+            menu.add_command(label="Вставить", command=lambda: widget.insert(
+                "insert" if hasattr(widget, "insert") and not isinstance(widget.get(), str) else "end",
+                self.root.clipboard_get()))
+        except Exception:
+            pass
+        menu.add_command(label="Выделить всё", command=lambda: widget.focus_set())
         widget.bind("<Button-3>", lambda e: menu.tk_popup(e.x_root, e.y_root))
 
     # ---------- Лог ----------
@@ -591,16 +712,16 @@ class RouterToolApp:
         self.root.destroy()
 
     def log(self, msg):
-        self.log_text.config(state="normal")
+        self.log_text.configure(state="normal")
         self.log_text.insert("end", msg + "\n")
         self.log_text.see("end")
-        self.log_text.config(state="disabled")
+        self.log_text.configure(state="disabled")
         self.root.update_idletasks()
 
     def clear_log(self):
-        self.log_text.config(state="normal")
+        self.log_text.configure(state="normal")
         self.log_text.delete("1.0", "end")
-        self.log_text.config(state="disabled")
+        self.log_text.configure(state="disabled")
 
     def copy_log(self):
         content = self.log_text.get("1.0", "end-1c")
@@ -1114,7 +1235,7 @@ class RouterToolApp:
 
 
 def main():
-    root = tk.Tk()
+    root = ctk.CTk()
     RouterToolApp(root)
     root.mainloop()
 

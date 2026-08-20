@@ -1,14 +1,14 @@
 [Setup]
 AppId={{8E7F2B1C-9A3D-4F5E-8B2A-0C1D2E3F4A5B}
 AppName=RouterMaster
-AppVersion=1.4.1
+AppVersion=1.5.0
 AppPublisher=RouterMaster
 DefaultDirName={autopf}\RouterMaster
 DefaultGroupName=RouterMaster
 UninstallDisplayIcon={app}\RouterMaster.exe
-OutputDir=C:\Users\R3G1S\OneDrive\Документы\Default Project\installer
+OutputDir=C:\Users\R3G1S\OneDrive\Документы\Default Project Redesign\installer
 OutputBaseFilename=RouterMaster-Setup
-SetupIconFile=C:\Users\R3G1S\OneDrive\Документы\Default Project\assets\icon.ico
+SetupIconFile=C:\Users\R3G1S\OneDrive\Документы\Default Project Redesign\assets\icon.ico
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -25,7 +25,7 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "Создать ярлык на рабочем столе"; GroupDescription: "Дополнительно:"; Flags: checkedonce
 
 [Files]
-Source: "C:\Users\R3G1S\OneDrive\Документы\Default Project\dist\RouterMaster.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\R3G1S\OneDrive\Документы\Default Project Redesign\dist\RouterMaster.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFilename: "{app}\RouterMaster.exe"
