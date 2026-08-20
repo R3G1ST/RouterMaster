@@ -63,7 +63,13 @@ document.getElementById('cfg-dark').addEventListener('change', e => {
     });
 
     document.getElementById('log-close').addEventListener('click', () => this.hideLog());
-    document.getElementById('log-copy').addEventListener('click', () => this.api?.copy_log());
+    document.getElementById('log-copy').addEventListener('click', async () => {
+      const txt = await this.api?.copy_log();
+      if (txt) {
+        await navigator.clipboard.writeText(txt);
+        this.msg('Лог скопирован в буфер обмена.', 'Готово');
+      }
+    });
     document.getElementById('log-clear').addEventListener('click', () => this.clearLog());
     document.getElementById('confirm-ok').addEventListener('click', () => this.confirmResolve(true));
     document.getElementById('confirm-cancel').addEventListener('click', () => this.confirmResolve(false));
@@ -178,7 +184,11 @@ async loadConfig() {
       this._confirmResolve = resolve;
     });
   },
-  confirmResolve(ok) { this.byId('confirm-overlay').style.display = 'none'; if (this._confirmResolve) this._confirmResolve(ok); },
+  confirmResolve(ok) {
+    this.byId('confirm-overlay').style.display = 'none';
+    if (this._confirmResolve) this._confirmResolve(ok);
+    this.api?.confirm_response(ok);
+  },
   msg(text, title = 'Сообщение') {
     this.byId('msg-text').textContent = text;
     this.byId('msg-title').textContent = title;
