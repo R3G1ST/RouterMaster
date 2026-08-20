@@ -210,6 +210,9 @@ class RouterToolApp:
         content = ctk.CTkFrame(outer, fg_color=self.P["bg"], corner_radius=0)
         content.pack(side="left", fill="both", expand=True, padx=(0, 0))
 
+        self.pages_area = ctk.CTkFrame(content, fg_color="transparent")
+        self.pages_area.pack(side="top", fill="both", expand=True)
+
         self.pages = {}
 
         # ----- Страница: Подключение -----
@@ -341,7 +344,7 @@ class RouterToolApp:
         self.pages["params"] = page
 
         for name, pg in self.pages.items():
-            pg.place(relx=0, rely=0, relwidth=1, relheight=1)
+            pg.place(in_=self.pages_area, relx=0, rely=0, relwidth=1, relheight=1)
 
         self._show_page("conn")
 
