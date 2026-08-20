@@ -16,6 +16,7 @@ import webbrowser
 import tkinter as tk
 import customtkinter as ctk
 import paramiko
+from PIL import Image
 
 APP_VERSION = "1.5.0-beta1"
 UPDATE_REPO = "R3G1ST/RouterMaster"
@@ -188,6 +189,7 @@ class RouterToolApp:
         self.side_w = 210
         self.side_cw = 62
         self.side_target = self.side_w
+        self._collapsed = False
         side = ctk.CTkFrame(outer, width=self.side_w, fg_color=self.P["panel"], corner_radius=0)
         side.pack(side="left", fill="y")
         side.pack_propagate(False)
@@ -241,35 +243,33 @@ class RouterToolApp:
         # ----- Страница: Главная -----
         page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
         page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
-        self._setup_bg(page)
-        page.bind("<Configure>", lambda e: self._place_bg(page))
-        page.bind("<Configure>", lambda e: self._layout_page(page))
+        page.bind("<Configure>", lambda e: (self._fit_bg(page), self._layout_page(page)))
 
         hero = ctk.CTkFrame(page, fg_color=self.P["card"], border_width=1,
                             border_color=self.P["border"], corner_radius=14)
-        self._page_card(page, hero, "top")
-        ctk.CTkLabel(hero, text="RouterMaster", font=ctk.CTkFont("Segoe UI", 34, "bold"),
-                     text_color=self.P["text"]).pack(anchor="w", padx=24, pady=(20, 0))
+        self._page_card(page, hero, "center")
+        ctk.CTkLabel(hero, text="RouterMaster", font=ctk.CTkFont("Segoe UI", 30, "bold"),
+                     text_color=self.P["text"]).pack(anchor="center", pady=(24, 0))
         ctk.CTkLabel(hero, text="Умный помощник по настройке роутеров на OpenWrt",
-                     font=ctk.CTkFont("Segoe UI", 13), text_color=self.P["muted"]).pack(anchor="w", pady=(2, 16))
+                     font=ctk.CTkFont("Segoe UI", 13), text_color=self.P["muted"]).pack(anchor="center", pady=(2, 14))
 
-        self.btn_run = ctk.CTkButton(hero, text="ВЫПОЛНИТЬ", height=56,
+        self.btn_run = ctk.CTkButton(hero, text="ВЫПОЛНИТЬ", height=54,
                                      fg_color=self.P["accent"], hover_color=self.P["accent_hover"],
                                      text_color="#ffffff", corner_radius=14,
                                      font=ctk.CTkFont("Segoe UI", 16, "bold"),
                                      command=self.run_all)
-        self.btn_run.pack(anchor="w", fill="x", pady=(4, 10))
+        self.btn_run.pack(fill="x", padx=24, pady=(2, 8))
 
-        self.btn_reset = ctk.CTkButton(hero, text="Сброс + настройка", height=44,
+        self.btn_reset = ctk.CTkButton(hero, text="Сброс + настройка", height=42,
                                        fg_color=self.P["card"], hover_color=self.P["border"],
                                        border_width=1, border_color=self.P["border"],
                                        text_color=self.P["text"], corner_radius=12,
                                        font=ctk.CTkFont("Segoe UI", 13),
                                        command=self.reset_and_setup)
-        self.btn_reset.pack(anchor="w", fill="x")
+        self.btn_reset.pack(fill="x", padx=24)
 
         hero_actions = ctk.CTkFrame(hero, fg_color="transparent")
-        hero_actions.pack(anchor="w", pady=(14, 0))
+        hero_actions.pack(anchor="center", pady=(14, 24))
         ctk.CTkButton(hero_actions, text="Сохранить настройки", height=32,
                       fg_color="transparent", hover_color=self.P["card"],
                       text_color=self.P["muted"], corner_radius=8,
@@ -297,9 +297,7 @@ class RouterToolApp:
         # ----- Страница: Подключение -----
         page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
         page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
-        self._setup_bg(page)
-        page.bind("<Configure>", lambda e: self._place_bg(page))
-        page.bind("<Configure>", lambda e: self._layout_page(page))
+        page.bind("<Configure>", lambda e: (self._fit_bg(page), self._layout_page(page)))
         card = self._card(page, "Подключение к роутеру")
         self._page_card(page, card, "top")
 
@@ -351,9 +349,7 @@ class RouterToolApp:
         # ----- Страница: Что выполнить -----
         page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
         page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
-        self._setup_bg(page)
-        page.bind("<Configure>", lambda e: self._place_bg(page))
-        page.bind("<Configure>", lambda e: self._layout_page(page))
+        page.bind("<Configure>", lambda e: (self._fit_bg(page), self._layout_page(page)))
         card = self._card(page, "Что выполнить (можно выбрать несколько)")
         self._page_card(page, card, "top")
         b = card._body
@@ -411,9 +407,7 @@ class RouterToolApp:
         # ----- Страница: Параметры -----
         page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
         page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
-        self._setup_bg(page)
-        page.bind("<Configure>", lambda e: self._place_bg(page))
-        page.bind("<Configure>", lambda e: self._layout_page(page))
+        page.bind("<Configure>", lambda e: (self._fit_bg(page), self._layout_page(page)))
         card = self._card(page, "Параметры")
         self._page_card(page, card, "top")
         b = card._body
@@ -467,30 +461,14 @@ class RouterToolApp:
             if not os.path.exists(p):
                 p = os.path.join(APP_DIR, "assets", "background.png")
             if os.path.exists(p):
-                self.bg_photo = tk.PhotoImage(file=p)
+                self.bg_pil = Image.open(p).convert("RGBA")
+                self.bg_photo = None
             else:
+                self.bg_pil = None
                 self.bg_photo = None
         except Exception:
+            self.bg_pil = None
             self.bg_photo = None
-
-    def _setup_bg(self, canvas):
-        try:
-            if not self.bg_photo:
-                return
-            w = max(canvas.winfo_width(), 400)
-            h = max(canvas.winfo_height(), 300)
-            canvas._bgitem = canvas.create_image(w // 2, h // 2, image=self.bg_photo)
-        except Exception:
-            pass
-
-    def _place_bg(self, page):
-        try:
-            if hasattr(page, "_bgitem") and self.bg_photo:
-                w = max(page.winfo_width(), 400)
-                h = max(page.winfo_height(), 300)
-                page.coords(page._bgitem, w // 2, h // 2)
-        except Exception:
-            pass
 
     # ---------- Карточки на canvas-страницах ----------
     def _page_card(self, page, card, mode="top"):
@@ -510,20 +488,43 @@ class RouterToolApp:
             m = 14
             cards = getattr(page, "_cards", [])
             for c in cards:
-                page.coords(c._win, m, 0)
-                page.itemconfigure(c._win, width=w - 2 * m)
+                page.itemconfigure(c._win, width=min(w - 2 * m, 480) if c._mode == "center" else w - 2 * m)
             page.update_idletasks()
-            tops = [c for c in cards if c._mode != "bottom"]
-            bottoms = [c for c in cards if c._mode == "bottom"]
-            y = m
-            for c in tops:
-                page.coords(c._win, m, y)
-                y += c.winfo_reqheight() + 10
-            y = h - m
-            for c in bottoms:
-                y -= c.winfo_reqheight()
-                page.coords(c._win, m, y)
-                y -= 10
+            for c in cards:
+                if c._mode == "center":
+                    cw = min(w - 2 * m, 480)
+                    ch = c.winfo_reqheight()
+                    page.coords(c._win, (w - cw) / 2, max((h - ch) / 2, m))
+                elif c._mode == "bottom":
+                    page.coords(c._win, m, h - m - c.winfo_reqheight())
+                else:
+                    page.coords(c._win, m, m + sum(
+                        x.winfo_reqheight() + 10 for x in cards if x._mode == "top" and cards.index(x) < cards.index(c)))
+        except Exception:
+            pass
+
+    # ---------- Фон (растягивается под окно) ----------
+    def _fit_bg(self, page):
+        try:
+            if not getattr(self, "bg_pil", None):
+                return
+            w = max(page.winfo_width(), 100)
+            h = max(page.winfo_height(), 100)
+            key = (w, h)
+            if getattr(self, "_bg_last_size", None) == key:
+                return
+            self._bg_last_size = key
+            img = self.bg_pil.resize((w, h), Image.LANCZOS)
+            import io
+            buf = io.BytesIO()
+            img.save(buf, "PNG")
+            buf.seek(0)
+            self.bg_photo = tk.PhotoImage(data=buf.read())
+            if hasattr(page, "_bgitem"):
+                page.itemconfigure(page._bgitem, image=self.bg_photo)
+                page.coords(page._bgitem, w // 2, h // 2)
+            else:
+                page._bgitem = page.create_image(w // 2, h // 2, image=self.bg_photo)
         except Exception:
             pass
 
@@ -533,23 +534,27 @@ class RouterToolApp:
 
     def _set_sidebar_width(self, w):
         try:
+            collapsed = w < 90
+            changed = collapsed != self._collapsed
+            self._collapsed = collapsed
             self.side.configure(width=w)
-            if w < 90:
-                self.brand_title.configure(text="RM")
-                self.brand_sub.pack_forget()
-                self.foot_ver.pack_forget()
-                self.foot_check.configure(text="\u21bb")
-                self.btn_toggle.configure(text="\u00bb")
-                for btn in self.nav_btns.values():
-                    btn.configure(text=btn._icon)
-            else:
-                self.brand_title.configure(text="RouterMaster")
-                self.brand_sub.pack(anchor="w", padx=(4, 0), pady=(2, 0))
-                self.foot_ver.pack(pady=(8, 0))
-                self.foot_check.configure(text="\u21bb Проверить обновление")
-                self.btn_toggle.configure(text="\u2261")
-                for btn in self.nav_btns.values():
-                    btn.configure(text=btn._icon + "  " + btn._label)
+            if changed:
+                if collapsed:
+                    self.brand_title.configure(text="RM")
+                    self.brand_sub.pack_forget()
+                    self.foot_ver.pack_forget()
+                    self.foot_check.configure(text="\u21bb")
+                    self.btn_toggle.configure(text="\u00bb")
+                    for btn in self.nav_btns.values():
+                        btn.configure(text=btn._icon)
+                else:
+                    self.brand_title.configure(text="RouterMaster")
+                    self.brand_sub.pack(anchor="w", padx=(4, 0), pady=(2, 0))
+                    self.foot_ver.pack(pady=(8, 0))
+                    self.foot_check.configure(text="\u21bb Проверить обновление")
+                    self.btn_toggle.configure(text="\u2261")
+                    for btn in self.nav_btns.values():
+                        btn.configure(text=btn._icon + "  " + btn._label)
         except Exception:
             pass
 
@@ -557,7 +562,7 @@ class RouterToolApp:
         try:
             diff = self.side_target - self.side_w
             if abs(diff) > 2:
-                step = 8 if diff > 0 else -8
+                step = 12 if diff > 0 else -12
                 self.side_w += step
                 self._set_sidebar_width(self.side_w)
             elif diff != 0:
@@ -566,7 +571,7 @@ class RouterToolApp:
         except Exception:
             pass
         try:
-            self.root.after(12, self._animate_sidebar)
+            self.root.after(16, self._animate_sidebar)
         except Exception:
             pass
 
