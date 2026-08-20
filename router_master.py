@@ -16,7 +16,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import paramiko
 
-APP_VERSION = "1.4.0"
+APP_VERSION = "1.4.1"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -24,8 +24,10 @@ if getattr(sys, "frozen", False):
     APP_DIR = os.path.dirname(sys.executable)
 else:
     APP_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_FILE = os.path.join(APP_DIR, "router_tool_config.json")
-DOWNLOAD_DIR = os.path.join(APP_DIR, "downloads")
+
+DATA_DIR = os.path.join(os.environ.get("APPDATA", APP_DIR), "RouterMaster")
+CONFIG_FILE = os.path.join(DATA_DIR, "router_tool_config.json")
+DOWNLOAD_DIR = os.path.join(DATA_DIR, "downloads")
 
 THEMES = {
     "Argon": {
@@ -695,6 +697,16 @@ class RouterToolApp:
 
     # ---------- Конфиг ----------
     def load_config(self):
+        try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+        except Exception:
+            pass
+        old_cfg = os.path.join(APP_DIR, "router_tool_config.json")
+        if not os.path.exists(CONFIG_FILE) and os.path.exists(old_cfg):
+            try:
+                shutil.copyfile(old_cfg, CONFIG_FILE)
+            except Exception:
+                pass
         if os.path.exists(CONFIG_FILE):
             try:
                 with open(CONFIG_FILE, "r", encoding="utf-8") as f:
@@ -734,6 +746,10 @@ class RouterToolApp:
                 "update_os": self.var_os.get(),
             },
         }
+        try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+        except Exception:
+            pass
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(cfg, f, ensure_ascii=False, indent=2)
         self.log("Настройки сохранены в " + CONFIG_FILE)
