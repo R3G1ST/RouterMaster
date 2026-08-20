@@ -36,6 +36,22 @@
 | 🔔 **Автообновление** | Проверка новых версий из GitHub + тихая установка отдельным updater-процессом, программа перезапускается сама |
 | 🎭 **Темы интерфейса** | Светлая и тёмная темы программы — переключаются галочкой, заголовки окон в цвет темы |
 
+## 🙏 Поддержать проект
+
+Если RouterMaster помогает вам, вы можете поддержать развитие проекта:
+
+[![Поддержать через Ozon Карту](https://img.shields.io/badge/Поддержать-Ozon_Карта-005BFF?style=for-the-badge&logo=ozon)](https://finance.ozon.ru/apps/sbp/ozonbankpay/019e1286-96ed-761a-94a4-f3c252d75937)
+
+### 💰 Криптовалюта
+
+| Криптовалюта | Адрес кошелька |
+| :--- | :--- |
+| **TON** | `UQAEv0Tw5_O4BJCRf3wXiiXj_uL68kraLYRCAqJ6BFomHr6n` |
+| **USDT (сеть TON)** | `UQAEv0Tw5_O4BJCRf3wXiiXj_uL68kraLYRCAqJ6BFomHr6n` |
+| **BTC** | `bc1ql779pzpunajhfdhgme9qwtgsv3z8jphe4652wm` |
+
+Спасибо за вашу поддержку! ❤️
+
 ## 🖥️ Скриншоты
 
 | Светлая тема | Тёмная тема |
@@ -197,21 +213,6 @@ RouterMaster/
 - [luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon) — тема Argon
 - [luci-theme-proton2025](https://github.com/ChesterGoodiny/luci-theme-proton2025) — тема Proton2025
 
-## 🙏 Поддержать проект
-
-Если RouterMaster помогает вам, вы можете поддержать развитие проекта:
-
-[![Поддержать через Ozon Карту](https://img.shields.io/badge/Поддержать-Ozon_Карта-005BFF?style=for-the-badge&logo=ozon)](https://finance.ozon.ru/apps/sbp/ozonbankpay/019e1286-96ed-761a-94a4-f3c252d75937)
-
-### 💰 Криптовалюта
-
-| Криптовалюта | Адрес кошелька |
-| :--- | :--- |
-| **TON** | `UQAEv0Tw5_O4BJCRf3wXiiXj_uL68kraLYRCAqJ6BFomHr6n` |
-| **USDT (сеть TON)** | `UQAEv0Tw5_O4BJCRf3wXiiXj_uL68kraLYRCAqJ6BFomHr6n` |
-| **BTC** | `bc1ql779pzpunajhfdhgme9qwtgsv3z8jphe4652wm` |
-
-Спасибо за вашу поддержку! ❤️
 
 ## 📄 Лицензия
 
