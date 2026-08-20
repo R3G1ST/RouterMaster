@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta13"
+APP_VERSION = "1.5.0-beta14"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -171,10 +171,28 @@ class Api:
     def begin_drag(self):
         try:
             hwnd = self._window.native.Handle.ToInt32()
-            ctypes.windll.user32.ReleaseCapture()
-            ctypes.windll.user32.SendMessageW(hwnd, 0xA1, 2, 0)
+            rect = ctypes.wintypes.RECT()
+            ctypes.windll.user32.GetWindowRect(hwnd, ctypes.byref(rect))
+            self._drag = (rect.left, rect.top)
+        except Exception:
+            self._drag = None
+        return True
+
+    def move_window(self, dx, dy):
+        if not getattr(self, "_drag", None):
+            return True
+        try:
+            hwnd = self._window.native.Handle.ToInt32()
+            x = self._drag[0] + int(dx)
+            y = self._drag[1] + int(dy)
+            ctypes.windll.user32.SetWindowPos(
+                hwnd, 0, x, y, 0, 0, 0x0001 | 0x0004 | 0x0010)
         except Exception:
             pass
+        return True
+
+    def end_drag(self):
+        self._drag = None
         return True
 
     def minimize_window(self):
@@ -1036,7 +1054,7 @@ def main():
         min_size=(960, 640),
         background_color="#05070d",
         frameless=True,
-        shadow=True,
+        shadow=False,
         js_api=api,
     )
     app = RouterToolApp(window)

@@ -20,9 +20,24 @@ const App = {
     this.byId('btn-max').addEventListener('click', () => this.api?.toggle_maximize());
     this.byId('btn-close').addEventListener('click', () => this.api?.close_window());
     const tb = this.byId('titlebar');
+    const dpr = window.devicePixelRatio || 1;
+    let dragging = false, sx = 0, sy = 0;
     tb.addEventListener('mousedown', e => {
-      if (e.target.closest('.tb-btn')) return;
+      if (e.button !== 0 || e.target.closest('.tb-btn')) return;
+      dragging = true;
+      sx = e.screenX;
+      sy = e.screenY;
       this.api?.begin_drag();
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      this.api?.move_window(Math.round((e.screenX - sx) * dpr), Math.round((e.screenY - sy) * dpr));
+    });
+    window.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      this.api?.end_drag();
     });
     tb.addEventListener('dblclick', e => {
       if (e.target.closest('.tb-btn')) return;
