@@ -178,9 +178,7 @@ class RouterToolApp:
     def _build_ui(self):
         root = self.root
         root.configure(fg_color=self.P["bg"])
-        self.lava_phase = 0
-        self.lava_colors = [self.P["accent"], self.P["accent2"], self.P["ok"],
-                            "#8b5cf6", "#f472b6", "#f59e0b"]
+        self._load_bg()
         self.lava_pages = []
 
         outer = ctk.CTkFrame(root, fg_color=self.P["bg"])
@@ -243,7 +241,8 @@ class RouterToolApp:
         # ----- Страница: Главная -----
         page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
         page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
-        self._setup_lava(page)
+        self._setup_bg(page)
+        page.bind("<Configure>", lambda e: self._place_bg(page))
         page.bind("<Configure>", lambda e: self._layout_page(page))
 
         hero = ctk.CTkFrame(page, fg_color=self.P["card"], border_width=1,
@@ -298,7 +297,8 @@ class RouterToolApp:
         # ----- Страница: Подключение -----
         page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
         page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
-        self._setup_lava(page)
+        self._setup_bg(page)
+        page.bind("<Configure>", lambda e: self._place_bg(page))
         page.bind("<Configure>", lambda e: self._layout_page(page))
         card = self._card(page, "Подключение к роутеру")
         self._page_card(page, card, "top")
@@ -351,7 +351,8 @@ class RouterToolApp:
         # ----- Страница: Что выполнить -----
         page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
         page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
-        self._setup_lava(page)
+        self._setup_bg(page)
+        page.bind("<Configure>", lambda e: self._place_bg(page))
         page.bind("<Configure>", lambda e: self._layout_page(page))
         card = self._card(page, "Что выполнить (можно выбрать несколько)")
         self._page_card(page, card, "top")
@@ -410,7 +411,8 @@ class RouterToolApp:
         # ----- Страница: Параметры -----
         page = tk.Canvas(content, bg=self.P["bg"], highlightthickness=0)
         page.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
-        self._setup_lava(page)
+        self._setup_bg(page)
+        page.bind("<Configure>", lambda e: self._place_bg(page))
         page.bind("<Configure>", lambda e: self._layout_page(page))
         card = self._card(page, "Параметры")
         self._page_card(page, card, "top")
@@ -449,7 +451,6 @@ class RouterToolApp:
             pg.place(in_=content, relx=0, rely=0, relwidth=1, relheight=1)
 
         self._show_page("home")
-        self._animate_lava()
         self._animate_sidebar()
 
     def _show_page(self, name):
@@ -459,50 +460,35 @@ class RouterToolApp:
             else:
                 pg.tk.call("lower", pg._w)
 
-    # ---------- Фон «лава-лампа» ----------
-    def _setup_lava(self, canvas):
+    # ---------- Фон (картинка) ----------
+    def _load_bg(self):
         try:
+            p = os.path.join(getattr(sys, "_MEIPASS", APP_DIR), "assets", "background.png")
+            if not os.path.exists(p):
+                p = os.path.join(APP_DIR, "assets", "background.png")
+            if os.path.exists(p):
+                self.bg_photo = tk.PhotoImage(file=p)
+            else:
+                self.bg_photo = None
+        except Exception:
+            self.bg_photo = None
+
+    def _setup_bg(self, canvas):
+        try:
+            if not self.bg_photo:
+                return
             w = max(canvas.winfo_width(), 400)
             h = max(canvas.winfo_height(), 300)
-            rnd = __import__("random").Random(7)
-            blobs = []
-            for i in range(7):
-                blobs.append({
-                    "id": None,
-                    "x": rnd.uniform(0.15, 0.85) * w,
-                    "y": rnd.uniform(0.1, 0.9) * h,
-                    "r": rnd.uniform(60, 140),
-                    "p": rnd.uniform(0, 6.283),
-                    "fx": rnd.uniform(0.005, 0.011),
-                    "fy": rnd.uniform(0.005, 0.011),
-                })
-            for b in blobs:
-                b["id"] = canvas.create_oval(0, 0, 10, 10, fill=self.P["accent"],
-                                             outline="", stipple="gray50")
-            canvas._blobs = blobs
-            canvas._w0 = w
-            canvas._h0 = h
-            self.lava_pages.append(canvas)
+            canvas._bgitem = canvas.create_image(w // 2, h // 2, image=self.bg_photo)
         except Exception:
             pass
 
-    def _animate_lava(self):
-        self.lava_phase += 1
-        for canvas in self.lava_pages:
-            try:
-                w = max(canvas.winfo_width(), 400)
-                h = max(canvas.winfo_height(), 300)
-                for i, b in enumerate(canvas._blobs):
-                    x = b["x"] + math.sin(self.lava_phase * b["fx"] + b["p"]) * 90
-                    y = b["y"] + math.cos(self.lava_phase * b["fy"] + b["p"]) * 70
-                    r = b["r"] * (1 + 0.18 * math.sin(self.lava_phase * 0.02 + b["p"]))
-                    canvas.coords(b["id"], x - r, y - r, x + r, y + r)
-                    idx = (int(self.lava_phase * 0.02) + i) % len(self.lava_colors)
-                    canvas.itemconfig(b["id"], fill=self.lava_colors[idx])
-            except Exception:
-                pass
+    def _place_bg(self, page):
         try:
-            self.root.after(80, self._animate_lava)
+            if hasattr(page, "_bgitem") and self.bg_photo:
+                w = max(page.winfo_width(), 400)
+                h = max(page.winfo_height(), 300)
+                page.coords(page._bgitem, w // 2, h // 2)
         except Exception:
             pass
 
