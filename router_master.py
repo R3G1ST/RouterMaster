@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta14"
+APP_VERSION = "1.5.0-beta15"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -1054,6 +1054,7 @@ def main():
         min_size=(960, 640),
         background_color="#05070d",
         frameless=True,
+        easy_drag=False,
         shadow=False,
         js_api=api,
     )
