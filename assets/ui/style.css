@@ -235,6 +235,17 @@ input[type="text"], input[type="password"], select, textarea {
   font-family: inherit;
 }
 input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%2397a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+select:hover { border-color: var(--accent); }
+select option { background: var(--card); color: var(--text); }
 textarea { resize: vertical; }
 
 .pass-wrap { position: relative; display: block; margin-top: 5px; }
