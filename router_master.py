@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta12"
+APP_VERSION = "1.5.0-beta13"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -166,6 +166,35 @@ class Api:
 
     def open_repo(self):
         webbrowser.open("https://github.com/%s" % UPDATE_REPO)
+        return True
+
+    def begin_drag(self):
+        try:
+            hwnd = self._window.native.Handle.ToInt32()
+            ctypes.windll.user32.ReleaseCapture()
+            ctypes.windll.user32.SendMessageW(hwnd, 0xA1, 2, 0)
+        except Exception:
+            pass
+        return True
+
+    def minimize_window(self):
+        self._window.minimize()
+        return True
+
+    def toggle_maximize(self):
+        try:
+            if getattr(self, "_maximized", False):
+                self._window.restore()
+                self._maximized = False
+            else:
+                self._window.maximize()
+                self._maximized = True
+        except Exception:
+            pass
+        return True
+
+    def close_window(self):
+        self._window.destroy()
         return True
 
     def get_stars(self):
@@ -1006,6 +1035,8 @@ def main():
         height=760,
         min_size=(960, 640),
         background_color="#05070d",
+        frameless=True,
+        shadow=True,
         js_api=api,
     )
     app = RouterToolApp(window)

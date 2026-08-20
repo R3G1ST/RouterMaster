@@ -10,8 +10,24 @@ const App = {
     this.bindNav();
     this.bindActions();
     this.bindFields();
+    this.bindTitlebar();
     this.loadStars();
     setInterval(() => this.loadStars(), 300000);
+  },
+
+  bindTitlebar() {
+    this.byId('btn-min').addEventListener('click', () => this.api?.minimize_window());
+    this.byId('btn-max').addEventListener('click', () => this.api?.toggle_maximize());
+    this.byId('btn-close').addEventListener('click', () => this.api?.close_window());
+    const tb = this.byId('titlebar');
+    tb.addEventListener('mousedown', e => {
+      if (e.target.closest('.tb-btn')) return;
+      this.api?.begin_drag();
+    });
+    tb.addEventListener('dblclick', e => {
+      if (e.target.closest('.tb-btn')) return;
+      this.api?.toggle_maximize();
+    });
   },
 
   async loadStars() {
