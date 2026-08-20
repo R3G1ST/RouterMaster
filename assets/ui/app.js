@@ -11,6 +11,7 @@ const App = {
     this.bindActions();
     this.bindFields();
     this.loadStars();
+    setInterval(() => this.loadStars(), 300000);
   },
 
   async loadStars() {
