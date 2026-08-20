@@ -203,6 +203,12 @@ RouterMaster/
 
 [![Поддержать через Ozon Карту](https://img.shields.io/badge/Поддержать-Ozon_Карта-005BFF?style=for-the-badge&logo=ozon)](https://finance.ozon.ru/apps/sbp/ozonbankpay/019e1286-96ed-761a-94a4-f3c252d75937)
 
+**Криптовалюта:**
+
+[![TON](https://img.shields.io/badge/TON-000?style=for-the-badge&logo=ton)](`UQAEv0Tw5_O4BJCRf3wXiiXj_uL68kraLYRCAqJ6BFomHr6n`)
+[![USDT (TON)](https://img.shields.io/badge/USDT_(TON)-26A17B?style=for-the-badge&logo=tether)](`UQAEv0Tw5_O4BJCRf3wXiiXj_uL68kraLYRCAqJ6BFomHr6n`)
+[![BTC](https://img.shields.io/badge/BTC-F7931A?style=for-the-badge&logo=bitcoin)](`bc1ql779pzpunajhfdhgme9qwtgsv3z8jphe4652wm`)
+
 Спасибо за вашу поддержку! ❤️
 
 ## 📄 Лицензия
