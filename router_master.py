@@ -930,9 +930,6 @@ def _find_html():
 def main():
     html = _find_html()
     api = Api(None)
-    icon = os.path.join(APP_DIR, "assets", "icon.ico")
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        icon = os.path.join(sys._MEIPASS, "assets", "icon.ico")
     window = webview.create_window(
         "RouterMaster — OpenWrt",
         url=html,
@@ -940,7 +937,6 @@ def main():
         height=720,
         min_size=(920, 640),
         background_color="#05070d",
-        icon=icon if os.path.exists(icon) else None,
         js_api=api,
     )
     app = RouterToolApp(window)
