@@ -136,7 +136,7 @@ const App = {
     document.getElementById('btn-reset').addEventListener('click', () => {
       this.api?.reset_and_setup();
     });
-    document.getElementById('btn-save').addEventListener('click', () => this.api?.save_config().then(() => this.msg('Настройки сохранены')));
+    document.getElementById('btn-save')?.addEventListener('click', () => this.api?.save_config().then(() => this.msg('Настройки сохранены', 'Готово')));
     document.getElementById('btn-log').addEventListener('click', () => this.openLog());
     document.getElementById('btn-test').addEventListener('click', () => this.api?.test_system());
     document.getElementById('btn-check').addEventListener('click', () => this.api?.check_update());
