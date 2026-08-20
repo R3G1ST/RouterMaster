@@ -152,7 +152,9 @@ Podkop и Zapret можно полностью удалить с роутера 
 pip install -r requirements.txt pyinstaller
 pyinstaller --onefile --windowed --icon assets/icon.ico ^
             --add-data "assets;assets" ^
-            --collect-all customtkinter router_master.py
+            --collect-all webview ^
+            --hidden-import webview.platforms.winforms ^
+            --hidden-import webview.platforms.edgechromium router_master.py
 ```
 
 ### Updater (C# .NET Framework)
@@ -174,17 +176,18 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /optimize
 
 ```
 RouterMaster/
-├── router_master.py          # Основная программа (CustomTkinter)
+├── router_master.py          # Основная программа (логика + pywebview)
 ├── assets/
 │   ├── icon.ico              # Иконка программы
-│   └── rm_updater.exe        # Updater для тихой установки обновлений
+│   ├── rm_updater.exe        # Updater для тихой установки обновлений
+│   └── ui/                   # Веб-интерфейс (index.html, style.css, app.js)
 ├── installer/
 │   ├── setup.iss             # Скрипт инсталлятора (Inno Setup)
 │   └── Updater.cs            # Исходник updater (C#)
 ├── screenshots/
 │   ├── light.png             # Скриншот светлой темы
 │   └── dark.png              # Скриншот тёмной темы
-└── requirements.txt          # Зависимости Python (paramiko, customtkinter)
+└── requirements.txt          # Зависимости Python (paramiko, pywebview)
 ```
 
 ---
