@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta46"
+APP_VERSION = "1.5.0-beta48"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -389,31 +389,40 @@ class RouterToolApp:
         def work():
             try:
                 tmp = os.path.join(tempfile.gettempdir(), name)
-                req = urllib.request.Request(url, headers={
-                    "User-Agent": "RouterMaster",
-                    "Accept-Encoding": "identity",
-                })
-                with urllib.request.urlopen(req, timeout=180) as r:
-                    total = int(r.headers.get("Content-Length") or 0)
-                    done = 0
-                    last_pct = -1
-                    start_time = time.time()
-                    with open(tmp, "wb") as f:
-                        while True:
-                            chunk = r.read(1048576)
-                            if not chunk:
-                                break
-                            f.write(chunk)
-                            done += len(chunk)
-                            if total:
-                                pct = int(done * 100 / total)
-                                if pct >= last_pct + 5:
-                                    last_pct = pct
-                                    elapsed = time.time() - start_time
-                                    speed = done / elapsed / 1048576 if elapsed > 0 else 0
-                                    self.log("Скачивание: %d%% (%d МБ из %d МБ) — %.1f МБ/с" % (
-                                        pct, done // 1048576, total // 1048576, speed))
-                self.log("Обновление скачано: %s" % tmp)
+                self.log("Скачивание обновления %s ..." % name)
+
+                ps_script = (
+                    "$ProgressPreference = 'SilentlyContinue'\n"
+                    "$url = '%s'\n"
+                    "$out = '%s'\n"
+                    "try {\n"
+                    "  $r = Invoke-WebRequest -Uri $url -OutFile $out -UseBasicParsing\n"
+                    "  exit 0\n"
+                    "} catch {\n"
+                    "  Write-Host $_.Exception.Message\n"
+                    "  exit 1\n"
+                    "}\n"
+                ) % (url, tmp.replace("\\", "\\\\"))
+
+                ps_path = os.path.join(tempfile.gettempdir(), "rm_download.ps1")
+                with open(ps_path, "w", encoding="utf-8") as f:
+                    f.write(ps_script)
+
+                self.log("Запускаю скачивание через PowerShell...")
+                result = subprocess.run(
+                    ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ps_path],
+                    capture_output=True, text=True, timeout=300, creationflags=subprocess.CREATE_NO_WINDOW
+                )
+                if result.returncode != 0:
+                    self.log("Ошибка скачивания: %s" % (result.stderr or result.stdout or "неизвестно"))
+                    return
+
+                if not os.path.exists(tmp) or os.path.getsize(tmp) < 1000000:
+                    self.log("Файл скачан некорректно")
+                    return
+
+                size_mb = os.path.getsize(tmp) / 1048576
+                self.log("Обновление скачано: %.1f МБ" % size_mb)
                 self.log("Снимаю блокировку SmartScreen (Mark of the Web)...")
                 self._unblock_file(tmp)
                 self.log("Запускаю тихую установку (без окон)...")
