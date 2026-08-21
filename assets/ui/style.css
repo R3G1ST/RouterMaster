@@ -364,7 +364,9 @@ textarea { resize: vertical; }
   font-size: 11px;
   cursor: pointer;
   margin-left: 10px;
+  transition: background 0.15s, border-color 0.15s;
 }
+#btn-extra { margin-left: 0; margin-top: 10px; }
 .btn-tiny:hover { background: var(--card2); color: var(--text); }
 
 /* Свитчи */
