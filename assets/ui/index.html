@@ -27,9 +27,9 @@
         <button class="nav-btn" data-page="steps" title="Что выполнить"><span class="nav-ico">▦</span><span class="nav-txt">Что выполнить</span></button>
         <button class="nav-btn" data-page="params" title="Параметры сети"><span class="nav-ico">✦</span><span class="nav-txt">Параметры сети</span></button>
         <button class="nav-btn" data-page="sys" title="Параметры системы"><span class="nav-ico">⛭</span><span class="nav-txt">Система</span></button>
+        <button class="nav-btn" data-page="settings" title="Настройки программы"><span class="nav-ico">⚙</span><span class="nav-txt">Настройки</span></button>
       </nav>
       <div class="side-foot">
-        <button class="foot-btn foot-settings" id="btn-settings" title="Настройки программы"><span class="nav-ico">⚙</span></button>
         <div class="foot-ver" id="foot-ver"><span id="app-ver">–</span></div>
       </div>
     </aside>
@@ -131,6 +131,30 @@
           <div id="sys-features"></div>
         </div>
       </section>
+
+      <!-- Страница: Настройки программы -->
+      <section class="page" id="page-settings">
+        <div class="card">
+          <h2 class="card-title">Настройки программы</h2>
+          <label class="field-label">Язык интерфейса</label>
+          <select id="st-lang"><option value="ru">Русский</option><option value="en">English</option></select>
+          <label class="field-label">Тема</label>
+          <select id="st-theme-mode"><option value="dark" selected>Тёмная</option><option value="light">Светлая</option></select>
+          <label class="field-label">Размер шрифта</label>
+          <select id="st-fontsize"><option value="small">Маленький</option><option value="normal" selected>Средний</option><option value="large">Большой</option></select>
+          <label class="field-label">Папка загрузок</label>
+          <span class="folder-wrap">
+            <input type="text" id="st-downloads" placeholder="Загрузки">
+            <button class="folder-btn" id="btn-open-folder" title="Открыть папку">📂</button>
+          </span>
+          <label class="switch-row"><input type="checkbox" id="st-autocheck"><span>Проверять обновления при запуске</span></label>
+          <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
+            <button class="btn-ghost" id="btn-check">Проверить обновление</button>
+            <button class="btn-danger" id="settings-reset">Сбросить настройки</button>
+            <button class="btn-primary" id="settings-save">Сохранить настройки</button>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -195,31 +219,6 @@
       <p id="msg-text"></p>
       <div class="modal-btns">
         <button class="btn-primary" id="msg-ok">OK</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Модалка настроек программы -->
-  <div class="overlay" id="settings-overlay" style="display:none">
-    <div class="modal card">
-      <h2 class="card-title">Настройки программы</h2>
-      <label class="field-label">Язык интерфейса</label>
-      <select id="st-lang"><option value="ru">Русский</option><option value="en">English</option></select>
-      <label class="field-label">Тема</label>
-      <select id="st-theme-mode"><option value="dark" selected>Тёмная</option><option value="light">Светлая</option></select>
-      <label class="field-label">Размер шрифта</label>
-      <select id="st-fontsize"><option value="small">Маленький</option><option value="normal" selected>Средний</option><option value="large">Большой</option></select>
-      <label class="field-label">Папка загрузок</label>
-      <span class="folder-wrap">
-        <input type="text" id="st-downloads" placeholder="Загрузки">
-        <button class="folder-btn" id="btn-open-folder" title="Открыть папку">📂</button>
-      </span>
-      <label class="switch-row"><input type="checkbox" id="st-autocheck"><span>Проверять обновления при запуске</span></label>
-      <div class="modal-btns">
-        <button class="btn-ghost" id="btn-check">Проверить обновление</button>
-        <button class="btn-danger" id="settings-reset">Сбросить настройки</button>
-        <button class="btn-primary" id="settings-save">Сохранить настройки</button>
-        <button class="btn-ghost" id="settings-ok">OK</button>
       </div>
     </div>
   </div>

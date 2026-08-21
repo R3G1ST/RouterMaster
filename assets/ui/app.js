@@ -158,8 +158,6 @@ const App = {
       e.preventDefault();
       this.api?.open_repo();
     });
-    document.getElementById('btn-settings').addEventListener('click', () => this.openSettings());
-    document.getElementById('settings-ok').addEventListener('click', () => this._hideOverlay(this.byId('settings-overlay')));
     document.getElementById('settings-save').addEventListener('click', () => {
       this.api?.set_theme(this.byId('st-theme-mode').value === 'dark');
       this.api?.save_config().then(() => this.msg('Настройки сохранены', 'Готово'));
@@ -289,7 +287,7 @@ async loadConfig() {
     this.byId('st-theme-mode').value = (this.cfg?.gui_theme || 'dark') === 'dark' ? 'dark' : 'light';
     this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
     this.byId('st-fontsize').value = this.cfg?.font_size || 'normal';
-    this._showOverlay(this.byId('settings-overlay'));
+    this.show('settings');
     this.api?.get_default_download_dir().then(d => {
       this.byId('st-downloads').value = this.cfg?.download_dir || '';
       this.byId('st-downloads').placeholder = d;
@@ -300,7 +298,6 @@ async loadConfig() {
     const ok = await this.confirm('Сбросить все настройки программы к значениям по умолчанию?', 'Сброс настроек');
     if (!ok) return;
     await this.api?.reset_settings();
-    this._hideOverlay(this.byId('settings-overlay'));
     await this.loadConfig();
     this.msg('Настройки программы сброшены к значениям по умолчанию.');
   },
