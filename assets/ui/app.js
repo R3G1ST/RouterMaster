@@ -263,11 +263,11 @@ async loadConfig() {
     this.byId('st-theme-mode').value = (this.cfg?.gui_theme || 'light') === 'dark' ? 'dark' : 'light';
     this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
     this.byId('st-fontsize').value = this.cfg?.font_size || 'normal';
-    this.byId('st-downloads').value = this.cfg?.download_dir || '';
     this.byId('settings-overlay').style.display = 'flex';
-    if (!this.byId('st-downloads').value) {
-      this.api?.get_default_download_dir().then(d => { this.byId('st-downloads').placeholder = d; });
-    }
+    this.api?.get_default_download_dir().then(d => {
+      this.byId('st-downloads').value = this.cfg?.download_dir || '';
+      this.byId('st-downloads').placeholder = d;
+    });
   },
 
   async resetSettings() {
