@@ -254,6 +254,7 @@ async loadConfig() {
     this.byId('app-ver').textContent = cfg.app_version || '';
     this.syncDropdowns();
     if (cfg.sidebar_collapsed) this.byId('sidebar').classList.add('collapsed');
+    document.body.classList.remove('dark', 'font-small', 'font-large');
     if ((cfg.gui_theme || 'light') === 'dark') document.body.classList.add('dark');
     if (cfg.font_size === 'small') document.body.classList.add('font-small');
     if (cfg.font_size === 'large') document.body.classList.add('font-large');
