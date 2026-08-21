@@ -315,7 +315,11 @@ async loadConfig() {
   hideLog() { this.byId('log-overlay').style.display = 'none'; },
 
   showRunConfirm() {
-    const steps = this.cfg?.steps || {};
+    const stepsMap = {
+      'st-update': 'update_packages', 'st-podkop': 'install_podkop', 'st-zapret': 'install_zapret',
+      'st-theme': 'install_argon', 'st-ru': 'install_ru', 'st-wifi': 'setup_wifi',
+      'st-wifi2': 'setup_wifi_2g', 'st-proxy': 'setup_proxy', 'st-os': 'update_os'
+    };
     const labels = {
       update_packages: 'Обновить все пакеты',
       install_podkop: 'Установить / обновить Podkop',
@@ -330,10 +334,10 @@ async loadConfig() {
     const list = this.byId('run-steps-list');
     list.innerHTML = '';
     let hasAny = false;
-    for (const [key, label] of Object.entries(labels)) {
-      if (steps[key]) {
+    for (const [id, key] of Object.entries(stepsMap)) {
+      if (this.byId(id).checked) {
         const li = document.createElement('li');
-        li.textContent = label;
+        li.textContent = labels[key];
         list.appendChild(li);
         hasAny = true;
       }
