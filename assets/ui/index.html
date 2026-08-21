@@ -152,6 +152,31 @@
     </div>
   </div>
 
+  <!-- Модалка подтверждения выполнения -->
+  <div class="overlay" id="run-overlay" style="display:none">
+    <div class="modal card">
+      <h2 class="card-title">Подтвердите выполнение</h2>
+      <p class="muted" style="margin-bottom:10px;">Будут выполнены следующие действия:</p>
+      <ul id="run-steps-list" style="margin:0 0 16px 20px; padding:0; font-size:13px; line-height:1.8; color:var(--text);"></ul>
+      <div class="modal-btns">
+        <button class="btn-ghost" id="run-cancel">Отмена</button>
+        <button class="btn-primary" id="run-ok">Выполнить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка подтверждения перезагрузки -->
+  <div class="overlay" id="reboot-overlay" style="display:none">
+    <div class="modal card">
+      <h2 class="card-title">Перезагрузка роутера</h2>
+      <p id="reboot-text">Все действия выполнены. Перезагрузить роутер?</p>
+      <div class="modal-btns">
+        <button class="btn-ghost" id="reboot-cancel">Нет</button>
+        <button class="btn-primary" id="reboot-ok">Да, перезагрузить</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Модалка подтверждения -->
   <div class="overlay" id="confirm-overlay" style="display:none">
     <div class="modal card">

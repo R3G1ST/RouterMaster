@@ -130,9 +130,7 @@ const App = {
   },
 
   bindActions() {
-    document.getElementById('btn-run').addEventListener('click', () => {
-      this.api?.run_all();
-    });
+    document.getElementById('btn-run').addEventListener('click', () => this.showRunConfirm());
     document.getElementById('btn-reset').addEventListener('click', () => {
       this.api?.reset_and_setup();
     });
@@ -193,6 +191,20 @@ const App = {
     document.getElementById('confirm-ok').addEventListener('click', () => this.confirmResolve(true));
     document.getElementById('confirm-cancel').addEventListener('click', () => this.confirmResolve(false));
     document.getElementById('msg-ok').addEventListener('click', () => this.byId('msg-overlay').style.display = 'none');
+    document.getElementById('run-ok').addEventListener('click', () => {
+      this.byId('run-overlay').style.display = 'none';
+      this.api?.run_all();
+    });
+    document.getElementById('run-cancel').addEventListener('click', () => {
+      this.byId('run-overlay').style.display = 'none';
+    });
+    document.getElementById('reboot-ok').addEventListener('click', () => {
+      this.byId('reboot-overlay').style.display = 'none';
+      this.api?.reboot_router();
+    });
+    document.getElementById('reboot-cancel').addEventListener('click', () => {
+      this.byId('reboot-overlay').style.display = 'none';
+    });
   },
 
   byId(id) { return document.getElementById(id); },
@@ -301,19 +313,50 @@ async loadConfig() {
   },
   openLog() { this.byId('log-overlay').classList.remove('hidden'); this.byId('log-overlay').style.display = 'flex'; },
   hideLog() { this.byId('log-overlay').style.display = 'none'; },
-  async confirm(text, title = 'Подтверждение') {
-    return new Promise(resolve => {
-      this.byId('confirm-text').textContent = text;
-      this.byId('confirm-title').textContent = title;
-      this.byId('confirm-overlay').style.display = 'flex';
-      this._confirmResolve = resolve;
-    });
+
+  showRunConfirm() {
+    const steps = this.cfg?.steps || {};
+    const labels = {
+      update_packages: 'Обновить все пакеты',
+      install_podkop: 'Установить / обновить Podkop',
+      install_zapret: 'Установить / обновить Zapret',
+      install_argon: 'Установить тему',
+      install_ru: 'Русский язык интерфейса',
+      setup_wifi: 'Создать Wi-Fi 5G',
+      setup_wifi_2g: 'Создать Wi-Fi 2G',
+      setup_proxy: 'Задать прокси для Podkop',
+      update_os: 'Обновить ОС (прошивку)',
+    };
+    const list = this.byId('run-steps-list');
+    list.innerHTML = '';
+    let hasAny = false;
+    for (const [key, label] of Object.entries(labels)) {
+      if (steps[key]) {
+        const li = document.createElement('li');
+        li.textContent = label;
+        list.appendChild(li);
+        hasAny = true;
+      }
+    }
+    if (!hasAny) {
+      const li = document.createElement('li');
+      li.textContent = 'Ничего не выбрано';
+      list.appendChild(li);
+    }
+    this.byId('run-overlay').style.display = 'flex';
   },
+
   confirmResolve(ok) {
     this.byId('confirm-overlay').style.display = 'none';
     if (this._confirmResolve) this._confirmResolve(ok);
     this.api?.confirm_response(ok);
   },
+
+  showRebootConfirm() {
+    this.byId('reboot-overlay').style.display = 'flex';
+  },
+
+  async confirm(text, title = 'Подтверждение') {
   msg(text, title = 'Сообщение') {
     this.byId('msg-text').textContent = text;
     this.byId('msg-title').textContent = title;

@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta29"
+APP_VERSION = "1.5.0-beta30"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -140,6 +140,10 @@ class Api:
     # ---------- Действия ----------
     def run_all(self):
         self._app.run_all()
+        return True
+
+    def reboot_router(self):
+        self._app.reboot_router()
         return True
 
     def reset_and_setup(self):
@@ -542,10 +546,55 @@ class RouterToolApp:
         self.set_running(True)
         threading.Thread(target=self.worker, daemon=True).start()
 
+    def reboot_router(self):
+        def work():
+            try:
+                host, port, user, password = self._conn_info()
+                self.open_log()
+                self.start_progress()
+                self.log("=== Перезагрузка роутера... ===")
+                client = paramiko.SSHClient()
+                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                client.connect(host, port=port, username=user, password=password,
+                               timeout=15, look_for_keys=False, allow_agent=False)
+                self.ssh_exec(client, "sleep 2; reboot", timeout=30)
+                client.close()
+                self.log("Ожидаю включения роутера...")
+                deadline = time.time() + 300
+                back_up = False
+                while time.time() < deadline:
+                    time.sleep(10)
+                    try:
+                        c = paramiko.SSHClient()
+                        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                        c.connect(host, port=port, username=user, password=password,
+                                  timeout=8, look_for_keys=False, allow_agent=False)
+                        c.close()
+                        back_up = True
+                        break
+                    except Exception:
+                        self.log("  ожидание роутера...")
+                if back_up:
+                    self.log("Роутер снова в сети!")
+                    self.show_message("Готово",
+                                      "Роутер перезагрузился и снова в сети.\n\n"
+                                      "Обновите страницу в браузере (Ctrl+F5),\n"
+                                      "чтобы увидеть новый интерфейс: http://%s" % host)
+                else:
+                    self.log("Роутер не вернулся в сеть за 5 минут — проверьте питание.")
+            except Exception as e:
+                self.log("ОШИБКА: " + str(e))
+                self.show_message("Ошибка", str(e))
+            finally:
+                self.stop_progress()
+                self.open_log()
+        threading.Thread(target=work, daemon=True).start()
+
     def worker(self):
         self.start_progress()
         try:
             self.run_steps()
+            self._window.evaluate_js("window.app?.showRebootConfirm()")
         except Exception as e:
             self.log("ОШИБКА: " + str(e))
             self.show_message("Ошибка", str(e))
@@ -689,37 +738,8 @@ class RouterToolApp:
             else:
                 self.log("ОС актуальна — обновлений нет (25.12.5).")
 
-        self.log("=== Установка завершена. Перезагружаю роутер... ===")
-        try:
-            self.ssh_exec(client, "sleep 2; reboot", timeout=30)
-        except Exception:
-            pass
         client.close()
-
-        self.log("Ожидаю включения роутера...")
-        deadline = time.time() + 300
-        back_up = False
-        while time.time() < deadline:
-            time.sleep(10)
-            try:
-                c = paramiko.SSHClient()
-                c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                c.connect(host, port=port, username=user, password=password,
-                          timeout=8, look_for_keys=False, allow_agent=False)
-                c.close()
-                back_up = True
-                break
-            except Exception:
-                self.log("  ожидание роутера...")
-
-        if back_up:
-            self.log("Роутер снова в сети!")
-            self.show_message("Готово",
-                              "Роутер перезагрузился и снова в сети.\n\n"
-                              "Обновите страницу в браузере (Ctrl+F5),\n"
-                              "чтобы увидеть новый интерфейс: http://%s" % host)
-        else:
-            self.log("Роутер не вернулся в сеть за 5 минут — проверьте питание.")
+        self.log("=== Установка завершена ===")
 
     def install_theme_file(self, client, theme):
         self.log("%s: скачивание apk на ПК..." % theme["pkg"])
