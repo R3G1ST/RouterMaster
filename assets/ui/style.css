@@ -1,4 +1,21 @@
 :root {
+  --bg: #f5f6fa;
+  --panel: #ffffff;
+  --card: #ffffff;
+  --card2: #f0f1f5;
+  --border: #e2e5ec;
+  --field: #f0f1f5;
+  --text: #1a1d26;
+  --muted: #6b7280;
+  --accent: #6366f1;
+  --accent-hover: #818cf8;
+  --accent2: #0891b2;
+  --ok: #059669;
+  --err: #dc2626;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+body.dark {
   --bg: #05070d;
   --panel: #0a0f1c;
   --card: #101828;
@@ -12,6 +29,7 @@
   --accent2: #22d3ee;
   --ok: #34d399;
   --err: #f87171;
+  --shadow: none;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,13 +38,17 @@
 html, body {
   height: 100%;
   font-family: "Segoe UI", Arial, sans-serif;
-  background: radial-gradient(1200px 800px at 20% -10%, #1b2440 0%, transparent 60%),
-              radial-gradient(1000px 700px at 110% 110%, #102a3a 0%, transparent 55%),
-              var(--bg);
+  background: var(--bg);
   color: var(--text);
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+}
+
+body.dark {
+  background: radial-gradient(1200px 800px at 20% -10%, #1b2440 0%, transparent 60%),
+              radial-gradient(1000px 700px at 110% 110%, #102a3a 0%, transparent 55%),
+              var(--bg);
 }
 
 .app { display: flex; height: calc(100vh - 34px); }
@@ -59,7 +81,7 @@ html, body {
 .sidebar {
   width: 210px;
   min-width: 210px;
-  background: rgba(10, 15, 28, 0.9);
+  background: var(--panel);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -67,6 +89,10 @@ html, body {
   z-index: 2;
   overflow: hidden;
   transition: width 0.25s ease, min-width 0.25s ease;
+}
+
+body.dark .sidebar {
+  background: rgba(10, 15, 28, 0.9);
 }
 .sidebar.collapsed { width: 56px; min-width: 56px; }
 .brand { display: flex; align-items: center; gap: 6px; padding: 2px 8px 14px; }
@@ -162,10 +188,11 @@ html, body {
 
 /* Карточки */
 .card {
-  background: rgba(16, 24, 40, 0.92);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 18px 22px;
+  box-shadow: var(--shadow);
 }
 .card-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
 .card-title::after { content: " ●"; color: var(--accent2); font-size: 9px; vertical-align: middle; }
@@ -514,8 +541,8 @@ textarea { resize: vertical; }
 /* Скроллбар */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #3b3f55; border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 html { scrollbar-width: thin; scrollbar-color: #3b3f55 transparent; }
 
 /* Размеры шрифта */
