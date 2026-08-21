@@ -357,6 +357,14 @@ async loadConfig() {
   },
 
   async confirm(text, title = 'Подтверждение') {
+    return new Promise(resolve => {
+      this.byId('confirm-text').textContent = text;
+      this.byId('confirm-title').textContent = title;
+      this.byId('confirm-overlay').style.display = 'flex';
+      this._confirmResolve = resolve;
+    });
+  },
+
   msg(text, title = 'Сообщение') {
     this.byId('msg-text').textContent = text;
     this.byId('msg-title').textContent = title;

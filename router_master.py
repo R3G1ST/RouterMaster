@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta30"
+APP_VERSION = "1.5.0-beta31"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -594,7 +594,7 @@ class RouterToolApp:
         self.start_progress()
         try:
             self.run_steps()
-            self._window.evaluate_js("window.app?.showRebootConfirm()")
+            self._window.evaluate_js("App.showRebootConfirm()")
         except Exception as e:
             self.log("ОШИБКА: " + str(e))
             self.show_message("Ошибка", str(e))
