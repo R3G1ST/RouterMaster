@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta41"
+APP_VERSION = "1.5.0-beta42"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -73,7 +73,7 @@ DEFAULTS = {
     "wifi_enc_5g": "WPA3 (SAE)",
     "wifi_enc_2g": "WPA2 (PSK)",
     "proxy_string": "",
-    "gui_theme": "light",
+    "gui_theme": "dark",
     "sidebar_collapsed": False,
     "auto_check_update": False,
     "font_size": "normal",

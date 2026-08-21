@@ -256,7 +256,7 @@ async loadConfig() {
     this.syncDropdowns();
     if (cfg.sidebar_collapsed) this.byId('sidebar').classList.add('collapsed');
     document.body.classList.remove('dark', 'font-small', 'font-large');
-    if ((cfg.gui_theme || 'light') === 'dark') document.body.classList.add('dark');
+    if ((cfg.gui_theme || 'dark') === 'dark') document.body.classList.add('dark');
     if (cfg.font_size === 'small') document.body.classList.add('font-small');
     if (cfg.font_size === 'large') document.body.classList.add('font-large');
   },
@@ -276,7 +276,7 @@ async loadConfig() {
   async openSettings() {
     const cfg = await this.api?.get_config();
     if (cfg) this.cfg = cfg;
-    this.byId('st-theme-mode').value = (this.cfg?.gui_theme || 'light') === 'dark' ? 'dark' : 'light';
+    this.byId('st-theme-mode').value = (this.cfg?.gui_theme || 'dark') === 'dark' ? 'dark' : 'light';
     this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
     this.byId('st-fontsize').value = this.cfg?.font_size || 'normal';
     this.byId('settings-overlay').style.display = 'flex';
