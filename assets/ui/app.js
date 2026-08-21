@@ -151,6 +151,7 @@ const App = {
     document.getElementById('btn-settings').addEventListener('click', () => this.openSettings());
     document.getElementById('settings-ok').addEventListener('click', () => this.byId('settings-overlay').style.display = 'none');
     document.getElementById('settings-save').addEventListener('click', () => {
+      this.api?.set_theme(this.byId('st-theme-mode').value === 'dark');
       this.api?.save_config().then(() => this.msg('Настройки сохранены', 'Готово'));
     });
     document.getElementById('settings-reset').addEventListener('click', () => this.resetSettings());
@@ -272,7 +273,9 @@ async loadConfig() {
     this.api?.save_field('sidebar_collapsed', sb.classList.contains('collapsed'));
   },
 
-  openSettings() {
+  async openSettings() {
+    const cfg = await this.api?.get_config();
+    if (cfg) this.cfg = cfg;
     this.byId('st-theme-mode').value = (this.cfg?.gui_theme || 'light') === 'dark' ? 'dark' : 'light';
     this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
     this.byId('st-fontsize').value = this.cfg?.font_size || 'normal';
