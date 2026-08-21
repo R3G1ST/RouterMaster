@@ -289,7 +289,7 @@ async loadConfig() {
     this.byId('st-fontsize').value = this.cfg?.font_size || 'normal';
     this.show('settings');
     this.api?.get_default_download_dir().then(d => {
-      this.byId('st-downloads').value = this.cfg?.download_dir || '';
+      this.byId('st-downloads').value = this.cfg?.download_dir || d;
       this.byId('st-downloads').placeholder = d;
     });
   },
