@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta25"
+APP_VERSION = "1.5.0-beta26"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -389,9 +389,10 @@ class RouterToolApp:
                     total = int(r.headers.get("Content-Length") or 0)
                     done = 0
                     last_pct = -1
+                    start_time = time.time()
                     with open(tmp, "wb") as f:
                         while True:
-                            chunk = r.read(65536)
+                            chunk = r.read(262144)
                             if not chunk:
                                 break
                             f.write(chunk)
@@ -400,8 +401,10 @@ class RouterToolApp:
                                 pct = int(done * 100 / total)
                                 if pct >= last_pct + 5:
                                     last_pct = pct
-                                    self.log("Скачивание: %d%% (%d МБ из %d МБ)" % (
-                                        pct, done // 1048576, total // 1048576))
+                                    elapsed = time.time() - start_time
+                                    speed = done / elapsed / 1048576 if elapsed > 0 else 0
+                                    self.log("Скачивание: %d%% (%d МБ из %d МБ) — %.1f МБ/с" % (
+                                        pct, done // 1048576, total // 1048576, speed))
                 self.log("Обновление скачано: %s" % tmp)
                 self.log("Снимаю блокировку SmartScreen (Mark of the Web)...")
                 self._unblock_file(tmp)
