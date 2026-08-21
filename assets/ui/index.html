@@ -26,6 +26,7 @@
         <button class="nav-btn" data-page="conn" title="Подключение"><span class="nav-ico">⇠</span><span class="nav-txt">Подключение</span></button>
         <button class="nav-btn" data-page="steps" title="Что выполнить"><span class="nav-ico">▦</span><span class="nav-txt">Что выполнить</span></button>
         <button class="nav-btn" data-page="params" title="Параметры сети"><span class="nav-ico">✦</span><span class="nav-txt">Параметры сети</span></button>
+        <button class="nav-btn" data-page="sys" title="Параметры системы"><span class="nav-ico">⛭</span><span class="nav-txt">Система</span></button>
       </nav>
       <div class="side-foot">
         <button class="foot-btn" id="btn-check" title="Проверить обновление"><span class="nav-ico">↻</span></button>
@@ -120,6 +121,15 @@
           </div>
           <label class="field-label">Прокси (vless:// или подписка):</label>
           <textarea id="cfg-proxy" rows="4"></textarea>
+        </div>
+      </section>
+
+      <!-- Страница: Параметры системы -->
+      <section class="page" id="page-sys">
+        <div class="card">
+          <h2 class="card-title">Параметры системы</h2>
+          <p class="muted" style="margin-bottom:16px;">Настройка и оптимизация системы роутера</p>
+          <div id="sys-features"></div>
         </div>
       </section>
     </main>

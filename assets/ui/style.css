@@ -421,6 +421,7 @@ textarea { resize: vertical; }
 .btn-accent:hover { background: var(--accent-hover); }
 .small { font-size: 11px; }
 .field-label { font-size: 12px; color: var(--muted); display: block; margin: 12px 0 4px; }
+#sys-features { display: flex; flex-direction: column; gap: 10px; }
 .folder-wrap { display: flex; gap: 6px; }
 .folder-wrap input { flex: 1; margin-top: 0; }
 .folder-btn {
