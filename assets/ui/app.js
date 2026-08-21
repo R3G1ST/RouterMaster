@@ -173,10 +173,6 @@ const App = {
       b.addEventListener('click', () => this.api[b.dataset.act]());
     });
 
-document.getElementById('cfg-dark').addEventListener('change', e => {
-      this.setDark(e.target.checked);
-    });
-
     document.getElementById('log-close').addEventListener('click', () => this.hideLog());
     document.getElementById('log-copy').addEventListener('click', async () => {
       const txt = await this.api?.copy_log();
@@ -235,7 +231,6 @@ async loadConfig() {
     this.byId('st-theme-sel').value = cfg.theme || 'Argon';
     this.byId('st-enc5').value = cfg.wifi_enc_5g || 'WPA3 (SAE)';
     this.byId('st-enc2').value = cfg.wifi_enc_2g || 'WPA2 (PSK)';
-    this.byId('cfg-dark').checked = (cfg.gui_theme || 'light') === 'dark';
     this.byId('app-ver').textContent = cfg.app_version || '';
     this.syncDropdowns();
     if (cfg.sidebar_collapsed) this.byId('sidebar').classList.add('collapsed');
@@ -243,7 +238,6 @@ async loadConfig() {
   },
 
   setDark(on) {
-    this.byId('cfg-dark').checked = !!on;
     this.byId('st-dark2').checked = !!on;
     document.body.classList.toggle('dark', !!on);
     this.api?.set_theme(!!on);
@@ -256,7 +250,7 @@ async loadConfig() {
   },
 
   openSettings() {
-    this.byId('st-dark2').checked = this.byId('cfg-dark').checked;
+    this.byId('st-dark2').checked = (this.cfg?.gui_theme || 'light') === 'dark';
     this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
     this.byId('settings-overlay').style.display = 'flex';
   },
