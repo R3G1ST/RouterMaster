@@ -473,18 +473,18 @@ textarea { resize: vertical; }
 
 /* Модалки */
 .overlay {
-  position: fixed;
+  position: fixed !important;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
+  z-index: 99999 !important;
+  isolation: isolate;
 }
-.overlay.hidden { display: none; }
+.overlay.hidden { display: none !important; }
 
-.modal { width: 420px; max-width: 92vw; position: relative; z-index: 10000; }
+.modal { width: 420px; max-width: 92vw; position: relative; z-index: 1; }
 .modal p { font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-line; }
 .modal-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
 .modal-btns .btn-ghost { width: auto; padding: 8px 16px; margin: 0; font-size: 12px; border-radius: 8px; }
