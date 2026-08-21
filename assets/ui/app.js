@@ -156,8 +156,15 @@ const App = {
       this.api?.save_config().then(() => this.msg('Настройки сохранены', 'Готово'));
     });
     document.getElementById('settings-reset').addEventListener('click', () => this.resetSettings());
-    document.getElementById('st-dark2').addEventListener('change', e => this.setDark(e.target.checked));
+    document.getElementById('st-theme-mode').addEventListener('change', e => this.setDark(e.target.value === 'dark'));
     document.getElementById('st-autocheck').addEventListener('change', e => this.api?.save_field('auto_check_update', e.target.checked));
+    document.getElementById('st-fontsize').addEventListener('change', e => {
+      document.body.classList.remove('font-small', 'font-large');
+      if (e.target.value === 'small') document.body.classList.add('font-small');
+      if (e.target.value === 'large') document.body.classList.add('font-large');
+      this.api?.save_field('font_size', e.target.value);
+    });
+    document.getElementById('st-downloads').addEventListener('input', e => this.api?.save_field('download_dir', e.target.value));
     const bindPassToggle = (btnId, inpId) => {
       const btn = document.getElementById(btnId);
       btn.addEventListener('click', () => {
@@ -235,10 +242,12 @@ async loadConfig() {
     this.syncDropdowns();
     if (cfg.sidebar_collapsed) this.byId('sidebar').classList.add('collapsed');
     if ((cfg.gui_theme || 'light') === 'dark') document.body.classList.add('dark');
+    if (cfg.font_size === 'small') document.body.classList.add('font-small');
+    if (cfg.font_size === 'large') document.body.classList.add('font-large');
   },
 
   setDark(on) {
-    this.byId('st-dark2').checked = !!on;
+    this.byId('st-theme-mode').value = on ? 'dark' : 'light';
     document.body.classList.toggle('dark', !!on);
     this.api?.set_theme(!!on);
   },
@@ -250,8 +259,10 @@ async loadConfig() {
   },
 
   openSettings() {
-    this.byId('st-dark2').checked = (this.cfg?.gui_theme || 'light') === 'dark';
+    this.byId('st-theme-mode').value = (this.cfg?.gui_theme || 'light') === 'dark' ? 'dark' : 'light';
     this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
+    this.byId('st-fontsize').value = this.cfg?.font_size || 'normal';
+    this.byId('st-downloads').value = this.cfg?.download_dir || '';
     this.byId('settings-overlay').style.display = 'flex';
   },
 

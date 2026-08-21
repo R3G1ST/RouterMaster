@@ -170,7 +170,14 @@
   <div class="overlay" id="settings-overlay" style="display:none">
     <div class="modal card">
       <h2 class="card-title">Настройки программы</h2>
-      <label class="switch-row"><input type="checkbox" id="st-dark2"><span>Тёмная тема</span></label>
+      <label class="field-label">Язык интерфейса</label>
+      <select id="st-lang"><option value="ru">Русский</option><option value="en">English</option></select>
+      <label class="field-label">Тема</label>
+      <select id="st-theme-mode"><option value="light">Светлая</option><option value="dark">Тёмная</option></select>
+      <label class="field-label">Размер шрифта</label>
+      <select id="st-fontsize"><option value="small">Маленький</option><option value="normal" selected>Средний</option><option value="large">Большой</option></select>
+      <label class="field-label">Папка загрузок</label>
+      <input type="text" id="st-downloads" placeholder="C:\Users\...\Downloads">
       <label class="switch-row"><input type="checkbox" id="st-autocheck"><span>Проверять обновления при запуске</span></label>
       <div class="modal-btns">
         <button class="btn-danger" id="settings-reset">Сбросить настройки</button>

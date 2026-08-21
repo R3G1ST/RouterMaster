@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta23"
+APP_VERSION = "1.5.0-beta24"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -76,6 +76,9 @@ DEFAULTS = {
     "gui_theme": "light",
     "sidebar_collapsed": False,
     "auto_check_update": False,
+    "font_size": "normal",
+    "language": "ru",
+    "download_dir": "",
     "steps": {
         "update_packages": True,
         "install_podkop": True,
