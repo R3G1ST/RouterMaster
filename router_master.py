@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta24"
+APP_VERSION = "1.5.0-beta25"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -169,6 +169,15 @@ class Api:
 
     def open_repo(self):
         webbrowser.open("https://github.com/%s" % UPDATE_REPO)
+        return True
+
+    def get_default_download_dir(self):
+        return os.path.join(os.path.expanduser("~"), "Downloads")
+
+    def open_download_dir(self):
+        path = self._app.config.get("download_dir") or self.get_default_download_dir()
+        if os.path.isdir(path):
+            os.startfile(path)
         return True
 
     def begin_drag(self):

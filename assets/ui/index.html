@@ -177,7 +177,10 @@
       <label class="field-label">Размер шрифта</label>
       <select id="st-fontsize"><option value="small">Маленький</option><option value="normal" selected>Средний</option><option value="large">Большой</option></select>
       <label class="field-label">Папка загрузок</label>
-      <input type="text" id="st-downloads" placeholder="C:\Users\...\Downloads">
+      <span class="folder-wrap">
+        <input type="text" id="st-downloads" placeholder="Загрузки">
+        <button class="folder-btn" id="btn-open-folder" title="Открыть папку">📂</button>
+      </span>
       <label class="switch-row"><input type="checkbox" id="st-autocheck"><span>Проверять обновления при запуске</span></label>
       <div class="modal-btns">
         <button class="btn-danger" id="settings-reset">Сбросить настройки</button>
