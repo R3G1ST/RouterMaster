@@ -30,7 +30,7 @@ Name: "desktopicon"; Description: "Создать ярлык на рабочем
 Source: "C:\Users\R3G1S\OneDrive\Документы\Default Project Redesign\dist\RouterMaster.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Run]
-Filename: "{app}\RouterMaster.exe"; Description: "Запустить RouterMaster"; Flags: nowait postinstall
+Filename: "{app}\RouterMaster.exe"; Description: "Запустить RouterMaster"; Flags: nowait postinstall skipifsilent
 
 [Icons]
 Name: "{autoprograms}\RouterMaster"; Filename: "{app}\RouterMaster.exe"; IconFilename: "{app}\RouterMaster.exe"
