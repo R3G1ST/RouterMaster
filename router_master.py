@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta50"
+APP_VERSION = "1.5.0-beta51"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -108,8 +108,7 @@ class Api:
         if key.startswith("steps."):
             self._app.config["steps"][key.split(".", 1)[1]] = value
         else:
-            if key in self._app.config:
-                self._app.config[key] = value
+            self._app.config[key] = value
         try:
             self._app.save_config()
         except Exception:

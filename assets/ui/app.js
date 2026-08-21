@@ -262,6 +262,13 @@ async loadConfig() {
     this.byId('st-enc2').value = cfg.wifi_enc_2g || 'WPA2 (PSK)';
     this.byId('app-ver').textContent = cfg.app_version || '';
     this.syncDropdowns();
+    this.byId('st-theme-mode').value = (cfg.gui_theme || 'dark') === 'dark' ? 'dark' : 'light';
+    this.byId('st-autocheck').checked = !!cfg.auto_check_update;
+    this.byId('st-fontsize').value = cfg.font_size || 'normal';
+    this.api?.get_default_download_dir().then(d => {
+      this.byId('st-downloads').value = cfg.download_dir || d;
+      this.byId('st-downloads').placeholder = d;
+    });
     if (cfg.sidebar_collapsed) this.byId('sidebar').classList.add('collapsed');
     document.body.classList.remove('dark', 'font-small', 'font-large');
     if ((cfg.gui_theme || 'dark') === 'dark') document.body.classList.add('dark');
@@ -282,16 +289,8 @@ async loadConfig() {
   },
 
   async openSettings() {
-    const cfg = await this.api?.get_config();
-    if (cfg) this.cfg = cfg;
-    this.byId('st-theme-mode').value = (this.cfg?.gui_theme || 'dark') === 'dark' ? 'dark' : 'light';
-    this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
-    this.byId('st-fontsize').value = this.cfg?.font_size || 'normal';
+    await this.loadConfig();
     this.show('settings');
-    this.api?.get_default_download_dir().then(d => {
-      this.byId('st-downloads').value = this.cfg?.download_dir || d;
-      this.byId('st-downloads').placeholder = d;
-    });
   },
 
   async resetSettings() {
