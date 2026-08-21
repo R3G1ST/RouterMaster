@@ -10,148 +10,148 @@
   <div class="titlebar" id="titlebar">
     <span class="tb-title">RouterMaster</span>
     <div class="tb-btns">
-      <button class="tb-btn" id="btn-min" title="Свернуть">─</button>
-      <button class="tb-btn" id="btn-max" title="Развернуть">▢</button>
-      <button class="tb-btn tb-close" id="btn-close" title="Закрыть">✕</button>
+      <button class="tb-btn" id="btn-min" data-i18n-title="tb-min">─</button>
+      <button class="tb-btn" id="btn-max" data-i18n-title="tb-max">▢</button>
+      <button class="tb-btn tb-close" id="btn-close" data-i18n-title="tb-close">✕</button>
     </div>
   </div>
   <div class="app">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <button class="side-toggle" id="btn-side-toggle" title="Свернуть / развернуть">«</button>
-        <a class="repo-widget" id="repo-widget" href="#" title="R3G1ST/RouterMaster на GitHub"><span class="repo-name">R3G1ST/RouterMaster</span> <span class="repo-stars" id="repo-stars">★ …</span></a>
+        <button class="side-toggle" id="btn-side-toggle" data-i18n-title="tb-toggle">«</button>
+        <a class="repo-widget" id="repo-widget" href="#" title="R3G1ST/RouterMaster on GitHub"><span class="repo-name">R3G1ST/RouterMaster</span> <span class="repo-stars" id="repo-stars">★ …</span></a>
       </div>
       <nav class="nav">
-        <button class="nav-btn active" data-page="home" title="Главная"><span class="nav-ico">⌂</span><span class="nav-txt">Главная</span></button>
-        <button class="nav-btn" data-page="conn" title="Подключение"><span class="nav-ico">⇠</span><span class="nav-txt">Подключение</span></button>
-        <button class="nav-btn" data-page="steps" title="Что выполнить"><span class="nav-ico">▦</span><span class="nav-txt">Что выполнить</span></button>
-        <button class="nav-btn" data-page="params" title="Параметры сети"><span class="nav-ico">✦</span><span class="nav-txt">Параметры сети</span></button>
-        <button class="nav-btn" data-page="sys" title="Параметры системы"><span class="nav-ico">⛭</span><span class="nav-txt">Система</span></button>
+        <button class="nav-btn active" data-page="home"><span class="nav-ico">⌂</span><span class="nav-txt" data-i18n="nav-home">Главная</span></button>
+        <button class="nav-btn" data-page="conn"><span class="nav-ico">⇠</span><span class="nav-txt" data-i18n="nav-conn">Подключение</span></button>
+        <button class="nav-btn" data-page="steps"><span class="nav-ico">▦</span><span class="nav-txt" data-i18n="nav-steps">Что выполнить</span></button>
+        <button class="nav-btn" data-page="params"><span class="nav-ico">✦</span><span class="nav-txt" data-i18n="nav-params">Параметры сети</span></button>
+        <button class="nav-btn" data-page="sys"><span class="nav-ico">⛭</span><span class="nav-txt" data-i18n="nav-sys">Система</span></button>
       </nav>
       <div class="side-foot">
-        <button class="nav-btn" data-page="settings" title="Настройки программы" style="width:100%"><span class="nav-ico">⚙</span><span class="nav-txt">Настройки</span></button>
+        <button class="nav-btn" data-page="settings" style="width:100%"><span class="nav-ico">⚙</span><span class="nav-txt" data-i18n="nav-settings">Настройки</span></button>
         <div class="foot-ver" id="foot-ver"><span id="app-ver">–</span></div>
       </div>
     </aside>
 
     <main class="content">
-      <!-- Страница: Главная -->
+      <!-- Главная -->
       <section class="page active" id="page-home">
         <div class="hero card">
           <h1>RouterMaster</h1>
-          <p class="muted">Умный помощник по настройке роутеров на OpenWrt</p>
-          <button class="btn-primary btn-big" id="btn-run">ВЫПОЛНИТЬ</button>
-          <button class="btn-ghost" id="btn-reset">Сброс + настройка</button>
+          <p class="muted" data-i18n="home-subtitle">Умный помощник по настройке роутеров на OpenWrt</p>
+          <button class="btn-primary btn-big" id="btn-run" data-i18n="btn-run">ВЫПОЛНИТЬ</button>
+          <button class="btn-ghost" id="btn-reset" data-i18n="btn-reset">Сброс + настройка</button>
           <div class="hero-actions">
-            <button class="btn-link" id="btn-log">Открыть лог</button>
+            <button class="btn-link" id="btn-log" data-i18n="btn-log">Открыть лог</button>
           </div>
         </div>
         <div class="card info-card">
-          <h2 class="card-title">Как начать</h2>
+          <h2 class="card-title" data-i18n="howto-title">Как начать</h2>
           <ol class="steps">
-            <li class="step"><span class="step-num">1</span><span>Введите данные роутера на вкладке «Подключение»</span></li>
-            <li class="step"><span class="step-num">2</span><span>Выберите шаги на вкладке «Что выполнить»</span></li>
-            <li class="step"><span class="step-num">3</span><span>Настройте Wi-Fi и прокси на вкладке «Параметры»</span></li>
-            <li class="step"><span class="step-num">4</span><span>Нажмите «ВЫПОЛНИТЬ» — результат будет в окне лога</span></li>
+            <li class="step"><span class="step-num">1</span><span data-i18n="step1">Введите данные роутера на вкладке «Подключение»</span></li>
+            <li class="step"><span class="step-num">2</span><span data-i18n="step2">Выберите шаги на вкладке «Что выполнить»</span></li>
+            <li class="step"><span class="step-num">3</span><span data-i18n="step3">Настройте Wi-Fi и прокси на вкладке «Параметры»</span></li>
+            <li class="step"><span class="step-num">4</span><span data-i18n="step4">Нажмите «ВЫПОЛНИТЬ» — результат будет в окне лога</span></li>
           </ol>
         </div>
       </section>
 
-      <!-- Страница: Подключение -->
+      <!-- Подключение -->
       <section class="page" id="page-conn">
         <div class="card">
-          <h2 class="card-title">Подключение к роутеру</h2>
+          <h2 class="card-title" data-i18n="conn-title">Подключение к роутеру</h2>
           <div class="grid">
-            <label>IP роутера<input type="text" id="cfg-host" placeholder="192.168.1.1"></label>
-            <label>Порт<input type="text" id="cfg-port" placeholder="22"></label>
-            <label>Логин<input type="text" id="cfg-user" placeholder="root"></label>
-            <label>Пароль
+            <label data-i18n="label-ip">IP роутера<input type="text" id="cfg-host" placeholder="192.168.1.1"></label>
+            <label data-i18n="label-port">Порт<input type="text" id="cfg-port" placeholder="22"></label>
+            <label data-i18n="label-login">Логин<input type="text" id="cfg-user" placeholder="root"></label>
+            <label data-i18n="label-pass">Пароль
               <span class="pass-wrap">
                 <input type="password" id="cfg-pass">
-                <button class="pass-toggle" id="btn-show-pass" title="Показать / скрыть пароль">Показать</button>
+                <button class="pass-toggle" id="btn-show-pass" data-i18n="btn-show">Показать</button>
               </span>
             </label>
           </div>
           <div class="test-row">
-            <button class="btn-accent" id="btn-test">⚙ Тест системы и подключения</button>
-            <span class="muted small">Проверит вашу систему, связь с роутером и его состояние</span>
+            <button class="btn-accent" id="btn-test" data-i18n="btn-test">⚙ Тест системы и подключения</button>
+            <span class="muted small" data-i18n="test-desc">Проверит вашу систему, связь с роутером и его состояние</span>
           </div>
         </div>
       </section>
 
-      <!-- Страница: Что выполнить -->
+      <!-- Что выполнить -->
       <section class="page" id="page-steps">
         <div class="card">
-          <h2 class="card-title">Что выполнить (можно выбрать несколько)</h2>
-          <label class="switch-row"><input type="checkbox" id="st-update"><span>Обновить все пакеты</span></label>
-          <label class="switch-row"><input type="checkbox" id="st-podkop"><span>Установить / обновить Podkop</span><button class="btn-tiny" data-act="rm-podkop">Удалить</button></label>
-          <label class="switch-row"><input type="checkbox" id="st-zapret"><span>Установить / обновить Zapret</span><button class="btn-tiny" data-act="rm-zapret">Удалить</button></label>
-          <label class="switch-row"><input type="checkbox" id="st-theme"><span>Установить тему:</span>
+          <h2 class="card-title" data-i18n="steps-title">Что выполнить (можно выбрать несколько)</h2>
+          <label class="switch-row"><input type="checkbox" id="st-update"><span data-i18n="step-update">Обновить все пакеты</span></label>
+          <label class="switch-row"><input type="checkbox" id="st-podkop"><span data-i18n="step-podkop">Установить / обновить Podkop</span><button class="btn-tiny" data-act="rm-podkop" data-i18n="btn-delete">Удалить</button></label>
+          <label class="switch-row"><input type="checkbox" id="st-zapret"><span data-i18n="step-zapret">Установить / обновить Zapret</span><button class="btn-tiny" data-act="rm-zapret" data-i18n="btn-delete">Удалить</button></label>
+          <label class="switch-row"><input type="checkbox" id="st-theme"><span data-i18n="step-theme">Установить тему:</span>
             <select id="st-theme-sel"><option>Argon</option><option>Proton2025</option><option>Bootstrap</option><option>Bootstrap Dark</option><option>Bootstrap Light</option></select>
           </label>
-          <label class="switch-row"><input type="checkbox" id="st-ru"><span>Русский язык интерфейса</span></label>
-          <label class="switch-row"><input type="checkbox" id="st-wifi"><span>Создать Wi-Fi 5G:</span>
+          <label class="switch-row"><input type="checkbox" id="st-ru"><span data-i18n="step-ru">Русский язык интерфейса</span></label>
+          <label class="switch-row"><input type="checkbox" id="st-wifi"><span data-i18n="step-wifi5">Создать Wi-Fi 5G:</span>
             <select id="st-enc5"><option>WPA3 (SAE)</option><option>WPA3 + WPA2 (переходный)</option><option>WPA2 (PSK)</option><option>WPA (устаревший)</option><option>Открытая сеть</option></select>
           </label>
-          <label class="switch-row"><input type="checkbox" id="st-wifi2"><span>Создать Wi-Fi 2G:</span>
+          <label class="switch-row"><input type="checkbox" id="st-wifi2"><span data-i18n="step-wifi2">Создать Wi-Fi 2G:</span>
             <select id="st-enc2"><option>WPA3 (SAE)</option><option>WPA3 + WPA2 (переходный)</option><option selected>WPA2 (PSK)</option><option>WPA (устаревший)</option><option>Открытая сеть</option></select>
           </label>
-          <label class="switch-row"><input type="checkbox" id="st-proxy"><span>Задать прокси для Podkop</span></label>
-          <label class="switch-row"><input type="checkbox" id="st-os"><span>Проверить и обновить ОС (прошивку)</span></label>
-          <button class="btn-tiny" id="btn-extra">Доп. Софт</button>
+          <label class="switch-row"><input type="checkbox" id="st-proxy"><span data-i18n="step-proxy">Задать прокси для Podkop</span></label>
+          <label class="switch-row"><input type="checkbox" id="st-os"><span data-i18n="step-os">Проверить и обновить ОС (прошивку)</span></label>
+          <button class="btn-tiny" id="btn-extra" data-i18n="btn-extra">Доп. Софт</button>
         </div>
       </section>
 
-      <!-- Страница: Параметры -->
+      <!-- Параметры -->
       <section class="page" id="page-params">
         <div class="card">
-          <h2 class="card-title">Параметры сети</h2>
+          <h2 class="card-title" data-i18n="params-title">Параметры сети</h2>
           <div class="grid">
             <label>SSID 5G<input type="text" id="cfg-ssid"></label>
             <label>SSID 2G<input type="text" id="cfg-ssid2"></label>
-            <label>Пароль Wi-Fi
+            <label data-i18n="label-wifipass">Пароль Wi-Fi
               <span class="pass-wrap">
                 <input type="password" id="cfg-wifi-pass">
-                <button class="pass-toggle" id="btn-show-pass-wifi" title="Показать / скрыть пароль">Показать</button>
+                <button class="pass-toggle" id="btn-show-pass-wifi" data-i18n="btn-show">Показать</button>
               </span>
             </label>
-            <label>Канал 5G<input type="text" id="cfg-ch5"></label>
-            <label>Канал 2G<input type="text" id="cfg-ch2"></label>
+            <label data-i18n="label-ch5">Канал 5G<input type="text" id="cfg-ch5"></label>
+            <label data-i18n="label-ch2">Канал 2G<input type="text" id="cfg-ch2"></label>
           </div>
-          <label class="field-label">Прокси (vless:// или подписка):</label>
+          <label class="field-label" data-i18n="label-proxy">Прокси (vless:// или подписка):</label>
           <textarea id="cfg-proxy" rows="4"></textarea>
         </div>
       </section>
 
-      <!-- Страница: Параметры системы -->
+      <!-- Система -->
       <section class="page" id="page-sys">
         <div class="card">
-          <h2 class="card-title">Параметры системы</h2>
-          <p class="muted" style="margin-bottom:16px;">Настройка и оптимизация системы роутера</p>
+          <h2 class="card-title" data-i18n="sys-title">Параметры системы</h2>
+          <p class="muted" style="margin-bottom:16px;" data-i18n="sys-desc">Настройка и оптимизация системы роутера</p>
           <div id="sys-features"></div>
         </div>
       </section>
 
-      <!-- Страница: Настройки программы -->
+      <!-- Настройки программы -->
       <section class="page" id="page-settings">
         <div class="card">
-          <h2 class="card-title">Настройки программы</h2>
-          <label class="field-label">Язык интерфейса</label>
+          <h2 class="card-title" data-i18n="settings-title">Настройки программы</h2>
+          <label class="field-label" data-i18n="label-lang">Язык интерфейса</label>
           <select id="st-lang"><option value="ru">Русский</option><option value="en">English</option></select>
-          <label class="field-label">Тема</label>
-          <select id="st-theme-mode"><option value="dark" selected>Тёмная</option><option value="light">Светлая</option></select>
-          <label class="field-label">Размер шрифта</label>
-          <select id="st-fontsize"><option value="small">Маленький</option><option value="normal" selected>Средний</option><option value="large">Большой</option></select>
-          <label class="field-label">Папка загрузок</label>
+          <label class="field-label" data-i18n="label-theme">Тема</label>
+          <select id="st-theme-mode"><option value="dark" selected data-i18n="theme-dark">Тёмная</option><option value="light" data-i18n="theme-light">Светлая</option></select>
+          <label class="field-label" data-i18n="label-fontsize">Размер шрифта</label>
+          <select id="st-fontsize"><option value="small" data-i18n="font-small">Маленький</option><option value="normal" selected data-i18n="font-normal">Средний</option><option value="large" data-i18n="font-large">Большой</option></select>
+          <label class="field-label" data-i18n="label-downloads">Папка загрузок</label>
           <span class="folder-wrap" style="max-width:500px;">
-            <input type="text" id="st-downloads" placeholder="Загрузки">
+            <input type="text" id="st-downloads" data-i18n-placeholder="label-downloads" placeholder="Загрузки">
             <button class="folder-btn" id="btn-open-folder" title="Открыть папку">📂</button>
           </span>
-          <label class="switch-row"><input type="checkbox" id="st-autocheck"><span>Проверять обновления при запуске</span></label>
+          <label class="switch-row"><input type="checkbox" id="st-autocheck"><span data-i18n="label-autocheck">Проверять обновления при запуске</span></label>
           <div style="display:flex; gap:8px; margin-top:18px; flex-wrap:wrap;">
-            <button class="btn-ghost" id="btn-check" style="width:auto; padding:8px 16px; font-size:12px; margin:0;">Проверить обновление</button>
-            <button class="btn-danger" id="settings-reset" style="width:auto; padding:8px 16px; font-size:12px; margin:0;">Сбросить настройки</button>
-            <button class="btn-primary" id="settings-save" style="width:auto; padding:8px 20px; font-size:12px; margin:0;">Сохранить настройки</button>
+            <button class="btn-ghost" id="btn-check" data-i18n="btn-check" style="width:auto; padding:8px 16px; font-size:12px; margin:0;">Проверить обновление</button>
+            <button class="btn-danger" id="settings-reset" data-i18n="btn-reset-settings" style="width:auto; padding:8px 16px; font-size:12px; margin:0;">Сбросить настройки</button>
+            <button class="btn-primary" id="settings-save" data-i18n="btn-save-settings" style="width:auto; padding:8px 20px; font-size:12px; margin:0;">Сохранить настройки</button>
           </div>
         </div>
       </section>
@@ -162,15 +162,15 @@
   <div class="overlay hidden" id="log-overlay">
     <div class="logwin">
       <div class="logwin-head">
-        <span class="logwin-title">Лог выполнения</span>
-        <span class="logwin-time" id="log-time">Время: 0:00</span>
-        <button class="btn-tiny" id="log-close">Скрыть</button>
+        <span class="logwin-title" data-i18n="log-title">Лог выполнения</span>
+        <span class="logwin-time" id="log-time" data-i18n="log-time">Время: 0:00</span>
+        <button class="btn-tiny" id="log-close" data-i18n="btn-hide">Скрыть</button>
       </div>
       <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
       <pre class="log" id="log-text"></pre>
       <div class="logwin-btns">
-        <button class="btn-ghost" id="log-copy">Скопировать лог</button>
-        <button class="btn-ghost" id="log-clear">Очистить лог</button>
+        <button class="btn-ghost" id="log-copy" data-i18n="btn-log-copy">Скопировать лог</button>
+        <button class="btn-ghost" id="log-clear" data-i18n="btn-log-clear">Очистить лог</button>
       </div>
     </div>
   </div>
@@ -178,24 +178,24 @@
   <!-- Модалка подтверждения выполнения -->
   <div class="overlay" id="run-overlay" style="display:none">
     <div class="modal card">
-      <h2 class="card-title">Подтвердите выполнение</h2>
-      <p class="muted" style="margin-bottom:10px;">Будут выполнены следующие действия:</p>
+      <h2 class="card-title" data-i18n="run-title">Подтвердите выполнение</h2>
+      <p class="muted" style="margin-bottom:10px;" data-i18n="run-desc">Будут выполнены следующие действия:</p>
       <ul id="run-steps-list" style="margin:0 0 16px 20px; padding:0; font-size:13px; line-height:1.8; color:var(--text);"></ul>
       <div class="modal-btns">
-        <button class="btn-ghost" id="run-cancel">Отмена</button>
-        <button class="btn-primary" id="run-ok">Выполнить</button>
+        <button class="btn-ghost" id="run-cancel" data-i18n="run-cancel">Отмена</button>
+        <button class="btn-primary" id="run-ok" data-i18n="run-ok">Выполнить</button>
       </div>
     </div>
   </div>
 
-  <!-- Модалка подтверждения перезагрузки -->
+  <!-- Модалка перезагрузки -->
   <div class="overlay" id="reboot-overlay" style="display:none">
     <div class="modal card">
-      <h2 class="card-title">Перезагрузка роутера</h2>
-      <p id="reboot-text">Все действия выполнены. Перезагрузить роутер?</p>
+      <h2 class="card-title" data-i18n="reboot-title">Перезагрузка роутера</h2>
+      <p id="reboot-text" data-i18n="reboot-text">Все действия выполнены. Перезагрузить роутер?</p>
       <div class="modal-btns">
-        <button class="btn-ghost" id="reboot-cancel">Нет</button>
-        <button class="btn-primary" id="reboot-ok">Да, перезагрузить</button>
+        <button class="btn-ghost" id="reboot-cancel" data-i18n="reboot-no">Нет</button>
+        <button class="btn-primary" id="reboot-ok" data-i18n="reboot-yes">Да, перезагрузить</button>
       </div>
     </div>
   </div>
@@ -203,11 +203,11 @@
   <!-- Модалка подтверждения -->
   <div class="overlay" id="confirm-overlay" style="display:none">
     <div class="modal card">
-      <h2 class="card-title" id="confirm-title">Подтверждение</h2>
+      <h2 class="card-title" id="confirm-title" data-i18n="confirm-title">Подтверждение</h2>
       <p id="confirm-text"></p>
       <div class="modal-btns">
-        <button class="btn-primary" id="confirm-ok">OK</button>
-        <button class="btn-ghost" id="confirm-cancel">Отмена</button>
+        <button class="btn-primary" id="confirm-ok" data-i18n="confirm-ok">OK</button>
+        <button class="btn-ghost" id="confirm-cancel" data-i18n="confirm-cancel">Отмена</button>
       </div>
     </div>
   </div>
@@ -215,10 +215,10 @@
   <!-- Модалка сообщения -->
   <div class="overlay" id="msg-overlay" style="display:none">
     <div class="modal card">
-      <h2 class="card-title" id="msg-title">Сообщение</h2>
+      <h2 class="card-title" id="msg-title" data-i18n="msg-title">Сообщение</h2>
       <p id="msg-text"></p>
       <div class="modal-btns">
-        <button class="btn-primary" id="msg-ok">OK</button>
+        <button class="btn-primary" id="msg-ok" data-i18n="confirm-ok">OK</button>
       </div>
     </div>
   </div>

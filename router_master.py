@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta55"
+APP_VERSION = "1.5.0-beta56"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -57,6 +57,219 @@ ENC_LABELS = {
     "WPA2 (PSK)": "psk2",
     "WPA (устаревший)": "psk",
     "Открытая сеть": "none",
+}
+
+LOG_I18N = {
+    "ru": {
+        "connecting": "=== Подключение к %s:%s ... ===",
+        "connected": "Подключено.",
+        "conn_err": "Ошибка подключения: %s",
+        "ssh_err": "SSH ошибка: %s",
+        "timeout_err": "Таймаут: %s",
+        "running": "--- Выполняю: %s ---",
+        "done": "--- Готово: %s ---",
+        "skip": "--- Пропускаю: %s (уже выполнено) ---",
+        "fail": "--- Ошибка: %s ---",
+        "downloading": "Скачивание обновления %s ...",
+        "ps_downloading": "Запускаю скачивание через PowerShell...",
+        "download_ok": "Обновление скачано: %.1f МБ",
+        "download_err": "Ошибка скачивания: %s",
+        "download_fail": "Не удалось скачать: %s",
+        "unblock": "Снимаю блокировку SmartScreen (Mark of the Web)...",
+        "installing": "Запускаю тихую установку (без окон)...",
+        "install_msg": "Установка выполняется. Программа закроется и перезапустится автоматически.",
+        "testing": "=== Тест системы и подключения ===",
+        "test_ok": "Всё в порядке.",
+        "test_fail": "Проблема: %s",
+        "checking_update": "Проверяю обновления...",
+        "update_latest": "Установлена последняя версия %s",
+        "update_err": "Не удалось проверить обновление:\n%s",
+        "update_avail": "Доступна новая версия %s!\nТекущая: %s\nСкачать и установить?",
+        "update_notfound": "Установщик не найден в релизе.",
+        "theme_ok": "Тема %s установлена.",
+        "theme_err": "Ошибка установки темы: %s",
+        "reset_ok": "Настройки сброшены.",
+        "reset_err": "Ошибка сброса: %s",
+        "podkop_rm": "Удаление Podkop...",
+        "zapret_rm": "Удаление Zapret...",
+        "opkg_update": "Обновление списка пакетов (opkg update)...",
+        "opkg_err": "opkg update: ошибки:\n%s",
+        "rebooting": "Перезагрузка роутера...",
+        "reboot_wait": "Ожидание возврата (%d сек)...",
+        "reboot_ok": "Роутер перезагружен.",
+        "file_bad": "Файл скачан некорректно",
+        "update_error": "ОШИБКА обновления: %s",
+        "uploading": "Заливаю %s на роутер...",
+        "reboot_timeout": "Роутер не вернулся в сеть за 5 минут — проверьте питание.",
+        "error": "ОШИБКА: %s",
+        "completed": "Завершено.",
+        "apk_retry": "Повторный apk upgrade выполнен.",
+        "no_proxy": "Прокси не задан — пропускаю.",
+        "os_update_found": "Найдено обновление ОС: %s",
+        "os_update_started": "Обновление запущено. Роутер перезагрузится. Подождите 2-5 минут, "
+                             "затем подключитесь к Wi-Fi и откройте программу заново.",
+        "os_update_cancelled": "Обновление ОС отменено пользователем.",
+        "os_up_to_date": "ОС актуальна — обновлений нет",
+        "remove_done": "Удаление завершено.",
+        "conn_reset": "Соединение прервано — роутер сбрасывается.",
+        "open_web": "Открываю веб-панель: %s",
+        "wait_boot": "Ожидаю загрузки роутера...",
+        "pass_set": "Пароль установлен автоматически!",
+        "pass_fail": "Автоустановка пароля не прошла — установите пароль %s в веб-панели вручную.",
+        "wait_ssh": "Ожидаю SSH...",
+        "ssh_new_pass": "Роутер доступен с новым паролем! Устанавливаю всё...",
+        "os_info": "ОС: %s",
+        "check_cable": "Проверьте кабель, что роутер включён и IP указан верно.",
+        "test_ok_conn": "Завершено. Подключение удачное.",
+        "test_fail_conn": "Завершено. Подключение НЕ удалось или есть проблемы.",
+        "wait_router": "  ожидание роутера...",
+        "wait_ssh_dot": "  ожидание SSH...",
+        "host_name": "--- Имя хоста: %s ---",
+        "pkg_update": "--- Обновление пакетов ---",
+        "podkop_install": "--- Podkop: установка/обновление ---",
+        "zapret_install": "--- Zapret-Manager + Zapret (быстрый старт) ---",
+        "theme_install": "--- Тема: %s ---",
+        "lang_install": "--- Русский язык ---",
+        "wifi_setup": "--- Wi-Fi ---",
+        "wifi_5g": "Wi-Fi 5G: SSID '%s', канал %s, шифрование %s",
+        "wifi_2g": "Wi-Fi 2G: SSID '%s', канал %s, шифрование %s",
+        "proxy_setup": "--- Прокси для Podkop ---",
+        "os_check": "--- Проверка версии ОС ---",
+        "os_version_line": "Версия ОС: %s",
+        "setup_done": "=== Установка завершена ===",
+        "theme_dl": "%s: скачивание apk на ПК...",
+        "theme_dl_done": "  скачано: %s байт (папка программы: %s)",
+        "podkop_rm_done": "Podkop успешно удалён с роутера.",
+        "zapret_rm_done": "Zapret успешно удалён с роутера.",
+        "podkop_rm_header": "--- Podkop: удаление ---",
+        "zapret_rm_header": "--- Zapret: удаление ---",
+        "reset_header": "=== Сброс к заводским настройкам ===",
+        "reset_exec": "Выполняю сброс (как кнопка Perform reset в LuCI)...",
+        "luci_wait": "LuCI не поднялась за 10 минут — проверьте роутер.",
+        "luci_ready": "LuCI доступна — устанавливаю пароль автоматически...",
+        "ssh_wait_fail": "Не удалось подключиться после сброса за 15 минут. Проверьте пароль в веб-панели.",
+        "test_system_header": "--- Ваша система ---",
+        "test_router_header": "--- Связь с роутером %s:%s ---",
+        "port_ok": "Порт %s доступен по сети",
+        "port_fail": "Роутер недоступен по адресу %s:%s",
+        "test_router_system": "--- Система роутера ---",
+        "test_inet": "--- Интернет на роутере ---",
+        "inet_ok": "Интернет работает: %s",
+        "inet_fail": "Роутер не имеет доступа в интернет",
+        "test_services": "--- Службы ---",
+        "ip_info": "IP роутера: %s",
+        "ip_fail": "Не удалось определить IP роутера",
+        "test_result_ok": "=== ИТОГ: все проверки пройдены. Роутер готов к настройке. ===",
+        "test_result_fail": "=== ИТОГ: обнаружены проблемы (см. выше) ===",
+        "test_good_msg": "Система и подключение в порядке!\nРоутер готов к настройке.",
+        "test_bad_msg": "Обнаружены проблемы.\nПодробности — в логе.",
+        "init_done": "Готово. Заполните настройки и нажмите «ВЫПОЛНИТЬ».",
+    },
+    "en": {
+        "connecting": "=== Connecting to %s:%s ... ===",
+        "connected": "Connected.",
+        "conn_err": "Connection error: %s",
+        "ssh_err": "SSH error: %s",
+        "timeout_err": "Timeout: %s",
+        "running": "--- Running: %s ---",
+        "done": "--- Done: %s ---",
+        "skip": "--- Skipped: %s (already done) ---",
+        "fail": "--- Failed: %s ---",
+        "downloading": "Downloading update %s ...",
+        "ps_downloading": "Starting download via PowerShell...",
+        "download_ok": "Update downloaded: %.1f MB",
+        "download_err": "Download error: %s",
+        "download_fail": "Download failed: %s",
+        "unblock": "Removing SmartScreen block (Mark of the Web)...",
+        "installing": "Starting silent installation...",
+        "install_msg": "Installation in progress. Program will close and restart automatically.",
+        "testing": "=== System & connection test ===",
+        "test_ok": "Everything OK.",
+        "test_fail": "Problem: %s",
+        "checking_update": "Checking for updates...",
+        "update_latest": "Latest version %s is installed",
+        "update_err": "Failed to check for update:\n%s",
+        "update_avail": "New version %s available!\nCurrent: %s\nDownload and install?",
+        "update_notfound": "Installer not found in release.",
+        "theme_ok": "Theme %s installed.",
+        "theme_err": "Theme install error: %s",
+        "reset_ok": "Settings reset.",
+        "reset_err": "Reset error: %s",
+        "podkop_rm": "Removing Podkop...",
+        "zapret_rm": "Removing Zapret...",
+        "opkg_update": "Updating package list (opkg update)...",
+        "opkg_err": "opkg update errors:\n%s",
+        "rebooting": "Rebooting router...",
+        "reboot_wait": "Waiting for return (%d sec)...",
+        "reboot_ok": "Router rebooted.",
+        "file_bad": "File downloaded incorrectly",
+        "update_error": "UPDATE ERROR: %s",
+        "uploading": "Uploading %s to router...",
+        "reboot_timeout": "Router did not return in 5 minutes — check power.",
+        "error": "ERROR: %s",
+        "completed": "Completed.",
+        "apk_retry": "Retry apk upgrade done.",
+        "no_proxy": "No proxy set — skipping.",
+        "os_update_found": "OS update found: %s",
+        "os_update_started": "Update started. Router will reboot. Wait 2-5 minutes, "
+                             "then connect to Wi-Fi and reopen the program.",
+        "os_update_cancelled": "OS update cancelled by user.",
+        "os_up_to_date": "OS is up to date",
+        "remove_done": "Removal complete.",
+        "conn_reset": "Connection interrupted — router is resetting.",
+        "open_web": "Opening web panel: %s",
+        "wait_boot": "Waiting for router to boot...",
+        "pass_set": "Password set automatically!",
+        "pass_fail": "Auto password setup failed — set password %s in web panel manually.",
+        "wait_ssh": "Waiting for SSH...",
+        "ssh_new_pass": "Router accessible with new password! Installing everything...",
+        "os_info": "OS: %s",
+        "check_cable": "Check cable, router is on and IP is correct.",
+        "test_ok_conn": "Done. Connection successful.",
+        "test_fail_conn": "Done. Connection FAILED or there are issues.",
+        "wait_router": "  waiting for router...",
+        "wait_ssh_dot": "  waiting for SSH...",
+        "host_name": "--- Host name: %s ---",
+        "pkg_update": "--- Updating packages ---",
+        "podkop_install": "--- Podkop: install/update ---",
+        "zapret_install": "--- Zapret-Manager + Zapret (quick start) ---",
+        "theme_install": "--- Theme: %s ---",
+        "lang_install": "--- Russian language ---",
+        "wifi_setup": "--- Wi-Fi ---",
+        "wifi_5g": "Wi-Fi 5G: SSID '%s', channel %s, encryption %s",
+        "wifi_2g": "Wi-Fi 2G: SSID '%s', channel %s, encryption %s",
+        "proxy_setup": "--- Proxy for Podkop ---",
+        "os_check": "--- Checking OS version ---",
+        "os_version_line": "OS version: %s",
+        "setup_done": "=== Setup complete ===",
+        "theme_dl": "%s: downloading apk to PC...",
+        "theme_dl_done": "  downloaded: %s bytes (program folder: %s)",
+        "podkop_rm_done": "Podkop successfully removed from router.",
+        "zapret_rm_done": "Zapret successfully removed from router.",
+        "podkop_rm_header": "--- Podkop: removal ---",
+        "zapret_rm_header": "--- Zapret: removal ---",
+        "reset_header": "=== Factory reset ===",
+        "reset_exec": "Performing reset (like LuCI Perform reset button)...",
+        "luci_wait": "LuCI did not start in 10 minutes — check router.",
+        "luci_ready": "LuCI is available — setting password automatically...",
+        "ssh_wait_fail": "Could not connect after reset in 15 minutes. Check password in web panel.",
+        "test_system_header": "--- Your system ---",
+        "test_router_header": "--- Router connection %s:%s ---",
+        "port_ok": "Port %s is reachable",
+        "port_fail": "Router unreachable at %s:%s",
+        "test_router_system": "--- Router system ---",
+        "test_inet": "--- Internet on router ---",
+        "inet_ok": "Internet works: %s",
+        "inet_fail": "Router has no internet access",
+        "test_services": "--- Services ---",
+        "ip_info": "Router IP: %s",
+        "ip_fail": "Could not determine router IP",
+        "test_result_ok": "=== RESULT: all checks passed. Router ready for setup. ===",
+        "test_result_fail": "=== RESULT: issues found (see above) ===",
+        "test_good_msg": "System and connection OK!\nRouter ready for setup.",
+        "test_bad_msg": "Issues found.\nSee log for details.",
+        "init_done": "Done. Fill in settings and press «RUN».",
+    },
 }
 
 DEFAULTS = {
@@ -275,6 +488,11 @@ class RouterToolApp:
         self._log_buf += msg + "\n"
         self.js("App.log(%s)" % json.dumps(msg, ensure_ascii=False))
 
+    def lt(self, key, *args):
+        lang = self.config.get("language", "ru")
+        s = LOG_I18N.get(lang, LOG_I18N["ru"]).get(key, key)
+        return s % args if args else s
+
     def log_buf(self):
         return self._log_buf
 
@@ -388,7 +606,7 @@ class RouterToolApp:
         def work():
             try:
                 tmp = os.path.join(tempfile.gettempdir(), name)
-                self.log("Скачивание обновления %s ..." % name)
+                self.log(self.lt("downloading", name))
 
                 ps_script = (
                     "$ProgressPreference = 'SilentlyContinue'\n"
@@ -407,24 +625,24 @@ class RouterToolApp:
                 with open(ps_path, "w", encoding="utf-8") as f:
                     f.write(ps_script)
 
-                self.log("Запускаю скачивание через PowerShell...")
+                self.log(self.lt("ps_downloading"))
                 result = subprocess.run(
                     ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ps_path],
                     capture_output=True, text=True, timeout=300, creationflags=subprocess.CREATE_NO_WINDOW
                 )
                 if result.returncode != 0:
-                    self.log("Ошибка скачивания: %s" % (result.stderr or result.stdout or "неизвестно"))
+                    self.log(self.lt("download_err", result.stderr or result.stdout or "неизвестно"))
                     return
 
                 if not os.path.exists(tmp) or os.path.getsize(tmp) < 1000000:
-                    self.log("Файл скачан некорректно")
+                    self.log(self.lt("file_bad"))
                     return
 
                 size_mb = os.path.getsize(tmp) / 1048576
-                self.log("Обновление скачано: %.1f МБ" % size_mb)
-                self.log("Снимаю блокировку SmartScreen (Mark of the Web)...")
+                self.log(self.lt("download_ok", size_mb))
+                self.log(self.lt("unblock"))
                 self._unblock_file(tmp)
-                self.log("Запускаю тихую установку (без окон)...")
+                self.log(self.lt("installing"))
                 upd_src = os.path.join(
                     getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))),
                     "assets", "rm_updater.exe")
@@ -432,20 +650,20 @@ class RouterToolApp:
                 shutil.copyfile(upd_src, upd_tmp)
                 subprocess.Popen([upd_tmp, tmp, self._installed_exe()],
                                  creationflags=subprocess.CREATE_NO_WINDOW)
-                self.log("Установка выполняется. Программа закроется и перезапустится автоматически.")
+                self.log(self.lt("install_msg"))
                 time.sleep(1)
                 try:
                     self._window.destroy()
                 except Exception:
                     pass
             except Exception as e:
-                self.log("ОШИБКА обновления: " + str(e))
+                self.log(self.lt("update_error", e))
                 self.stop_progress()
                 self.show_message("Ошибка", "Не удалось скачать обновление:\n%s" % e)
         self.clear_log()
         self.open_log()
         self.start_progress()
-        self.log("Скачивание обновления %s ..." % name)
+        self.log(self.lt("downloading", name))
         threading.Thread(target=work, daemon=True).start()
 
     def _installed_exe(self):
@@ -511,12 +729,12 @@ class RouterToolApp:
 
     def _connect_ssh(self):
         host, port, user, password = self._conn_info()
-        self.log("=== Подключение к %s:%s ... ===" % (host, port))
+        self.log(self.lt("connecting", host, port))
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.connect(host, port=port, username=user, password=password,
                        timeout=15, look_for_keys=False, allow_agent=False)
-        self.log("Подключено.")
+        self.log(self.lt("connected"))
         return client
 
     def ssh_exec(self, client, cmd, timeout=300):
@@ -533,7 +751,7 @@ class RouterToolApp:
         return out, err
 
     def ssh_upload(self, client, local_path, remote_path):
-        self.log("Заливаю %s на роутер..." % os.path.basename(local_path))
+        self.log(self.lt("uploading", os.path.basename(local_path)))
         sftp = client.open_sftp()
         try:
             sftp.put(local_path, remote_path)
@@ -563,14 +781,14 @@ class RouterToolApp:
                 host, port, user, password = self._conn_info()
                 self.open_log()
                 self.start_progress()
-                self.log("=== Перезагрузка роутера... ===")
+                self.log(self.lt("rebooting"))
                 client = paramiko.SSHClient()
                 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 client.connect(host, port=port, username=user, password=password,
                                timeout=15, look_for_keys=False, allow_agent=False)
                 self.ssh_exec(client, "sleep 2; reboot", timeout=30)
                 client.close()
-                self.log("Ожидаю включения роутера...")
+                self.log(self.lt("reboot_wait", 300))
                 deadline = time.time() + 300
                 back_up = False
                 while time.time() < deadline:
@@ -584,17 +802,17 @@ class RouterToolApp:
                         back_up = True
                         break
                     except Exception:
-                        self.log("  ожидание роутера...")
+                        self.log(self.lt("wait_router"))
                 if back_up:
-                    self.log("Роутер снова в сети!")
+                    self.log(self.lt("reboot_ok"))
                     self.show_message("Готово",
                                       "Роутер перезагрузился и снова в сети.\n\n"
                                       "Обновите страницу в браузере (Ctrl+F5),\n"
                                       "чтобы увидеть новый интерфейс: http://%s" % host)
                 else:
-                    self.log("Роутер не вернулся в сеть за 5 минут — проверьте питание.")
+                    self.log(self.lt("reboot_timeout"))
             except Exception as e:
-                self.log("ОШИБКА: " + str(e))
+                self.log(self.lt("error", e))
                 self.show_message("Ошибка", str(e))
             finally:
                 self.stop_progress()
@@ -607,26 +825,26 @@ class RouterToolApp:
             self.run_steps()
             self._window.evaluate_js("App.showRebootConfirm()")
         except Exception as e:
-            self.log("ОШИБКА: " + str(e))
+            self.log(self.lt("error", e))
             self.show_message("Ошибка", str(e))
         finally:
             self.stop_progress()
             self.set_running(False)
             self.open_log()
-            self.log("Завершено.")
+            self.log(self.lt("completed"))
 
     def run_steps(self):
         host, port, user, password = self._conn_info()
 
-        self.log("=== Подключение к %s:%s ... ===" % (host, port))
+        self.log(self.lt("connecting", host, port))
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.connect(host, port=port, username=user, password=password,
                        timeout=15, look_for_keys=False, allow_agent=False)
-        self.log("Подключено.")
+        self.log(self.lt("connected"))
 
         hostname = "RouterMaster"
-        self.log("--- Имя хоста: %s ---" % hostname)
+        self.log(self.lt("host_name", hostname))
         self.ssh_exec(client,
                       "uci set system.@system[0].hostname='%s'; uci commit system; /etc/init.d/system reload"
                       % hostname)
@@ -634,22 +852,22 @@ class RouterToolApp:
         steps = self.config["steps"]
 
         if steps.get("update_packages"):
-            self.log("--- Обновление пакетов ---")
+            self.log(self.lt("pkg_update"))
             self.ssh_exec(client, "apk update")
             out, _ = self.ssh_exec(client, "apk upgrade")
             if "error" in out.lower():
                 self.ssh_exec(client, "apk upgrade")
-                self.log("Повторный apk upgrade выполнен.")
+                self.log(self.lt("apk_retry"))
 
         if steps.get("install_podkop"):
-            self.log("--- Podkop: установка/обновление ---")
+            self.log(self.lt("podkop_install"))
             self.ssh_exec(client, "wget -qO /tmp/podkop_install.sh https://raw.githubusercontent.com/itdoginfo/podkop/refs/heads/main/install.sh")
             self.ssh_exec(client, "printf 'y\\ny\\ny\\ny\\ny\\n' | sh /tmp/podkop_install.sh", timeout=600)
             self.ssh_exec(client, "uci delete podkop.@section[0].community_lists 2>/dev/null; for s in %s; do uci add_list podkop.@section[0].community_lists=\"$s\"; done; uci commit podkop" % PODKOP_COMMUNITY_LISTS)
             self.ssh_exec(client, "/etc/init.d/podkop enable; /etc/init.d/podkop start", timeout=60)
 
         if steps.get("install_zapret"):
-            self.log("--- Zapret-Manager + Zapret (быстрый старт) ---")
+            self.log(self.lt("zapret_install"))
             cmd = (
                 "git='github.com'; grep -q \"^140.82.114.3 $git\" /etc/hosts || { "
                 "printf '#$git\\n140.82.114.3 $git\\n185.199.110.154 github.githubassets.com\\n185.199.110.133 camo.githubassets.com\\n' >> /etc/hosts; "
@@ -664,7 +882,7 @@ class RouterToolApp:
         if steps.get("install_argon"):
             theme_name = self.config.get("theme") or "Argon"
             theme = THEMES.get(theme_name, THEMES["Argon"])
-            self.log("--- Тема: %s ---" % theme_name)
+            self.log(self.lt("theme_install", theme_name))
             if "url" in theme:
                 exists, _ = self.ssh_exec(client, "apk info 2>/dev/null | grep -c '^%s$'" % theme["pkg"])
                 if exists.strip() == "0":
@@ -674,19 +892,19 @@ class RouterToolApp:
             self.ssh_exec(client, "uci set luci.main.mediaurlbase='%s'; uci commit luci" % theme["media"])
 
         if steps.get("install_ru"):
-            self.log("--- Русский язык ---")
+            self.log(self.lt("lang_install"))
             self.ssh_exec(client, "apk add luci-i18n-base-ru", timeout=300)
             self.ssh_exec(client, "uci set luci.main.lang=ru; uci commit luci")
 
         if steps.get("setup_wifi") or steps.get("setup_wifi_2g"):
-            self.log("--- Wi-Fi ---")
+            self.log(self.lt("wifi_setup"))
             wp = self.config.get("wifi_password", "")
             chan = str(self.config.get("wifi_channel", "")).strip() or "36"
             parts = []
             if steps.get("setup_wifi"):
                 ssid = str(self.config.get("wifi_ssid", "")).strip()
                 enc5 = ENC_LABELS.get(self.config.get("wifi_enc_5g"), "sae")
-                self.log("Wi-Fi 5G: SSID '%s', канал %s, шифрование %s" % (ssid, chan, enc5))
+                self.log(self.lt("wifi_5g", ssid, chan, enc5))
                 parts.append("uci set wireless.default_radio1.ssid='%s'; " % ssid.replace("'", ""))
                 if enc5 == "none":
                     parts.append("uci set wireless.default_radio1.encryption='none'; "
@@ -701,7 +919,7 @@ class RouterToolApp:
                 ssid2 = str(self.config.get("wifi_ssid_2g", "")).strip() or "OpenWrt 2G"
                 enc2 = ENC_LABELS.get(self.config.get("wifi_enc_2g"), "psk2")
                 chan2 = str(self.config.get("wifi_channel_2g", "")).strip() or "auto"
-                self.log("Wi-Fi 2G: SSID '%s', канал %s, шифрование %s" % (ssid2, chan2, enc2))
+                self.log(self.lt("wifi_2g", ssid2, chan2, enc2))
                 parts.append("uci set wireless.default_radio0.ssid='%s'; " % ssid2.replace("'", ""))
                 if enc2 == "none":
                     parts.append("uci set wireless.default_radio0.encryption='none'; "
@@ -718,22 +936,22 @@ class RouterToolApp:
         if steps.get("setup_proxy"):
             proxy = str(self.config.get("proxy_string", "")).strip()
             if proxy:
-                self.log("--- Прокси для Podkop ---")
+                self.log(self.lt("proxy_setup"))
                 self.ssh_exec(client,
                               "uci set podkop.@section[0].proxy_string='%s'; uci commit podkop; "
                               "/etc/init.d/podkop restart" % proxy.replace("'", ""))
             else:
-                self.log("Прокси не задан — пропускаю.")
+                self.log(self.lt("no_proxy"))
 
         if steps.get("update_os"):
-            self.log("--- Проверка версии ОС ---")
+            self.log(self.lt("os_check"))
             out, _ = self.ssh_exec(client, "owut check 2>&1 | grep -E 'Version-from|Version-to|ERROR'", timeout=300)
             upgrade = None
             for line in out.splitlines():
                 if "Version-to" in line:
                     upgrade = line.split("Version-to")[1].strip()
             if upgrade and "25.12.5" not in upgrade:
-                self.log("Найдено обновление ОС: " + upgrade)
+                self.log(self.lt("os_update_found", upgrade))
                 ok = self.ask_confirm("Обновление ОС",
                                       "Найдено обновление: %s\n\n"
                                       "ВНИМАНИЕ: роутер перезагрузится, SSH-соединение прервётся на 2-5 минут.\n"
@@ -742,25 +960,24 @@ class RouterToolApp:
                     self.ssh_exec(client,
                                   "printf 'y\\n' | owut upgrade --ignored-changes 'luci-app-podkop,luci-i18n-podkop-ru,luci-theme-argon,podkop' >/dev/null 2>&1 &",
                                   timeout=60)
-                    self.log("Обновление запущено. Роутер перезагрузится. Подождите 2-5 минут, "
-                             "затем запустите программу ещё раз для установки Podkop и темы Argon.")
+                    self.log(self.lt("os_update_started"))
                 else:
-                    self.log("Обновление ОС отменено пользователем.")
+                    self.log(self.lt("os_update_cancelled"))
             else:
-                self.log("ОС актуальна — обновлений нет (25.12.5).")
+                self.log(self.lt("os_up_to_date"))
 
         client.close()
-        self.log("=== Установка завершена ===")
+        self.log(self.lt("setup_done"))
 
     def install_theme_file(self, client, theme):
-        self.log("%s: скачивание apk на ПК..." % theme["pkg"])
+        self.log(self.lt("theme_dl", theme["pkg"]))
         try:
             os.makedirs(DOWNLOAD_DIR, exist_ok=True)
         except Exception:
             pass
         local = os.path.join(DOWNLOAD_DIR, theme["pkg"] + ".apk")
         urllib.request.urlretrieve(theme["url"], local)
-        self.log("  скачано: %s байт (папка программы: %s)" % (os.path.getsize(local), DOWNLOAD_DIR))
+        self.log(self.lt("theme_dl_done", os.path.getsize(local), DOWNLOAD_DIR))
         self.ssh_exec(client, "apk add openssh-sftp-server", timeout=300)
         self.ssh_upload(client, local, "/tmp/theme.apk")
         self.ssh_exec(client, "apk add --allow-untrusted /tmp/theme.apk", timeout=300)
@@ -784,7 +1001,7 @@ class RouterToolApp:
         self.set_running(True)
         self.start_progress()
         try:
-            self.log("--- Podkop: удаление ---")
+            self.log(self.lt("podkop_rm_header"))
             client = self._connect_ssh()
             cmd = (
                 "/etc/init.d/podkop stop 2>/dev/null; "
@@ -797,16 +1014,16 @@ class RouterToolApp:
                 "echo REMOVE_DONE"
             )
             self.ssh_exec(client, cmd, timeout=300)
-            self.log("Podkop успешно удалён с роутера.")
+            self.log(self.lt("podkop_rm_done"))
             client.close()
         except Exception as e:
-            self.log("ОШИБКА: " + str(e))
+            self.log(self.lt("error", e))
             self.show_message("Ошибка", str(e))
         finally:
             self.stop_progress()
             self.set_running(False)
             self.open_log()
-            self.log("Удаление завершено.")
+            self.log(self.lt("remove_done"))
 
     def remove_zapret(self):
         if not self.config.get("host") or not self.config.get("password"):
@@ -827,7 +1044,7 @@ class RouterToolApp:
         self.set_running(True)
         self.start_progress()
         try:
-            self.log("--- Zapret: удаление ---")
+            self.log(self.lt("zapret_rm_header"))
             client = self._connect_ssh()
             cmd = (
                 "/etc/init.d/zapret stop 2>/dev/null; "
@@ -840,16 +1057,16 @@ class RouterToolApp:
                 "echo REMOVE_DONE"
             )
             self.ssh_exec(client, cmd, timeout=300)
-            self.log("Zapret успешно удалён с роутера.")
+            self.log(self.lt("zapret_rm_done"))
             client.close()
         except Exception as e:
-            self.log("ОШИБКА: " + str(e))
+            self.log(self.lt("error", e))
             self.show_message("Ошибка", str(e))
         finally:
             self.stop_progress()
             self.set_running(False)
             self.open_log()
-            self.log("Удаление завершено.")
+            self.log(self.lt("remove_done"))
 
     # ---------- Сброс + настройка ----------
     def reset_and_setup(self):
@@ -879,33 +1096,33 @@ class RouterToolApp:
         try:
             self.do_reset_and_setup()
         except Exception as e:
-            self.log("ОШИБКА: " + str(e))
+            self.log(self.lt("error", e))
             self.show_message("Ошибка", str(e))
         finally:
             self.stop_progress()
             self.set_running(False)
             self.open_log()
-            self.log("Завершено.")
+            self.log(self.lt("completed"))
 
     def do_reset_and_setup(self):
         host, port, user, _ = self._conn_info()
 
-        self.log("=== Сброс к заводским настройкам ===")
+        self.log(self.lt("reset_header"))
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.connect(host, port=port, username=user, password=self.config.get("password"),
                        timeout=15, look_for_keys=False, allow_agent=False)
-        self.log("Подключено. Выполняю сброс (как кнопка Perform reset в LuCI)...")
+        self.log(self.lt("connected") + " " + self.lt("reset_exec"))
         try:
             self.ssh_exec(client, "/sbin/firstboot -r -y", timeout=60)
         except Exception:
-            self.log("Соединение прервано — роутер сбрасывается.")
+            self.log(self.lt("conn_reset"))
         client.close()
 
-        self.log("Открываю веб-панель: http://%s" % host)
+        self.log(self.lt("open_web", host))
         webbrowser.open("http://%s/cgi-bin/luci/admin/system/flash" % host)
 
-        self.log("Ожидаю загрузки роутера...")
+        self.log(self.lt("wait_boot"))
         deadline = time.time() + 600
         luci_up = False
         while time.time() < deadline:
@@ -922,15 +1139,15 @@ class RouterToolApp:
                 self.log("  ожидание роутера...")
 
         if luci_up:
-            self.log("LuCI доступна — устанавливаю пароль автоматически...")
+            self.log(self.lt("luci_ready"))
             if self.luci_set_password(host, self.new_password):
-                self.log("Пароль установлен автоматически!")
+                self.log(self.lt("pass_set"))
             else:
-                self.log("Автоустановка пароля не прошла — установите пароль %s в веб-панели вручную." % self.new_password)
+                self.log(self.lt("pass_fail", self.new_password))
         else:
-            self.log("LuCI не поднялась за 10 минут — проверьте роутер.")
+            self.log(self.lt("luci_wait"))
 
-        self.log("Ожидаю SSH...")
+        self.log(self.lt("wait_ssh"))
         deadline = time.time() + 900
         connected = False
         while time.time() < deadline:
@@ -944,12 +1161,12 @@ class RouterToolApp:
                 connected = True
                 break
             except Exception:
-                self.log("  ожидание SSH...")
+                self.log(self.lt("wait_ssh_dot"))
 
         if not connected:
-            raise RuntimeError("Не удалось подключиться после сброса за 15 минут. Проверьте пароль в веб-панели.")
+            raise RuntimeError(self.lt("ssh_wait_fail"))
 
-        self.log("Роутер доступен с новым паролем! Устанавливаю всё...")
+        self.log(self.lt("ssh_new_pass"))
         self.config["password"] = self.new_password
         self.save_config()
         self.run_steps()
@@ -1007,29 +1224,29 @@ class RouterToolApp:
 
         self.start_progress()
         try:
-            self.log("=== Тест системы и подключения ===")
+            self.log(self.lt("testing"))
             host, port, _, _ = self._conn_info()
 
-            self.log("--- Ваша система ---")
-            self.log("ОС: %s" % platform.platform())
+            self.log(self.lt("test_system_header"))
+            self.log(self.lt("os_info", platform.platform()))
             self.log("Python: %s" % sys.version.split()[0])
             check(sys.version_info >= (3, 8), "Версия Python поддерживается", "Python слишком старый")
 
-            self.log("--- Связь с роутером %s:%s ---" % (host, port))
+            self.log(self.lt("test_router_header", host, port))
             try:
                 s = socket.create_connection((host, port), timeout=5)
                 s.close()
-                self.log("[OK] Порт %s доступен по сети" % port)
+                self.log("[OK] " + self.lt("port_ok", port))
             except Exception:
                 ok = False
-                self.log("[ОШИБКА] Роутер недоступен по адресу %s:%s" % (host, port))
-                self.log("Проверьте кабель, что роутер включён и IP указан верно.")
+                self.log("[ОШИБКА] " + self.lt("port_fail", host, port))
+                self.log(self.lt("check_cable"))
                 raise SystemExit
 
             client = self._connect_ssh()
             check(True, "SSH-подключение установлено", "")
 
-            self.log("--- Система роутера ---")
+            self.log(self.lt("test_router_system"))
             out, _ = self.ssh_exec(client, "uname -a")
             check(bool(out.strip()), "Ядро: " + out.strip()[:90], "Не удалось получить информацию о ядре")
 
@@ -1042,36 +1259,36 @@ class RouterToolApp:
             out, _ = self.ssh_exec(client, "df -h / | tail -1")
             check(bool(out.strip()), "Диск: " + " ".join(out.split())[:80], "Не удалось прочитать диск")
 
-            self.log("--- Интернет на роутере ---")
+            self.log(self.lt("test_inet"))
             out, _ = self.ssh_exec(client, "ping -c 2 -W 2 8.8.8.8 2>&1 | tail -2")
             check("0% packet loss" in out or "2 received" in out,
                   "Интернет работает: " + " ".join(out.split())[:80],
                   "Роутер не имеет доступа в интернет")
 
-            self.log("--- Службы ---")
+            self.log(self.lt("test_services"))
             out, _ = self.ssh_exec(client, "uci get network.lan.ipaddr 2>/dev/null || ip -4 addr show br-lan 2>/dev/null | grep inet")
             check(bool(out.strip()), "IP роутера: " + " ".join(out.split())[:60], "Не удалось определить IP роутера")
 
             self.log("")
             if ok:
-                self.log("=== ИТОГ: все проверки пройдены. Роутер готов к настройке. ===")
+                self.log(self.lt("test_result_ok"))
             else:
-                self.log("=== ИТОГ: обнаружены проблемы (см. выше) ===")
+                self.log(self.lt("test_result_fail"))
         except SystemExit:
             pass
         except Exception as e:
             ok = False
-            self.log("ОШИБКА: " + str(e))
+            self.log(self.lt("error", e))
         finally:
             self.stop_progress()
             self.set_running(False)
             self.open_log()
             if ok:
                 self.log("Завершено. Подключение удачное.")
-                self.show_message("Тест завершён", "Система и подключение в порядке!\nРоутер готов к настройке.")
+                self.show_message("Тест завершён", self.lt("test_good_msg"))
             else:
-                self.log("Завершено. Подключение НЕ удалось или есть проблемы.")
-                self.show_message("Тест завершён", "Обнаружены проблемы.\nПодробности — в логе.")
+                self.log(self.lt("test_fail_conn"))
+                self.show_message("Тест завершён", self.lt("test_bad_msg"))
 
 
 def _find_html():
@@ -1116,7 +1333,7 @@ def main():
     def on_loaded():
         if app.config.get("auto_check_update"):
             threading.Thread(target=app._check_update_worker, daemon=True).start()
-        app.log("Готово. Заполните настройки и нажмите «ВЫПОЛНИТЬ».")
+        app.log(self.lt("init_done"))
 
     window.events.loaded += on_loaded
     window.events.closing += lambda: app.save_config()
