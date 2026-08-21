@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta33"
+APP_VERSION = "1.5.0-beta34"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -39,16 +39,6 @@ THEMES = {
         "pkg": "luci-theme-proton2025",
         "url": "https://github.com/ChesterGoodiny/luci-theme-proton2025/releases/download/v1.3.0/luci-theme-proton2025-1.3.0-r1.apk",
         "media": "/luci-static/proton2025",
-    },
-    "Edge": {
-        "pkg": "luci-theme-edge",
-        "url": "https://github.com/kiddin9/luci-theme-edge/releases/download/v2.5-19.07/luci-theme-edge_2.5_all.ipk",
-        "media": "/luci-static/edge",
-    },
-    "Darkmatter": {
-        "pkg": "luci-theme-darkmatter",
-        "url": "https://apollo.open-resource.org/downloads/luci-theme-darkmatter_0.2-beta-2_all.ipk",
-        "media": "/luci-static/darkmatter",
     },
     "Bootstrap": {"pkg": "luci-theme-bootstrap", "media": "/luci-static/bootstrap"},
     "Bootstrap Dark": {"pkg": "luci-theme-bootstrap", "media": "/luci-static/bootstrap-dark"},
@@ -665,17 +655,11 @@ class RouterToolApp:
             theme = THEMES.get(theme_name, THEMES["Argon"])
             self.log("--- Тема: %s ---" % theme_name)
             if "url" in theme:
-                is_ipk = theme["url"].endswith(".ipk")
-                check_cmd = "opkg info 2>/dev/null | grep -c '^Package: %s$'" % theme["pkg"] if is_ipk else "apk info 2>/dev/null | grep -c '^%s$'" % theme["pkg"]
-                exists, _ = self.ssh_exec(client, check_cmd)
+                exists, _ = self.ssh_exec(client, "apk info 2>/dev/null | grep -c '^%s$'" % theme["pkg"])
                 if exists.strip() == "0":
                     self.install_theme_file(client, theme)
             else:
-                pkg_check = self.ssh_exec(client, "apk --version 2>/dev/null")[0]
-                if "apk" in pkg_check:
-                    self.ssh_exec(client, "apk add " + theme["pkg"], timeout=300)
-                else:
-                    self.ssh_exec(client, "opkg install " + theme["pkg"], timeout=300)
+                self.ssh_exec(client, "apk add " + theme["pkg"], timeout=300)
             self.ssh_exec(client, "uci set luci.main.mediaurlbase='%s'; uci commit luci" % theme["media"])
 
         if steps.get("install_ru"):
@@ -758,22 +742,17 @@ class RouterToolApp:
         self.log("=== Установка завершена ===")
 
     def install_theme_file(self, client, theme):
-        is_ipk = theme["url"].endswith(".ipk")
-        ext = "ipk" if is_ipk else "apk"
-        self.log("%s: скачивание %s на ПК..." % (theme["pkg"], ext))
+        self.log("%s: скачивание apk на ПК..." % theme["pkg"])
         try:
             os.makedirs(DOWNLOAD_DIR, exist_ok=True)
         except Exception:
             pass
-        local = os.path.join(DOWNLOAD_DIR, theme["pkg"] + "." + ext)
+        local = os.path.join(DOWNLOAD_DIR, theme["pkg"] + ".apk")
         urllib.request.urlretrieve(theme["url"], local)
         self.log("  скачано: %s байт (папка программы: %s)" % (os.path.getsize(local), DOWNLOAD_DIR))
-        self.ssh_upload(client, local, "/tmp/theme." + ext)
-        if is_ipk:
-            self.ssh_exec(client, "opkg install --force-overwrite /tmp/theme.ipk", timeout=300)
-        else:
-            self.ssh_exec(client, "apk add openssh-sftp-server", timeout=300)
-            self.ssh_exec(client, "apk add --allow-untrusted /tmp/theme.apk", timeout=300)
+        self.ssh_exec(client, "apk add openssh-sftp-server", timeout=300)
+        self.ssh_upload(client, local, "/tmp/theme.apk")
+        self.ssh_exec(client, "apk add --allow-untrusted /tmp/theme.apk", timeout=300)
 
     # ---------- Удаление сервисов ----------
     def remove_podkop(self):
