@@ -5,6 +5,16 @@ const App = {
   _logBuf: '',
   timer: null,
   running: false,
+  _modalZ: 99999,
+
+  _showOverlay(el) {
+    this._modalZ++;
+    el.style.zIndex = this._modalZ;
+    el.style.display = 'flex';
+  },
+  _hideOverlay(el) {
+    el.style.display = 'none';
+  },
 
   init() {
     this.bindNav();
@@ -149,7 +159,7 @@ const App = {
       this.api?.open_repo();
     });
     document.getElementById('btn-settings').addEventListener('click', () => this.openSettings());
-    document.getElementById('settings-ok').addEventListener('click', () => this.byId('settings-overlay').style.display = 'none');
+    document.getElementById('settings-ok').addEventListener('click', () => this._hideOverlay(this.byId('settings-overlay')));
     document.getElementById('settings-save').addEventListener('click', () => {
       this.api?.set_theme(this.byId('st-theme-mode').value === 'dark');
       this.api?.save_config().then(() => this.msg('Настройки сохранены', 'Готово'));
@@ -191,20 +201,20 @@ const App = {
     document.getElementById('log-clear').addEventListener('click', () => this.clearLog());
     document.getElementById('confirm-ok').addEventListener('click', () => this.confirmResolve(true));
     document.getElementById('confirm-cancel').addEventListener('click', () => this.confirmResolve(false));
-    document.getElementById('msg-ok').addEventListener('click', () => this.byId('msg-overlay').style.display = 'none');
+    document.getElementById('msg-ok').addEventListener('click', () => this._hideOverlay(this.byId('msg-overlay')));
     document.getElementById('run-ok').addEventListener('click', () => {
-      this.byId('run-overlay').style.display = 'none';
+      this._hideOverlay(this.byId('run-overlay'));
       this.api?.run_all();
     });
     document.getElementById('run-cancel').addEventListener('click', () => {
-      this.byId('run-overlay').style.display = 'none';
+      this._hideOverlay(this.byId('run-overlay'));
     });
     document.getElementById('reboot-ok').addEventListener('click', () => {
-      this.byId('reboot-overlay').style.display = 'none';
+      this._hideOverlay(this.byId('reboot-overlay'));
       this.api?.reboot_router();
     });
     document.getElementById('reboot-cancel').addEventListener('click', () => {
-      this.byId('reboot-overlay').style.display = 'none';
+      this._hideOverlay(this.byId('reboot-overlay'));
     });
   },
 
@@ -279,7 +289,7 @@ async loadConfig() {
     this.byId('st-theme-mode').value = (this.cfg?.gui_theme || 'dark') === 'dark' ? 'dark' : 'light';
     this.byId('st-autocheck').checked = !!(this.cfg && this.cfg.auto_check_update);
     this.byId('st-fontsize').value = this.cfg?.font_size || 'normal';
-    this.byId('settings-overlay').style.display = 'flex';
+    this._showOverlay(this.byId('settings-overlay'));
     this.api?.get_default_download_dir().then(d => {
       this.byId('st-downloads').value = this.cfg?.download_dir || '';
       this.byId('st-downloads').placeholder = d;
@@ -290,7 +300,7 @@ async loadConfig() {
     const ok = await this.confirm('Сбросить все настройки программы к значениям по умолчанию?', 'Сброс настроек');
     if (!ok) return;
     await this.api?.reset_settings();
-    this.byId('settings-overlay').style.display = 'none';
+    this._hideOverlay(this.byId('settings-overlay'));
     await this.loadConfig();
     this.msg('Настройки программы сброшены к значениям по умолчанию.');
   },
@@ -315,8 +325,8 @@ async loadConfig() {
     this.byId('btn-reset').disabled = on;
     this.byId('btn-test').disabled = on;
   },
-  openLog() { this.byId('log-overlay').classList.remove('hidden'); this.byId('log-overlay').style.display = 'flex'; },
-  hideLog() { this.byId('log-overlay').style.display = 'none'; },
+  openLog() { this.byId('log-overlay').classList.remove('hidden'); this._showOverlay(this.byId('log-overlay')); },
+  hideLog() { this._hideOverlay(this.byId('log-overlay')); },
 
   showRunConfirm() {
     const stepsMap = {
@@ -351,24 +361,24 @@ async loadConfig() {
       li.textContent = 'Ничего не выбрано';
       list.appendChild(li);
     }
-    this.byId('run-overlay').style.display = 'flex';
+    this._showOverlay(this.byId('run-overlay'));
   },
 
   confirmResolve(ok) {
-    this.byId('confirm-overlay').style.display = 'none';
+    this._hideOverlay(this.byId('confirm-overlay'));
     if (this._confirmResolve) this._confirmResolve(ok);
     this.api?.confirm_response(ok);
   },
 
   showRebootConfirm() {
-    this.byId('reboot-overlay').style.display = 'flex';
+    this._showOverlay(this.byId('reboot-overlay'));
   },
 
   async confirm(text, title = 'Подтверждение') {
     return new Promise(resolve => {
       this.byId('confirm-text').textContent = text;
       this.byId('confirm-title').textContent = title;
-      this.byId('confirm-overlay').style.display = 'flex';
+      this._showOverlay(this.byId('confirm-overlay'));
       this._confirmResolve = resolve;
     });
   },
@@ -376,7 +386,7 @@ async loadConfig() {
   msg(text, title = 'Сообщение') {
     this.byId('msg-text').textContent = text;
     this.byId('msg-title').textContent = title;
-    this.byId('msg-overlay').style.display = 'flex';
+    this._showOverlay(this.byId('msg-overlay'));
   },
 };
 
