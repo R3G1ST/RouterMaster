@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0-beta44"
+APP_VERSION = "1.5.0-beta45"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -389,7 +389,10 @@ class RouterToolApp:
         def work():
             try:
                 tmp = os.path.join(tempfile.gettempdir(), name)
-                req = urllib.request.Request(url, headers={"User-Agent": "RouterMaster"})
+                req = urllib.request.Request(url, headers={
+                    "User-Agent": "RouterMaster",
+                    "Accept-Encoding": "identity",
+                })
                 with urllib.request.urlopen(req, timeout=180) as r:
                     total = int(r.headers.get("Content-Length") or 0)
                     done = 0
@@ -397,7 +400,7 @@ class RouterToolApp:
                     start_time = time.time()
                     with open(tmp, "wb") as f:
                         while True:
-                            chunk = r.read(262144)
+                            chunk = r.read(1048576)
                             if not chunk:
                                 break
                             f.write(chunk)
