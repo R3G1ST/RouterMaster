@@ -155,7 +155,7 @@ body.dark .sidebar {
 .nav-btn.active { background: var(--card); color: var(--accent2); font-weight: 600; }
 .sidebar.collapsed .nav-btn,
 .sidebar.collapsed .foot-btn { padding: 0; }
-.sidebar.collapsed .nav-ico { font-size: 20px; min-width: auto; }
+.sidebar.collapsed .nav-ico { font-size: 24px; min-width: auto; }
 .sidebar.collapsed .nav-btn { justify-content: center; }
 .sidebar.collapsed .side-foot { grid-template-columns: 1fr; }
 .side-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px 8px 0; }
