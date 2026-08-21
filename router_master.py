@@ -449,6 +449,10 @@ class RouterToolApp:
                 cfg.setdefault("steps", {})
                 for k, v in DEFAULTS["steps"].items():
                     cfg["steps"].setdefault(k, v)
+                if cfg.get("app_version") != APP_VERSION:
+                    cfg["app_version"] = APP_VERSION
+                    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+                        json.dump(cfg, f, ensure_ascii=False, indent=2)
                 return cfg
             except Exception:
                 pass
