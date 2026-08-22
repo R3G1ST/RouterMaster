@@ -175,7 +175,14 @@ const App = {
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
       const txt = this.t(key);
-      if (txt) el.textContent = txt;
+      if (txt) {
+        const span = el.querySelector('.nav-txt, .card-title, .muted, span, p, li, button:not(.dd-btn):not(.pass-toggle):not(.folder-btn):not(.btn-tiny):not(.tb-btn):not(.side-toggle)');
+        if (span) {
+          span.textContent = txt;
+        } else if (!el.querySelector('input, select, textarea')) {
+          el.textContent = txt;
+        }
+      }
     });
     document.querySelectorAll('[data-i18n-title]').forEach(el => {
       const key = el.dataset.i18nTitle;
