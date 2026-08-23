@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.6.2"
+APP_VERSION = "1.6.3-beta70"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -696,9 +696,15 @@ class RouterToolApp:
             return tuple(t) + (-1, int(m.group(1)) if m else 0)
         return tuple(t) + (0, 0)
 
+    _update_cache = {"time": 0, "releases": None}
+
     def _check_update_worker(self, allow_beta=False):
         try:
-            releases = None
+            now = time.time()
+            if now - self._update_cache["time"] < 14400 and self._update_cache["releases"]:
+                releases = self._update_cache["releases"]
+            else:
+                releases = None
             for attempt in range(3):
                 try:
                     req = urllib.request.Request(
@@ -706,6 +712,8 @@ class RouterToolApp:
                         headers={"User-Agent": "RouterMaster", "Accept": "application/vnd.github.v3+json"})
                     with urllib.request.urlopen(req, timeout=45) as r:
                         releases = json.loads(r.read().decode("utf-8"))
+                    self._update_cache["time"] = time.time()
+                    self._update_cache["releases"] = releases
                     break
                 except Exception:
                     if attempt < 2:
