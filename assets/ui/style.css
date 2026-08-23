@@ -465,6 +465,17 @@ textarea { resize: vertical; }
 }
 .overlay.hidden { display: none !important; }
 
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 .modal { width: 420px; max-width: 92vw; position: relative; z-index: 1; }
 .modal p { font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-line; }
 .modal-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
