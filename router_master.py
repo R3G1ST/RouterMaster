@@ -688,11 +688,21 @@ class RouterToolApp:
 
     def _check_update_worker(self):
         try:
-            req = urllib.request.Request(
-                "https://api.github.com/repos/%s/releases?per_page=10" % UPDATE_REPO,
-                headers={"User-Agent": "RouterMaster"})
-            with urllib.request.urlopen(req, timeout=15) as r:
-                releases = json.loads(r.read().decode("utf-8"))
+            releases = None
+            for attempt in range(3):
+                try:
+                    req = urllib.request.Request(
+                        "https://api.github.com/repos/%s/releases?per_page=10" % UPDATE_REPO,
+                        headers={"User-Agent": "RouterMaster"})
+                    with urllib.request.urlopen(req, timeout=30) as r:
+                        releases = json.loads(r.read().decode("utf-8"))
+                    break
+                except Exception:
+                    if attempt < 2:
+                        time.sleep(2)
+                    continue
+            if not releases:
+                raise RuntimeError("GitHub API unreachable")
             candidates = []
             allow_beta = self.config.get("allow_beta", False)
             for rel in releases:
@@ -724,11 +734,21 @@ class RouterToolApp:
 
     def _rollback_worker(self):
         try:
-            req = urllib.request.Request(
-                "https://api.github.com/repos/%s/releases?per_page=20" % UPDATE_REPO,
-                headers={"User-Agent": "RouterMaster"})
-            with urllib.request.urlopen(req, timeout=15) as r:
-                releases = json.loads(r.read().decode("utf-8"))
+            releases = None
+            for attempt in range(3):
+                try:
+                    req = urllib.request.Request(
+                        "https://api.github.com/repos/%s/releases?per_page=20" % UPDATE_REPO,
+                        headers={"User-Agent": "RouterMaster"})
+                    with urllib.request.urlopen(req, timeout=30) as r:
+                        releases = json.loads(r.read().decode("utf-8"))
+                    break
+                except Exception:
+                    if attempt < 2:
+                        time.sleep(2)
+                    continue
+            if not releases:
+                raise RuntimeError("GitHub API unreachable")
             stable = []
             for rel in releases:
                 if rel.get("prerelease", False):
