@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.6"
+APP_VERSION = "1.5.7-beta64"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -688,7 +688,6 @@ class RouterToolApp:
 
     def _check_update_worker(self):
         try:
-            self.config = self.load_config()
             releases = None
             for attempt in range(3):
                 try:
