@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.1"
+APP_VERSION = "1.5.2-beta59"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -221,6 +221,8 @@ LOG_I18N = {
         "reboot_done_msg": "Роутер перезагрузился и снова в сети.\n\n"
                            "Обновите страницу в браузере (Ctrl+F5),\n"
                            "чтобы увидеть новый интерфейс: http://%s",
+        "rollback_title": "Откат на стабильную",
+        "rollback_confirm": "Установить стабильную версию %s?\n\nТекущая бета будет заменена.",
     },
     "en": {
         "connecting": "=== Connecting to %s:%s ... ===",
@@ -383,6 +385,8 @@ LOG_I18N = {
         "reboot_done_msg": "Router rebooted and is back online.\n\n"
                            "Refresh the page in your browser (Ctrl+F5)\n"
                            "to see the new interface: http://%s",
+        "rollback_title": "Rollback to stable",
+        "rollback_confirm": "Install stable version %s?\n\nCurrent beta will be replaced.",
     },
 }
 
@@ -491,6 +495,10 @@ class Api:
 
     def check_update(self):
         threading.Thread(target=self._app._check_update_worker, daemon=True).start()
+        return True
+
+    def rollback_to_stable(self):
+        threading.Thread(target=self._app._rollback_worker, daemon=True).start()
         return True
 
     def open_extra_soft(self):
@@ -713,6 +721,35 @@ class RouterToolApp:
                 self._download_and_install(a["browser_download_url"], a["name"])
                 return
         self.show_message(self.lt("msg_update"), self.lt("installer_not_found"))
+
+    def _rollback_worker(self):
+        try:
+            req = urllib.request.Request(
+                "https://api.github.com/repos/%s/releases?per_page=20" % UPDATE_REPO,
+                headers={"User-Agent": "RouterMaster"})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                releases = json.loads(r.read().decode("utf-8"))
+            stable = []
+            for rel in releases:
+                if rel.get("prerelease", False):
+                    continue
+                tag = str(rel.get("tag_name", "v0.0.0")).lstrip("v")
+                stable.append((self._ver_tuple(tag), tag, rel))
+            if not stable:
+                raise RuntimeError("no stable releases found")
+            best = max(stable, key=lambda c: c[0])
+            best_tag = best[1]
+            if not self.ask_confirm(
+                    self.lt("rollback_title"),
+                    self.lt("rollback_confirm") % best_tag):
+                return
+            for a in best[2].get("assets", []):
+                if a.get("name", "").lower() == UPDATE_ASSET.lower():
+                    self._download_and_install(a["browser_download_url"], a["name"])
+                    return
+            self.show_message(self.lt("msg_update"), self.lt("installer_not_found"))
+        except Exception as e:
+            self.show_message(self.lt("msg_error"), self.lt("check_update_err") % e)
 
     def _unblock_file(self, path):
         try:
