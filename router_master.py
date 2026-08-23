@@ -498,6 +498,15 @@ class Api:
         threading.Thread(target=self._app._check_update_worker, args=(allow_beta,), daemon=True).start()
         return True
 
+    def toggle_beta(self, enabled):
+        self._app.config["allow_beta"] = bool(enabled)
+        try:
+            self._app.save_config()
+        except Exception:
+            pass
+        threading.Thread(target=self._app._check_update_worker, args=(bool(enabled),), daemon=True).start()
+        return True
+
     def rollback_to_stable(self):
         threading.Thread(target=self._app._rollback_worker, daemon=True).start()
         return True
