@@ -688,11 +688,12 @@ class RouterToolApp:
 
     def _check_update_worker(self):
         try:
+            self.config = self.load_config()
             releases = None
             for attempt in range(3):
                 try:
                     req = urllib.request.Request(
-                        "https://api.github.com/repos/%s/releases?per_page=10" % UPDATE_REPO,
+                        "https://api.github.com/repos/%s/releases?per_page=30" % UPDATE_REPO,
                         headers={"User-Agent": "RouterMaster"})
                     with urllib.request.urlopen(req, timeout=30) as r:
                         releases = json.loads(r.read().decode("utf-8"))
