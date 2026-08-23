@@ -59,6 +59,7 @@ const App = {
       'label-allowbeta': 'Получать бета-версии',
       'btn-rollback': 'Откатить на стабильную',
       'btn-check': 'Проверить обновление',
+      'checking_update': 'Проверка обновлений...',
       'btn-reset-settings': 'Сбросить настройки',
       'btn-save-settings': 'Сохранить настройки',
       // Log
@@ -137,6 +138,7 @@ const App = {
       'label-allowbeta': 'Receive beta versions',
       'btn-rollback': 'Rollback to stable',
       'btn-check': 'Check for updates',
+      'checking_update': 'Checking for updates...',
       'btn-reset-settings': 'Reset settings',
       'btn-save-settings': 'Save settings',
       'log-title': 'Execution Log',
@@ -208,6 +210,15 @@ const App = {
   },
   _hideOverlay(el) {
     el.style.display = 'none';
+  },
+  showLoading(text) {
+    const el = this.byId('loading-overlay');
+    const txt = this.byId('loading-text');
+    if (txt && text) txt.textContent = text;
+    this._showOverlay(el);
+  },
+  hideLoading() {
+    this._hideOverlay(this.byId('loading-overlay'));
   },
 
   init() {
@@ -343,8 +354,8 @@ const App = {
     document.getElementById('btn-test').addEventListener('click', () => this.api?.test_system());
     const btnCheck = document.getElementById('btn-check');
     btnCheck.addEventListener('click', () => {
-      btnCheck.classList.add('checking');
-      (this.api?.check_update() || Promise.resolve()).finally(() => btnCheck.classList.remove('checking'));
+      this.showLoading(this.t('checking_update'));
+      (this.api?.check_update() || Promise.resolve()).finally(() => this.hideLoading());
     });
     document.getElementById('btn-extra').addEventListener('click', () => this.api?.open_extra_soft());
     document.getElementById('btn-side-toggle').addEventListener('click', () => this.toggleSidebar());
@@ -579,6 +590,7 @@ const App = {
 
   async confirm(text, title) {
     return new Promise(resolve => {
+      this.hideLoading();
       this.byId('confirm-text').textContent = text;
       this.byId('confirm-title').textContent = title || this.t('confirm-title');
       this._showOverlay(this.byId('confirm-overlay'));
@@ -587,6 +599,7 @@ const App = {
   },
 
   msg(text, title) {
+    this.hideLoading();
     this.byId('msg-text').textContent = text;
     this.byId('msg-title').textContent = title || this.t('msg-title');
     this._showOverlay(this.byId('msg-overlay'));
