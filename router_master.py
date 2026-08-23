@@ -703,16 +703,16 @@ class RouterToolApp:
                 try:
                     req = urllib.request.Request(
                         "https://api.github.com/repos/%s/releases?per_page=30" % UPDATE_REPO,
-                        headers={"User-Agent": "RouterMaster"})
-                    with urllib.request.urlopen(req, timeout=30) as r:
+                        headers={"User-Agent": "RouterMaster", "Accept": "application/vnd.github.v3+json"})
+                    with urllib.request.urlopen(req, timeout=45) as r:
                         releases = json.loads(r.read().decode("utf-8"))
                     break
                 except Exception:
                     if attempt < 2:
-                        time.sleep(2)
+                        time.sleep(3)
                     continue
             if not releases:
-                raise RuntimeError("GitHub API unreachable")
+                return
             candidates = []
             for rel in releases:
                 tag = str(rel.get("tag_name", "v0.0.0")).lstrip("v")
@@ -756,14 +756,14 @@ class RouterToolApp:
             for attempt in range(3):
                 try:
                     req = urllib.request.Request(
-                        "https://api.github.com/repos/%s/releases?per_page=20" % UPDATE_REPO,
-                        headers={"User-Agent": "RouterMaster"})
-                    with urllib.request.urlopen(req, timeout=30) as r:
+                        "https://api.github.com/repos/%s/releases?per_page=30" % UPDATE_REPO,
+                        headers={"User-Agent": "RouterMaster", "Accept": "application/vnd.github.v3+json"})
+                    with urllib.request.urlopen(req, timeout=45) as r:
                         releases = json.loads(r.read().decode("utf-8"))
                     break
                 except Exception:
                     if attempt < 2:
-                        time.sleep(2)
+                        time.sleep(3)
                     continue
             if not releases:
                 raise RuntimeError("GitHub API unreachable")
