@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.7"
+APP_VERSION = "1.5.8-beta65"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -494,7 +494,8 @@ class Api:
         return True
 
     def check_update(self):
-        threading.Thread(target=self._app._check_update_worker, daemon=True).start()
+        allow_beta = self._app.config.get("allow_beta", False)
+        threading.Thread(target=self._app._check_update_worker, args=(allow_beta,), daemon=True).start()
         return True
 
     def rollback_to_stable(self):
@@ -686,7 +687,7 @@ class RouterToolApp:
             return tuple(t) + (-1, int(m.group(1)) if m else 0)
         return tuple(t) + (0, 0)
 
-    def _check_update_worker(self):
+    def _check_update_worker(self, allow_beta=False):
         try:
             releases = None
             for attempt in range(3):
@@ -704,7 +705,6 @@ class RouterToolApp:
             if not releases:
                 raise RuntimeError("GitHub API unreachable")
             candidates = []
-            allow_beta = self.config.get("allow_beta", False)
             for rel in releases:
                 tag = str(rel.get("tag_name", "v0.0.0")).lstrip("v")
                 is_prerelease = rel.get("prerelease", False)
