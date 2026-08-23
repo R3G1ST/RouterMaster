@@ -57,6 +57,7 @@ const App = {
       'label-downloads': 'Папка загрузок',
       'label-autocheck': 'Проверять обновления при запуске',
       'label-allowbeta': 'Получать бета-версии',
+      'btn-rollback': 'Откатить на стабильную',
       'btn-check': 'Проверить обновление',
       'btn-reset-settings': 'Сбросить настройки',
       'btn-save-settings': 'Сохранить настройки',
@@ -134,6 +135,7 @@ const App = {
       'label-downloads': 'Downloads folder',
       'label-autocheck': 'Check for updates on startup',
       'label-allowbeta': 'Receive beta versions',
+      'btn-rollback': 'Rollback to stable',
       'btn-check': 'Check for updates',
       'btn-reset-settings': 'Reset settings',
       'btn-save-settings': 'Save settings',
@@ -359,6 +361,7 @@ const App = {
     document.getElementById('st-theme-mode').addEventListener('change', e => this.setDark(e.target.value === 'dark'));
     document.getElementById('st-autocheck').addEventListener('change', e => this.api?.save_field('auto_check_update', e.target.checked));
     document.getElementById('st-allowbeta').addEventListener('change', e => this.api?.save_field('allow_beta', e.target.checked));
+    document.getElementById('btn-rollback').addEventListener('click', () => this.api?.rollback_to_stable());
     document.getElementById('st-fontsize').addEventListener('change', e => {
       document.body.classList.remove('font-small', 'font-large');
       if (e.target.value === 'small') document.body.classList.add('font-small');
@@ -462,6 +465,10 @@ const App = {
     this.byId('st-theme-mode').value = (cfg.gui_theme || 'dark') === 'dark' ? 'dark' : 'light';
     this.byId('st-autocheck').checked = !!cfg.auto_check_update;
     this.byId('st-allowbeta').checked = !!cfg.allow_beta;
+    const isBeta = (cfg.app_version || '').includes('beta');
+    const rollbackBtn = this.byId('btn-rollback');
+    if (isBeta) rollbackBtn.classList.remove('hidden');
+    else rollbackBtn.classList.add('hidden');
     this.byId('st-fontsize').value = cfg.font_size || 'normal';
     this.api?.get_default_download_dir().then(d => {
       this.byId('st-downloads').value = cfg.download_dir || d;
