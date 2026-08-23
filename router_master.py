@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.0"
+APP_VERSION = "1.5.1-beta58"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -403,6 +403,7 @@ DEFAULTS = {
     "gui_theme": "dark",
     "sidebar_collapsed": False,
     "auto_check_update": False,
+    "allow_beta": False,
     "font_size": "normal",
     "language": "ru",
     "download_dir": "",
@@ -685,8 +686,12 @@ class RouterToolApp:
             with urllib.request.urlopen(req, timeout=15) as r:
                 releases = json.loads(r.read().decode("utf-8"))
             candidates = []
+            allow_beta = self.config.get("allow_beta", False)
             for rel in releases:
                 tag = str(rel.get("tag_name", "v0.0.0")).lstrip("v")
+                is_prerelease = rel.get("prerelease", False)
+                if is_prerelease and not allow_beta:
+                    continue
                 candidates.append((self._ver_tuple(tag), tag, rel))
             if not candidates:
                 raise RuntimeError("релизы не найдены")

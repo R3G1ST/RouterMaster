@@ -56,6 +56,7 @@ const App = {
       'font-small': 'Маленький', 'font-normal': 'Средний', 'font-large': 'Большой',
       'label-downloads': 'Папка загрузок',
       'label-autocheck': 'Проверять обновления при запуске',
+      'label-allowbeta': 'Получать бета-версии',
       'btn-check': 'Проверить обновление',
       'btn-reset-settings': 'Сбросить настройки',
       'btn-save-settings': 'Сохранить настройки',
@@ -132,6 +133,7 @@ const App = {
       'font-small': 'Small', 'font-normal': 'Medium', 'font-large': 'Large',
       'label-downloads': 'Downloads folder',
       'label-autocheck': 'Check for updates on startup',
+      'label-allowbeta': 'Receive beta versions',
       'btn-check': 'Check for updates',
       'btn-reset-settings': 'Reset settings',
       'btn-save-settings': 'Save settings',
@@ -356,6 +358,7 @@ const App = {
     document.getElementById('btn-open-folder').addEventListener('click', () => this.api?.open_download_dir());
     document.getElementById('st-theme-mode').addEventListener('change', e => this.setDark(e.target.value === 'dark'));
     document.getElementById('st-autocheck').addEventListener('change', e => this.api?.save_field('auto_check_update', e.target.checked));
+    document.getElementById('st-allowbeta').addEventListener('change', e => this.api?.save_field('allow_beta', e.target.checked));
     document.getElementById('st-fontsize').addEventListener('change', e => {
       document.body.classList.remove('font-small', 'font-large');
       if (e.target.value === 'small') document.body.classList.add('font-small');
@@ -458,6 +461,7 @@ const App = {
     this.byId('st-lang').value = cfg.language || 'ru';
     this.byId('st-theme-mode').value = (cfg.gui_theme || 'dark') === 'dark' ? 'dark' : 'light';
     this.byId('st-autocheck').checked = !!cfg.auto_check_update;
+    this.byId('st-allowbeta').checked = !!cfg.allow_beta;
     this.byId('st-fontsize').value = cfg.font_size || 'normal';
     this.api?.get_default_download_dir().then(d => {
       this.byId('st-downloads').value = cfg.download_dir || d;
