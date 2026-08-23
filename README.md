@@ -4,7 +4,7 @@
 
 **Умный помощник по настройке роутеров на OpenWrt**
 
-[![Версия](https://img.shields.io/badge/версия-1.4.0-blue)]()
+[![Версия](https://img.shields.io/badge/версия-1.5.0--beta-blue)]()
 [![Платформа](https://img.shields.io/badge/платформа-Windows-orange)]()
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-24.10%2B-green)]()
 [![Лицензия](https://img.shields.io/badge/лицензия-MIT-lightgrey)]()
@@ -125,10 +125,8 @@ Podkop и Zapret можно полностью удалить с роутера 
 > └── downloads\                # скачанные темы (apk-файлы)
 > ```
 >
-> **На практике это просто:**
-> `C:\Users\<ваше_имя>\AppData\Roaming\RouterMaster\`
->
-> 📌 **Как открыть за 2 секунды:** нажмите `Win + R`, вставьте `%APPDATA%\RouterMaster` и нажмите Enter — папка с настройками откроется сама.
+> На практике это `C:\Users\<имя_пользователя>\AppData\Roaming\RouterMaster\`.
+> Открыть быстро: нажмите `Win+R`, вставьте `%APPDATA%\RouterMaster` и Enter.
 >
 > Благодаря этому программа работает с любого диска (включая `C:\Program Files`) без прав администратора, а при установке обновлений настройки не теряются.
 
@@ -153,7 +151,10 @@ Podkop и Zapret можно полностью удалить с роутера 
 ```bash
 pip install -r requirements.txt pyinstaller
 pyinstaller --onefile --windowed --icon assets/icon.ico ^
-            --add-data "assets;assets" router_master.py
+            --add-data "assets;assets" ^
+            --collect-all webview ^
+            --hidden-import webview.platforms.winforms ^
+            --hidden-import webview.platforms.edgechromium router_master.py
 ```
 
 ### Updater (C# .NET Framework)
@@ -175,17 +176,18 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /optimize
 
 ```
 RouterMaster/
-├── router_master.py          # Основная программа
+├── router_master.py          # Основная программа (логика + pywebview)
 ├── assets/
 │   ├── icon.ico              # Иконка программы
-│   └── rm_updater.exe        # Updater для тихой установки обновлений
+│   ├── rm_updater.exe        # Updater для тихой установки обновлений
+│   └── ui/                   # Веб-интерфейс (index.html, style.css, app.js)
 ├── installer/
 │   ├── setup.iss             # Скрипт инсталлятора (Inno Setup)
 │   └── Updater.cs            # Исходник updater (C#)
 ├── screenshots/
 │   ├── light.png             # Скриншот светлой темы
 │   └── dark.png              # Скриншот тёмной темы
-└── requirements.txt          # Зависимости Python
+└── requirements.txt          # Зависимости Python (paramiko, pywebview)
 ```
 
 ---
