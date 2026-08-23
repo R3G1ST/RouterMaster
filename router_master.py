@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.5.8"
+APP_VERSION = "1.5.9-beta66"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -496,6 +496,15 @@ class Api:
     def check_update(self):
         allow_beta = self._app.config.get("allow_beta", False)
         threading.Thread(target=self._app._check_update_worker, args=(allow_beta,), daemon=True).start()
+        return True
+
+    def toggle_beta(self, enabled):
+        self._app.config["allow_beta"] = bool(enabled)
+        try:
+            self._app.save_config()
+        except Exception:
+            pass
+        threading.Thread(target=self._app._check_update_worker, args=(bool(enabled),), daemon=True).start()
         return True
 
     def rollback_to_stable(self):
