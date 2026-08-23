@@ -722,11 +722,20 @@ class RouterToolApp:
                 candidates.append((self._ver_tuple(tag), tag, rel))
             if not candidates:
                 raise RuntimeError("релизы не найдены")
-            best = max(candidates, key=lambda c: c[0])
-            if best[0] > self._ver_tuple(APP_VERSION):
-                self._prompt_update(best[2], best[1])
+            current_tuple = self._ver_tuple(APP_VERSION)
+            is_current_beta = "beta" in APP_VERSION.lower()
+            if allow_beta and not is_current_beta:
+                best = candidates[0]
+                if best[0] > current_tuple or best[2].get("prerelease", False):
+                    self._prompt_update(best[2], best[1])
+                else:
+                    self.show_message(self.lt("msg_update"), self.lt("latest_ver") % APP_VERSION)
             else:
-                self.show_message(self.lt("msg_update"), self.lt("latest_ver") % APP_VERSION)
+                best = max(candidates, key=lambda c: c[0])
+                if best[0] > current_tuple:
+                    self._prompt_update(best[2], best[1])
+                else:
+                    self.show_message(self.lt("msg_update"), self.lt("latest_ver") % APP_VERSION)
         except Exception as e:
             self.show_message(self.lt("msg_error"), self.lt("check_update_err") % e)
 
@@ -1503,8 +1512,9 @@ def main():
 
     def on_loaded():
         if app.config.get("auto_check_update"):
-            threading.Thread(target=app._check_update_worker, daemon=True).start()
-        app.log(self.lt("init_done"))
+            allow_beta = app.config.get("allow_beta", False)
+            threading.Thread(target=app._check_update_worker, args=(allow_beta,), daemon=True).start()
+        app.log(app.lt("init_done"))
 
     window.events.loaded += on_loaded
     window.events.closing += lambda: app.save_config()
