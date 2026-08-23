@@ -371,7 +371,13 @@ const App = {
     document.getElementById('btn-open-folder').addEventListener('click', () => this.api?.open_download_dir());
     document.getElementById('st-theme-mode').addEventListener('change', e => this.setDark(e.target.value === 'dark'));
     document.getElementById('st-autocheck').addEventListener('change', e => this.api?.save_field('auto_check_update', e.target.checked));
-    document.getElementById('st-allowbeta').addEventListener('change', e => this.api?.save_field('allow_beta', e.target.checked));
+    document.getElementById('st-allowbeta').addEventListener('change', e => {
+      this.api?.save_field('allow_beta', e.target.checked);
+      if (e.target.checked) {
+        this.showLoading(this.t('checking_update'));
+        (this.api?.check_update() || Promise.resolve()).finally(() => this.hideLoading());
+      }
+    });
     document.getElementById('btn-rollback').addEventListener('click', () => this.api?.rollback_to_stable());
     document.getElementById('st-fontsize').addEventListener('change', e => {
       document.body.classList.remove('font-small', 'font-large');
