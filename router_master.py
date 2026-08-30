@@ -32,12 +32,14 @@ DOWNLOAD_DIR = os.path.join(DATA_DIR, "downloads")
 THEMES = {
     "Argon": {
         "pkg": "luci-theme-argon",
-        "url": "https://github.com/jerrykuku/luci-theme-argon/releases/download/v2.4.6/luci-theme-argon-2.4.6-r1.apk",
+        "url_apk": "https://github.com/jerrykuku/luci-theme-argon/releases/download/v2.4.7/luci-theme-argon-2.4.7-r1.apk",
+        "url_ipk": "https://github.com/jerrykuku/luci-theme-argon/releases/download/v2.4.7/luci-theme-argon_2.4.7_all.ipk",
         "media": "/luci-static/argon",
     },
     "Proton2025": {
         "pkg": "luci-theme-proton2025",
-        "url": "https://github.com/ChesterGoodiny/luci-theme-proton2025/releases/download/v1.3.0/luci-theme-proton2025-1.3.0-r1.apk",
+        "url_apk": "https://github.com/ChesterGoodiny/luci-theme-proton2025/releases/download/v1.3.0/luci-theme-proton2025-1.3.0-r1.apk",
+        "url_ipk": "https://github.com/ChesterGoodiny/luci-theme-proton2025/releases/download/v1.3.0/luci-theme-proton2025_1.3.0_all.ipk",
         "media": "/luci-static/proton2025",
     },
     "Bootstrap": {"pkg": "luci-theme-bootstrap", "media": "/luci-static/bootstrap"},
@@ -82,6 +84,7 @@ LOG_I18N = {
         "test_ok": "Всё в порядке.",
         "test_fail": "Проблема: %s",
         "checking_update": "Проверяю обновления...",
+        "pkg_manager": "Пакетный менеджер: %s",
         "update_latest": "Установлена последняя версия %s",
         "update_err": "Не удалось проверить обновление:\n%s",
         "update_avail": "Доступна новая версия %s!\nТекущая: %s\nСкачать и установить?",
@@ -246,6 +249,7 @@ LOG_I18N = {
         "test_ok": "Everything OK.",
         "test_fail": "Problem: %s",
         "checking_update": "Checking for updates...",
+        "pkg_manager": "Package manager: %s",
         "update_latest": "Latest version %s is installed",
         "update_err": "Failed to check for update:\n%s",
         "update_avail": "New version %s available!\nCurrent: %s\nDownload and install?",
@@ -928,6 +932,10 @@ class RouterToolApp:
                 str(self.config.get("user", "root")).strip(),
                 str(self.config.get("password", "")))
 
+    def _detect_pkg(self, client):
+        out, _ = self.ssh_exec(client, "which apk 2>/dev/null && echo apk || echo opkg")
+        return "apk" if "apk" in out.strip() else "opkg"
+
     def _connect_ssh(self):
         host, port, user, password = self._conn_info()
         self.log(self.lt("connecting", host, port))
@@ -1048,14 +1056,17 @@ class RouterToolApp:
                       "uci set system.@system[0].hostname='%s'; uci commit system; /etc/init.d/system reload"
                       % hostname)
 
+        pkg = self._detect_pkg(client)
+        self.log(self.lt("pkg_manager", pkg))
+
         steps = self.config["steps"]
 
         if steps.get("update_packages"):
             self.log(self.lt("pkg_update"))
-            self.ssh_exec(client, "apk update")
-            out, _ = self.ssh_exec(client, "apk upgrade")
+            self.ssh_exec(client, "%s update" % pkg)
+            out, _ = self.ssh_exec(client, "%s upgrade" % pkg)
             if "error" in out.lower():
-                self.ssh_exec(client, "apk upgrade")
+                self.ssh_exec(client, "%s upgrade" % pkg)
                 self.log(self.lt("apk_retry"))
 
         if steps.get("install_podkop"):
@@ -1082,17 +1093,21 @@ class RouterToolApp:
             theme_name = self.config.get("theme") or "Argon"
             theme = THEMES.get(theme_name, THEMES["Argon"])
             self.log(self.lt("theme_install", theme_name))
-            if "url" in theme:
+            if pkg == "apk" and "url_apk" in theme:
                 exists, _ = self.ssh_exec(client, "apk info 2>/dev/null | grep -c '^%s$'" % theme["pkg"])
                 if exists.strip() == "0":
-                    self.install_theme_file(client, theme)
+                    self.install_theme_file(client, theme, "apk")
+            elif pkg == "opkg" and "url_ipk" in theme:
+                exists, _ = self.ssh_exec(client, "opkg list-installed 2>/dev/null | grep -c '^%s'" % theme["pkg"])
+                if exists.strip() == "0":
+                    self.install_theme_file(client, theme, "opkg")
             else:
-                self.ssh_exec(client, "apk add " + theme["pkg"], timeout=300)
+                self.ssh_exec(client, "%s install %s" % (pkg, theme["pkg"]), timeout=300)
             self.ssh_exec(client, "uci set luci.main.mediaurlbase='%s'; uci commit luci" % theme["media"])
 
         if steps.get("install_ru"):
             self.log(self.lt("lang_install"))
-            self.ssh_exec(client, "apk add luci-i18n-base-ru", timeout=300)
+            self.ssh_exec(client, "%s install luci-i18n-base-ru" % pkg, timeout=300)
             self.ssh_exec(client, "uci set luci.main.lang=ru; uci commit luci")
 
         if steps.get("setup_wifi") or steps.get("setup_wifi_2g"):
@@ -1166,18 +1181,23 @@ class RouterToolApp:
         client.close()
         self.log(self.lt("setup_done"))
 
-    def install_theme_file(self, client, theme):
+    def install_theme_file(self, client, theme, pkg_type="apk"):
         self.log(self.lt("theme_dl", theme["pkg"]))
         try:
             os.makedirs(DOWNLOAD_DIR, exist_ok=True)
         except Exception:
             pass
-        local = os.path.join(DOWNLOAD_DIR, theme["pkg"] + ".apk")
-        urllib.request.urlretrieve(theme["url"], local)
+        ext = "apk" if pkg_type == "apk" else "ipk"
+        url = theme.get("url_apk" if pkg_type == "apk" else "url_ipk")
+        local = os.path.join(DOWNLOAD_DIR, theme["pkg"] + "." + ext)
+        urllib.request.urlretrieve(url, local)
         self.log(self.lt("theme_dl_done", os.path.getsize(local), DOWNLOAD_DIR))
-        self.ssh_exec(client, "apk add openssh-sftp-server", timeout=300)
-        self.ssh_upload(client, local, "/tmp/theme.apk")
-        self.ssh_exec(client, "apk add --allow-untrusted /tmp/theme.apk", timeout=300)
+        self.ssh_exec(client, "%s install openssh-sftp-server" % pkg_type, timeout=300)
+        self.ssh_upload(client, local, "/tmp/theme." + ext)
+        if pkg_type == "apk":
+            self.ssh_exec(client, "apk add --allow-untrusted /tmp/theme.apk", timeout=300)
+        else:
+            self.ssh_exec(client, "opkg install --force-signature /tmp/theme.ipk", timeout=300)
 
     # ---------- Удаление сервисов ----------
     def remove_podkop(self):
