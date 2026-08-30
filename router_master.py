@@ -16,7 +16,7 @@ import webbrowser
 import paramiko
 import webview
 
-APP_VERSION = "1.6.5"
+APP_VERSION = "1.6.6"
 UPDATE_REPO = "R3G1ST/RouterMaster"
 UPDATE_ASSET = "RouterMaster-Setup.exe"
 
@@ -848,13 +848,17 @@ class RouterToolApp:
                 self.log(self.lt("unblock"))
                 self._unblock_file(tmp)
                 self.log(self.lt("installing"))
-                upd_src = os.path.join(
-                    getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))),
-                    "assets", "rm_updater.exe")
-                upd_tmp = os.path.join(tempfile.gettempdir(), "rm_updater.exe")
-                shutil.copyfile(upd_src, upd_tmp)
-                subprocess.Popen([upd_tmp, tmp, self._installed_exe()],
-                                 creationflags=subprocess.CREATE_NO_WINDOW)
+                target = self._installed_exe()
+                bat = os.path.join(tempfile.gettempdir(), "rm_update.bat")
+                with open(bat, "w", encoding="cp866") as f:
+                    f.write("@echo off\n")
+                    f.write("timeout /t 2 /nobreak >nul\n")
+                    f.write('taskkill /f /im RouterMaster.exe >nul 2>&1\n')
+                    f.write('timeout /t 1 /nobreak >nul\n')
+                    f.write('copy /y "%s" "%s" >nul\n' % (tmp.replace("/", "\\"), target.replace("/", "\\")))
+                    f.write('start "" "%s"\n' % target.replace("/", "\\"))
+                    f.write('del "%s"\n' % bat)
+                subprocess.Popen([bat], creationflags=subprocess.CREATE_NO_WINDOW)
                 self.log(self.lt("install_msg"))
                 time.sleep(1)
                 try:
